@@ -67,8 +67,17 @@ assertTrueValue(preg_match('/import\s+OpenSeadragon\s+from\s+[\'"]openseadragon[
 assertTrueValue(strpos($script, 'data-manuscript-viewer') !== false, 'Single manuscript route should still target the manuscript viewer');
 assertTrueValue(preg_match('/\bOpenSeadragon\s*\(/', $script) === 1, 'Single manuscript route should initialize OpenSeadragon');
 assertTrueValue(strpos($script, 'data-manuscript-osd') !== false, 'Single manuscript route should target the OpenSeadragon container');
+assertTrueValue(preg_match('/function\s+goToPage\s*\(/', $script) === 1, 'Single manuscript route should define goToPage for page changes');
+assertTrueValue(preg_match('/\bosd\.open\s*\(/', $script) === 1, 'Single manuscript route should open manuscript pages through the OpenSeadragon instance');
 assertTrueValue(strpos($script, 'initialPageNumber') !== false, 'Single manuscript route should preserve the initial page number handoff');
+assertTrueValue(strpos($script, "previousButton.addEventListener('click'") !== false, 'Single manuscript route should keep previous-page button wiring');
+assertTrueValue(strpos($script, "nextButton.addEventListener('click'") !== false, 'Single manuscript route should keep next-page button wiring');
 assertTrueValue(strpos($script, 'data-manuscript-go-page') !== false, 'Single manuscript route should preserve search-result page jumps');
+assertTrueValue(strpos($script, "pageLinks.forEach((link) => {") !== false, 'Single manuscript route should keep search-result page-jump wiring');
+assertTrueValue(strpos($script, "osdElement.setAttribute('tabindex', '0')") !== false, 'Single manuscript route should make the OpenSeadragon mount keyboard focusable');
+assertTrueValue(strpos($script, "osdElement.setAttribute('role', 'region')") !== false, 'Single manuscript route should expose an accessible viewer region');
+assertTrueValue(strpos($script, "osdElement.addEventListener('keydown'") !== false, 'Single manuscript route should support keyboard viewer controls');
+assertTrueValue(strpos($script, 'console.error(') !== false, 'Single manuscript route should log invalid manuscript page payloads');
 assertTrueValue(strpos($script, 'data-manuscript-scale-mode') === false, 'Single manuscript route should remove scale-mode logic');
 assertTrueValue(strpos($script, 'manuscript-single__viewer-highlight') === false, 'Single manuscript route should remove highlight overlay rendering');
 

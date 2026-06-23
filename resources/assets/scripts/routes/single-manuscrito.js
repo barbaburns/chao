@@ -17,6 +17,7 @@ function getPages(pagesScript) {
   try {
     return JSON.parse(pagesScript.textContent || '[]');
   } catch (error) {
+    console.error('Failed to parse manuscript pages payload.', error);
     return [];
   }
 }
@@ -54,6 +55,10 @@ export default {
       return;
     }
 
+    osdElement.setAttribute('tabindex', '0');
+    osdElement.setAttribute('role', 'region');
+    osdElement.setAttribute('aria-live', 'polite');
+
     const osd = OpenSeadragon({
       element: osdElement,
       showNavigationControl: false,
@@ -63,6 +68,15 @@ export default {
       minZoomLevel: 0.5,
       maxZoomPixelRatio: 2,
     });
+
+    function updateViewerLabel(page) {
+      const imageDescription = page.imageAlt ? ` ${page.imageAlt}` : '';
+
+      osdElement.setAttribute(
+        'aria-label',
+        `Visualizador do manuscrito. Pagina ${page.pageNumber} de ${pages.length}.${imageDescription}`
+      );
+    }
 
     function updateNavState() {
       previousButton.disabled = state.activeIndex <= 0;
@@ -77,6 +91,7 @@ export default {
       osd.open(getTileSource(page));
       pageLabel.textContent = `Pagina ${page.pageNumber} de ${pages.length}`;
       setButtonState(pageButtons, page.pageNumber);
+      updateViewerLabel(page);
       updateNavState();
     }
 
@@ -108,6 +123,39 @@ export default {
 
     nextButton.addEventListener('click', () => {
       goToPage(state.activeIndex + 1);
+    });
+
+    osdElement.addEventListener('keydown', (event) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        goToPage(state.activeIndex - 1);
+        return;
+      }
+
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        goToPage(state.activeIndex + 1);
+        return;
+      }
+
+      if (event.key === '+' || event.key === '=') {
+        event.preventDefault();
+        osd.viewport.zoomBy(1.2);
+        osd.viewport.applyConstraints();
+        return;
+      }
+
+      if (event.key === '-') {
+        event.preventDefault();
+        osd.viewport.zoomBy(1 / 1.2);
+        osd.viewport.applyConstraints();
+        return;
+      }
+
+      if (event.key === '0') {
+        event.preventDefault();
+        osd.viewport.goHome();
+      }
     });
 
     const startIndex = Math.max(
