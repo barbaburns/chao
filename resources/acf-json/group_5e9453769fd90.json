@@ -1,0 +1,76 @@
+{
+    "key": "group_5e9453769fd90",
+    "title": "Desconto",
+    "fields": [
+        {
+            "key": "field_5e945414599a2",
+            "label": "Desconto no carrinho",
+            "name": "discount",
+            "type": "number",
+            "instructions": "Valor em porcentagem",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "30",
+                "class": "",
+                "id": ""
+            },
+            "default_value": 0,
+            "placeholder": "",
+            "prepend": "",
+            "append": "",
+            "min": 0,
+            "max": 100,
+            "step": ""
+        },
+        {
+            "key": "field_5e945490667ce",
+            "label": "Tipos de usuários",
+            "name": "discount_user_roles",
+            "type": "select",
+            "instructions": "O desconto será aplicado aos tipos de usuário selecionados",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "70",
+                "class": "",
+                "id": ""
+            },
+            "choices": {
+                "administrator": "Administrator",
+                "editor": "Editor",
+                "author": "Author",
+                "contributor": "Contributor",
+                "subscriber": "Subscriber",
+                "customer": "Customer",
+                "shop_manager": "Shop manager",
+                "translator": "Translator"
+            },
+            "default_value": [],
+            "allow_null": 1,
+            "multiple": 1,
+            "ui": 1,
+            "ajax": 0,
+            "return_format": "value",
+            "placeholder": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "desconto"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "field",
+    "hide_on_screen": "",
+    "active": 1,
+    "description": "Option",
+    "modified": 1586780007
+}

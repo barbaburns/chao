@@ -1,0 +1,12 @@
+node_modules/
+vendor/
+dist/
+.cache-loader/
+artifacts/
+
+.DS_Store
+Thumbs.db
+*.log
+
+resources/assets/config-local.json
+resources/assets/config-local.js

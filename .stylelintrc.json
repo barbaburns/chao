@@ -1,0 +1,19 @@
+{
+  "rules": {
+    "at-rule-no-unknown": null,
+    "block-no-empty": true,
+    "color-no-invalid-hex": true,
+    "comment-no-empty": true,
+    "declaration-block-no-duplicate-properties": [
+      true,
+      {
+        "ignore": [
+          "consecutive-duplicates-with-different-values"
+        ]
+      }
+    ],
+    "property-no-unknown": true,
+    "string-no-newline": true,
+    "unit-no-unknown": true
+  }
+}

@@ -1,0 +1,161 @@
+.wrap {
+  @include max-content;
+
+  padding-top: $menu-mobile-visible-height + 50px;
+  padding-bottom: $page-edge-margin-left * 2;
+}
+
+.a-chao .main,
+.professores .main,
+.livreiros .main,
+.contato .main,
+.minha-conta:not(.logged-in) .main,
+.single-equipe .main,
+.single-colaborador .main,
+.single-autores .main,
+.page-template-template-static .main {
+  .grid-content {
+    @include overlined-top-left(175px);
+
+    h2 {
+      @include page-title;
+    }
+  }
+}
+
+.team-list-wrapper,
+.grid-sidebar,
+.woocommerce-MyAccount-navigation {
+  margin-top: 11.4vh;
+}
+
+.single-autores {
+  .feautured-image {
+    margin-bottom: rem(25px);
+    margin-top: 11.4vh;
+
+    @include media-breakpoint-down(md) {
+      margin: 0;
+    }
+  }
+}
+
+.grid-sidebar {
+  display: flex;
+  flex-direction: column;
+
+  .page-numbers,
+  .popular-posts {
+    margin-top: auto;
+  }
+}
+
+.content .search-form,
+.dropdown,
+.content .search-form + .btn {
+  margin-bottom: rem($default-margin);
+}
+
+.contact-info {
+  margin-top: rem(36px);
+  font-family: $freight-book-italic;
+  font-size: rem(15px);
+
+  @include media-breakpoint-down(md) {
+    margin-top: rem(25px);
+  }
+
+  address,
+  p {
+    margin-bottom: 0;
+  }
+
+  a {
+    text-decoration: underline;
+  }
+}
+
+.contato .main .wpcf7 + h2 {
+  margin-top: rem(50px);
+  padding-top: rem(50px);
+  margin-bottom: rem(25px);
+  border-top: solid 1px $black;
+}
+
+.error404,
+.search-no-results,
+.minha-conta.logged-in {
+  .main {
+    min-height: 80vh;
+
+    .search-form {
+      max-width: 450px;
+    }
+  }
+}
+
+.minha-conta.logged-in .woocommerce-MyAccount-navigation + h2 {
+  display: none;
+}
+
+@include media-breakpoint-down(md) {
+  .a-chao .main,
+  .professores .main,
+  .livreiros .main,
+  .single-equipe .main,
+  .single-colaborador .main,
+  .archive-autores-data .main,
+  .single-autores .main,
+  .contato .main,
+  .minha-conta:not(.logged-in) .main,
+  .blog .main,
+  .archive.category .main,
+  .archive.date .main,
+  .archive.tag .main,
+  .page-template-template-static .main,
+  .archive-product-data .main,
+  .search-results .main {
+    .grid-content {
+      margin-top: rem(25px);
+    }
+  }
+
+  .blog .main,
+  .archive.category .main,
+  .archive.date .main,
+  .archive.tag .main {
+    .page-numbers {
+      order: -1;
+      margin-bottom: rem(50px);
+    }
+
+    .popular-posts {
+      margin-top: rem(33px);
+    }
+  }
+
+  .minha-conta.logged-in .woocommerce {
+    margin-top: rem(25px);
+  }
+
+  .archive-autores-data .grid-sidebar {
+    flex-direction: column-reverse;
+
+    .search-form {
+      margin-bottom: 0;
+      margin-top: rem(50px);
+    }
+  }
+
+  .woocommerce-MyAccount-navigation {
+    margin-top: 5vh;
+  }
+}
+
+@include media-breakpoint-down(xs) {
+  .team-list-wrapper,
+  .archive-autores-data .grid-sidebar,
+  .single-autores .grid-sidebar {
+    margin-top: 5vh;
+  }
+}

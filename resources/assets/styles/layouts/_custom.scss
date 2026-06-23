@@ -1,0 +1,631 @@
+/*carrousel home*/
+.product-info:has(.soon) {
+  .price {
+    display: none;
+  }
+}
+
+/*pagar.me*/
+.woocommerce-message .pagarme-response .payment-link,
+.woocommerce-error .pagarme-response .payment-link {
+  background: transparent;
+  border: 1px solid;
+}
+
+.pagarme-method label {
+  padding-top: 0 !important;
+}
+
+.payment_method_woo-pagarme-payments>label {
+  display: none;
+}
+
+.wc-credit-card-info .form-row.woocommerce-validated>label,
+.wc-credit-card-info .form-row.form-row-wide>label {
+  position: relative;
+  height: 25px;
+}
+
+.woocommerce-billing-fields__field-wrapper>label {
+  height: 1px;
+}
+
+#payment .payment_methods li[class*="pagarme"] .payment_box fieldset label,
+.woocommerce .form-row input,
+.woocommerce .form-row select {
+  font-size: 0.875rem !important;
+}
+
+#payment .payment_box p {
+  margin: 0 0 10px 0;
+}
+
+.wc-credit-card-info div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.pagarme-response button {
+  opacity: 1;
+  position: relative;
+  width: 150px;
+  padding: 10px;
+  border: 1px solid black;
+  background-color: #f4f2ef;
+}
+
+.related-books>h2 {
+  font-family: FreightSansBold, sans-serif;
+  font-size: .9375rem;
+  letter-spacing: .1em;
+  border-top: 1px solid #000;
+  text-transform: uppercase;
+  padding-top: .25rem;
+  margin-bottom: 3.125rem;
+}
+
+.single-autores .swiper-pagination,
+.single-post .swiper-pagination {
+  display: none;
+  border: 0;
+  justify-content: center;
+  width: 100%;
+}
+
+@media (max-width: 779px) {
+
+  .single-autores .swiper-pagination,
+  .single-post .swiper-pagination {
+    display: flex;
+  }
+}
+
+.single-autores .swiper-container,
+.single-post .swiper-container {
+  margin-left: 0;
+  width: 100%;
+  //overflow:auto;
+}
+
+.single-autores .swiper-slide>div,
+.single-post .swiper-slide>div {
+  width: unset;
+  margin: 0;
+
+}
+
+span.onsale {
+  display: none;
+}
+
+.content .wp-block-pullquote {
+  padding: 0;
+}
+
+.content .wp-block-pullquote {
+  width: 75%;
+  margin: auto;
+  padding: 1rem 0;
+  text-align: center;
+  overflow-wrap: break-word;
+  box-sizing: border-box;
+}
+
+.content .wp-block-pullquote p {
+  font-size: 1.25rem;
+}
+
+.single-post .entry-content .wp-block-quote p {
+  font-size: 1rem;
+  font-family: "FreightTextBook", serif;
+}
+
+.single-product .produt-attachments a:hover,
+.product-simple-layout a:hover,
+.product-slider .swiper-button-prev:focus,
+.product-slider .swiper-button-next:focus,
+.single-product .produt-attachments a:focus {
+  color: black;
+
+}
+
+.btn-learn-more.full {
+  width: 99%;
+}
+
+.remove {
+  display: none;
+}
+
+.menu-sobre-o-site::after {
+  content: "|";
+  margin: 0 0 0 .5rem;
+  display: inline-block;
+}
+
+.nav-copyright .nav {
+  flex-direction: row;
+}
+
+.nav-copyright .menu-politica-de-privacidade {
+  margin-left: .5rem;
+}
+
+.single-product section.product-extra .product-extra {
+  width: 100%;
+}
+
+.single-product section.product-extra .product-extra .product-iconography {
+  width: 50%;
+}
+
+.single-post .required-field-message {
+  display: none;
+}
+
+.single-post .post {
+  grid-template-areas: "header title""image content""none comments""side side";
+}
+
+@media (max-width: 991.98px) {
+  .single-post .post {
+    grid-template-areas: "header""image""title""content""content""side""related""comments"
+  }
+}
+
+.single-autores .main {
+  grid-template-areas: "header content""image content""side content""slider slider";
+}
+
+@media (max-width: 991.98px) {
+  .single-autores .main {
+    grid-template-areas: "header""image""content""content""content""side""slider";
+  }
+}
+
+@media (max-width: 991.98px) {
+  .single-autores .feautured-image {
+    margin: 3rem 0;
+  }
+}
+
+.moip-woocommerce-message {
+  background-color: #f4f2ef;
+  color: black;
+  border: none;
+  padding: 1rem 0 0;
+}
+
+.moip-woocommerce-message .clipboard-btn,
+.moip-woocommerce-message .payment-link {
+  background: #f4f2ef;
+  font-family: FreightSansMedium, sans-serif;
+  font-size: .875rem;
+  border: 1px solid #000;
+  text-transform: uppercase;
+  border-radius: 0;
+  color: black;
+  margin: 20px 0 0 0;
+}
+
+.moip-woocommerce-message .thank-you-description {
+  text-align: left;
+}
+
+.moip-woocommerce-message .clipboard-btn,
+.moip-woocommerce-message .payment-link {
+  font-weight: 200;
+}
+
+.single-autores .main .product-simple-layout .woocommerce-loop-product__title {
+  font-family: FreightTextBoldItalic, serif;
+  font-size: 1.0625rem;
+}
+
+.related-books {
+  border-top: 5px solid #000;
+  padding-top: 3.125rem;
+  margin-top: 4.6875rem;
+}
+
+.main .grid-content .related-books>h2,
+.main .post .related-books>h2 {
+  font-family: FreightSansBold, sans-serif;
+  font-size: .9375rem;
+  letter-spacing: .1em;
+  border-top: 1px solid #000;
+  text-transform: uppercase;
+  padding-top: .25rem;
+  margin-bottom: 30px;
+}
+
+.single-autores .product-desktop-description,
+.single-autores .btn-learn-more,
+.single-autores .add_to_cart_button,
+.single-autores .main .related-books .grid-content::before {
+  display: none;
+}
+
+.single-autores .product-simple-layout,
+.single-post .product-simple-layout {
+  margin: 0 2rem 2rem 0;
+  width: 33%;
+  max-width: 258px;
+}
+
+.single-autores .main .products,
+.single-post .main .products {
+  border: none;
+  display: flex;
+  flex-wrap: wrap;
+  padding-left: 0;
+}
+
+#place_order {
+  margin-top: 1rem;
+}
+
+.termos-e-condicoes h2 {
+  font-size: 1rem !important;
+  border-top: 1px solid #000;
+  padding-top: .25rem;
+}
+
+.woocommerce-product-gallery {
+  margin-right: 6vw;
+}
+
+.woocommerce-shipping-fields {
+  padding-top: 1.56rem;
+  margin-top: 1.56rem
+}
+
+.woocommerce-additional-fields {
+  padding-bottom: 1.56rem;
+  margin-bottom: 2.56rem;
+}
+
+.woocommerce-billing-fields h3 {
+  margin-bottom: 1.56rem;
+}
+
+.woocommerce-tabs .tab {
+  font-family: FreightSansMedium, sans-serif;
+  font-size: .875rem;
+  text-transform: uppercase;
+}
+
+.payment_method_woo-moip-official label {
+  display: none;
+}
+
+.woocommerce-notices-wrapper .woocommerce-message .button.wc-forward {
+  margin: 1.5rem auto 1.5rem 0;
+
+}
+
+.woocommerce-notices-wrapper .woocommerce-message .restore-item {
+  position: unset;
+}
+
+.woocommerce-message {
+  display: grid;
+  place-content: baseline;
+}
+
+.woocommerce-cart .woocommerce-shipping-totals td {
+  padding-top: 0;
+}
+
+.woocommerce-cart .woocommerce-shipping-totals th,
+.woocommerce-cart .order-total,
+.woocommerce-cart .cart_totals h2 {
+  display: none !important;
+}
+
+.woocommerce-cart .cart-collaterals .shop_table {
+  margin-bottom: 1rem;
+}
+
+.woocommerce-cart .wc-proceed-to-checkout {
+  padding-top: 2rem;
+}
+
+.woocommerce-cart .coupon {
+  border-bottom: 1px solid;
+  padding-bottom: 2.5rem;
+}
+
+.woocommerce-cart .cart-collaterals {
+  margin-top: -2rem;
+  border-top: 1px solid;
+}
+
+.woocommerce-cart .cart-collaterals .cart_totals {
+  margin-top: .8rem;
+}
+
+.home-banner img {
+  border-bottom: 5px solid black;
+}
+
+.woocommerce-checkout a {
+  color: black;
+}
+
+.home-banner figcaption {
+  display: none;
+}
+
+.grid-header .page-header-text {
+  font-size: 1rem;
+}
+
+.home .featured-book .grid-header h2 a,
+.home .blog-highlights-content .grid-header h2 a {
+  font-family: HCo Tungsten, sans-serif;
+  text-decoration: none;
+  margin-top: 0;
+}
+
+.woocommerce-terms-and-conditions-wrapper .required {
+  display: none;
+}
+
+.payment_method_woo-moip-official {
+  padding: .652rem 0 !important;
+}
+
+.woocommerce-terms-and-conditions-checkbox-text a {
+  text-decoration: underline;
+}
+
+.header-blog-title a {
+  color: white;
+  text-decoration: none;
+}
+
+.post-type-archive-autores .search-form {
+  margin-top: auto;
+}
+
+.shop_table {
+  margin-bottom: .5rem;
+}
+
+.woocommerce-moip-info {
+  border-top: 5px solid;
+  padding-top: 2.56rem;
+}
+
+.woocommerce-moip-info p {
+  margin-bottom: 1rem;
+}
+
+.woocommerce-moip-info a {
+  text-decoration: underline;
+}
+
+.woocommerce-checkout-payment {
+  padding: 0 !important;
+}
+
+.page-numbers {
+  margin-top: 0;
+}
+
+.page-header a {
+  text-decoration: none;
+}
+
+.swiper-slide {
+  font-size: 1rem;
+}
+
+.woocommerce {
+  margin-top: 0;
+}
+
+.column {
+  margin: auto;
+}
+
+@media (min-width: 720px) {
+  .column {
+    width: 60%;
+  }
+}
+
+.column .u-column2 {
+  margin-top: 5rem;
+}
+
+.shop_table td.actions {
+  padding: 1.25rem 0;
+}
+
+.wpcf7-response-output {
+  margin-bottom: 2rem;
+}
+
+.woocommerce-message {
+  padding: .625rem 0;
+  position: relative;
+}
+
+.restore-item {
+  text-decoration: underline;
+  position: absolute;
+  right: 1rem;
+}
+
+.single-product .product-specifications dl div:nth-child(n+4) {
+  text-transform: lowercase;
+  font-variant: small-caps;
+}
+
+.woocommerce .woocommerce-form .login-fields .form-group {
+  width: 100%;
+}
+
+.team-list-wrapper .team-item {
+  margin-left: 0;
+}
+
+.home-banner figcaption {
+  background-color: rgba(0, 0, 0, .5);
+  text-shadow: none;
+  padding: 1vh;
+}
+
+@media (min-width: 720px) {
+  figure.wp-block-embed {
+    width: 75%;
+    padding-bottom: 39.25%;
+  }
+}
+
+.wp-block-embed__wrapper {
+  position: unset;
+}
+
+.wp-block-pullquote {
+  padding: 1rem 0;
+  margin: 0;
+}
+
+.product-extra-video p {
+  font-style: italic;
+}
+
+@media (max-width: 767.98px) {
+  .product-excerpt p {
+    font-size: 1rem;
+  }
+}
+
+.woocommerce-Price-currencySymbol {
+  margin-right: .3rem;
+}
+
+#payment {
+  background-color: #f4f2ef;
+}
+
+.woocommerce-input-wrapper select {
+  text-transform: uppercase;
+}
+
+.archive .grid-sidebar a.btn {
+  text-align: left;
+}
+
+#calc_shipping_city_field,
+#calc_shipping_state_field {
+  display: none !important;
+}
+
+.df-lightbox-wrapper {
+  width: 95%;
+  height: 95%;
+  left: calc(5vw / 2);
+  top: calc(5vh / 2);
+}
+
+.pswp__caption {
+  display: none;
+}
+
+.privacy-policy h2 {
+  font-size: 1rem !important;
+  border-top: 1px solid #000;
+  padding-top: .25rem;
+}
+
+.single-post .entry-content figcaption {
+  font-family: FreightTextBook, serif;
+}
+
+.privacy-policy .content a {
+  text-decoration: underline;
+}
+
+.page-id-352 h2 {
+  font-family: FreightSansBold, sans-serif;
+  font-size: 1rem !important;
+  border-top: 1px solid #000;
+  padding-top: .25rem;
+  text-transform: uppercase;
+}
+
+.page-id-352 .content a {
+  text-decoration: underline;
+}
+
+
+.cc-btn:hover {
+  border-color: #cb3f4f !important;
+  color: #cb3f4f !important;
+  background-color: #f2f2f2 !important;
+}
+
+.cc-compliance .cc-btn.cc-show-settings {
+  border-color: #cb3f4f !important;
+  color: #cb3f4f !important;
+}
+
+.wp-block-table {
+  width: 90%;
+  margin: 0 auto;
+}
+
+.wp-block-table tr {
+  border-bottom: 1px solid;
+}
+
+body button {
+  color: black;
+}
+
+.wc-block-components-notice-banner__content {
+  position: relative;
+}
+
+.woocommerce .wc-block-components-notice-banner.is-info,
+.woocommerce .wc-block-components-notice-banner.is-success {
+  background-color: transparent;
+  border-color: black;
+
+  svg {
+    display: none;
+  }
+}
+
+.woocommerce .wc-block-components-notice-banner.is-error {
+  svg {
+    display: none;
+  }
+
+}
+
+span.soon {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-family: "FreightSansMedium", sans-serif;
+}
+
+.woocommerce-input-wrapper:has(#billing_ie)::before {
+  content: "INSCRIÇÃO ESTADUAL";
+  top: 28px;
+  left: 15px;
+  position: relative;
+  font-size: 0.875rem;
+  font-family: "FreightSansMedium", sans-serif;
+
+}
+
+body a:where(:not(.wp-element-button)) {
+  text-decoration: none;
+}

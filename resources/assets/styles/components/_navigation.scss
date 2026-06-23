@@ -1,0 +1,184 @@
+.nav,
+.woocommerce-MyAccount-navigation ul {
+  @extend .list-unstyled;
+
+  margin-bottom: 0;
+}
+
+.nav-social li {
+  font-size: rem(22px);
+  margin-top: rem(10px);
+  line-height: 1;
+  text-align: center;
+
+  a:hover,
+  a:focus {
+    color: $red;
+  }
+
+  .blog & a,
+  .archive.category & a,
+  .archive.date & a,
+  .archive.tag & a,
+  .single-post & a {
+    color: $white;
+  }
+}
+
+.hidden-area .nav-social {
+  display: none;
+}
+
+.grid-header .nav-social {
+  margin-top: rem(30px);
+
+  ul {
+    display: flex;
+  }
+
+  li {
+    margin-top: 0;
+    margin-right: rem(10px);
+  }
+}
+
+.nav-primary li,
+.nav-footer li,
+.woocommerce-MyAccount-navigation li {
+  font-family: $freight-sans-medium;
+  font-size: rem(14px);
+  text-transform: uppercase;
+  margin-bottom: rem(2px);
+  letter-spacing: letter-spacing(100);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  a:hover,
+  a:focus {
+    color: $red;
+    text-decoration: none;
+  }
+}
+
+.nav-primary {
+  padding-left: 30px;
+  padding-right: 30px;
+  display: flex;
+  flex-direction: column;
+  width: $menu-hidden-width;
+
+  .nav {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
+
+  li {
+    text-align: right;
+  }
+
+  .blog & a,
+  .archive.category & a,
+  .archive.date & a,
+  .archive.tag & a,
+  .single-post & a {
+    color: $white;
+  }
+}
+
+.nav-copyright {
+  border-top: solid 5px $black;
+  padding-top: rem(12px);
+  padding-bottom: rem(12px);
+  text-align: center;
+  font-family: $freight-sans-medium;
+  font-size: rem(10px);
+  text-transform: uppercase;
+
+  a:hover,
+  a:focus {
+    color: $red;
+    text-decoration: none;
+  }
+
+  .nav {
+    @include max-content;
+
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  li {
+    margin: 0 0 rem(5px) 0;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.nav .active a,
+.nav-primary .nav .active a,
+.single-equipe .menu-a-chao a,
+.single-colaborador .menu-a-chao a,
+.woocommerce-MyAccount-navigation .is-active a {
+  color: $red;
+}
+
+// .error404 .nav .active a,
+// .search .nav .active a {
+//   color: $black;
+// }
+
+.nav-primary .category-professores .menu-mais.active a,
+.nav-primary .category-livreiros .menu-mais.active a {
+  color: $white;
+}
+
+@include media-breakpoint-down(md) {
+  .nav-social {
+    .nav {
+      display: flex;
+    }
+
+    li {
+      margin-top: 0;
+      margin-left: rem(14px);
+    }
+
+    .visible-area & {
+      display: none;
+    }
+
+    .hidden-area & {
+      display: block;
+      padding: $page-edge-margin-left;
+      padding-top: 0;
+
+      .nav {
+        justify-content: flex-end;
+      }
+    }
+  }
+
+  .grid-header .nav-social {
+    position: static;
+    margin-top: rem(20px);
+
+    li {
+      margin-left: 0;
+      margin-right: rem(14px);
+    }
+  }
+
+  .nav-primary {
+    width: 100%;
+
+    li {
+      text-align: left;
+      margin-bottom: rem(4px);
+    }
+  }
+}

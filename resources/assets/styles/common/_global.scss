@@ -1,0 +1,108 @@
+body {
+  font-family: $freight-book;
+  font-size: rem(16px);
+  line-height: $default-line-height;
+  color: $black;
+  background-color: $background;
+
+  &.blog,
+  &.archive.category,
+  &.archive.date,
+  &.archive.tag,
+  &.single-post {
+    background-color: $beige;
+  }
+
+  @include media-breakpoint-down(xs) {
+    &.single-product {
+      padding-bottom: 102px;
+    }
+  }
+}
+
+em,
+cite {
+  font-style: normal;
+}
+
+em {
+  font-family: $freight-book-italic;
+}
+
+strong {
+  font-family: $freight-bold;
+  font-weight: normal;
+}
+
+strong em {
+  font-family: $freight-bold-italic;
+  font-weight: normal;
+}
+
+p,
+ul,
+.wp-block-image,
+.wp-block-embed,
+.wp-block-audio {
+  margin-bottom: rem($default-margin);
+}
+
+img {
+  @include img-fluid;
+}
+
+a {
+  color: $black;
+
+  &:hover,
+  &:focus {
+    color: $black;
+  }
+}
+
+mark {
+  background-color: $red;
+  color: $white;
+}
+
+button:focus {
+  outline: 0;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+.text-red {
+  color: $red;
+}
+
+.wp-block-embed,
+.responsive-video {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  padding-top: 25px;
+  height: 0;
+
+  iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.image-mobile {
+  display: none;
+}
+
+@include media-breakpoint-down(xs) {
+  .image-mobile {
+    display: block;
+  }
+
+  .image-desktop {
+    display: none;
+  }
+}

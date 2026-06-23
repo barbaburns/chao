@@ -1,0 +1,43 @@
+.team-list-wrapper {
+  @include media-breakpoint-down(md) {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  h3 {
+    @include overlined-top-title;
+
+    width: 100%;
+  }
+
+  .team-item {
+    @include full-link;
+
+    margin-bottom: rem(50px);
+
+    @include media-breakpoint-down(md) {
+      margin-bottom: rem(25px);
+      width: 60%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+
+  figcaption {
+    font-family: $freight-bold-italic;
+    font-size: rem(17px);
+    margin-top: rem(22px);
+
+    @include media-breakpoint-down(md) {
+      font-size: rem(15px);
+      margin-top: rem(12px);
+    }
+
+    a:hover,
+    a:focus {
+      color: $red;
+      text-decoration: none;
+    }
+  }
+}

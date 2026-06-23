@@ -1,0 +1,180 @@
+.a-chao .main,
+.professores .main,
+.livreiros .main,
+.contato .main,
+.minha-conta:not(.logged-in) .main,
+.single-equipe .main,
+.single-colaborador .main,
+.archive-autores-data .main,
+.archive-product-data .main,
+.single-autores .main,
+.blog .main,
+.archive.category .main,
+.archive.date .main,
+.archive.tag .main,
+.single-post .post,
+.blog-highlights-content,
+.featured-book,
+.single-product .main-product,
+.woocommerce-cart .main,
+.woocommerce-checkout .main,
+.woocommerce-account .main,
+.page-template-template-static .main,
+.search-results .main {
+  display: grid;
+  grid-template-columns: 258px calc(100% - 258px - #{$grid-gap});
+  grid-template-rows: max-content auto;
+  grid-gap: 0 $grid-gap;
+  grid-template-areas:
+    "header   content"
+    "side     content";
+
+  @include media-breakpoint-down(lg) {
+    grid-template-columns: 30% calc(70% - #{$grid-gap});
+  }
+}
+
+.single-autores .main {
+  grid-template-areas:
+    "header   content"
+    "image    content"
+    "side     content";
+}
+
+.single-post .post {
+  grid-template-rows: max-content max-content auto;
+  grid-template-areas:
+    "header   title"
+    "image    content"
+    "side     content"
+    "related  comments";
+}
+
+.single-product .main-product {
+  grid-template-columns: 258px calc(100% - 258px - #{$grid-gap});
+  grid-template-areas: "product-images   product-content";
+
+  @include media-breakpoint-down(lg) {
+    grid-template-columns: 26% calc(74% - #{$grid-gap});
+  }
+}
+
+.grid-header,
+.single-post .page-header,
+.woocommerce-cart .page-header,
+.woocommerce-checkout .page-header,
+.woocommerce-account .page-header {
+  grid-area: header;
+}
+
+.single-post .post-header {
+  grid-area: title;
+}
+
+.single-post .feautured-image,
+.single-autores .feautured-image {
+  grid-area: image;
+}
+
+.team-list-wrapper,
+.grid-sidebar,
+.single-post .related-books,
+.woocommerce-account .woocommerce-MyAccount-navigation {
+  grid-area: side;
+}
+
+.grid-content,
+.single-post .entry-content,
+.woocommerce-cart .woocommerce,
+.woocommerce-checkout .woocommerce,
+.woocommerce-account .woocommerce {
+  grid-area: content;
+}
+
+.single-post .popular-posts {
+  grid-area: related;
+}
+
+#comments {
+  grid-area: comments;
+}
+
+.single-product .woocommerce-product-gallery {
+  grid-area: product-images;
+}
+
+.single-product .entry-summary {
+  grid-area: product-content;
+}
+
+@include media-breakpoint-down(md) {
+  .a-chao .main,
+  .professores .main,
+  .livreiros .main,
+  .contato .main,
+  .minha-conta:not(.logged-in) .main,
+  .blog .main,
+  .archive.category .main,
+  .archive.date .main,
+  .archive.tag .main,
+  .single-equipe .main,
+  .single-colaborador .main,
+  .archive-product-data .main,
+  .archive-autores-data .main,
+  .single-autores .main,
+  .blog-highlights-content,
+  .featured-book,
+  .woocommerce-cart .main,
+  .single-post .post,
+  .woocommerce-checkout .main,
+  .woocommerce-account .main,
+  .page-template-template-static .main,
+  .search-results .main {
+    grid-template-columns: 100%;
+    grid-gap: 0;
+    grid-template-areas:
+      "header"
+      "content"
+      "content"
+      "side";
+  }
+
+  .single-autores .main {
+    grid-template-areas:
+      "header"
+      "content"
+      "content"
+      "content"
+      "image"
+      "side";
+  }
+
+  .single-post .post {
+    grid-template-areas:
+      "header"
+      "image"
+      "title"
+      "content"
+      "content"
+      "side"
+      "related"
+      "comments";
+  }
+
+  .woocommerce-account .main {
+    grid-template-areas:
+      "header"
+      "side"
+      "content"
+      "content";
+    grid-template-rows: max-content max-content max-content max-content;
+  }
+}
+
+@include media-breakpoint-down(xs) {
+  .single-product .main-product {
+    @include clearfix;
+
+    display: block;
+  }
+}

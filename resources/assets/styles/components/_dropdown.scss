@@ -1,0 +1,43 @@
+.dropdown {
+  font-family: $freight-sans-medium;
+  font-size: rem(14px);
+  text-align: left;
+}
+
+.dropdown-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+
+  &::after {
+    display: none;
+  }
+
+  svg {
+    margin-left: auto;
+  }
+}
+
+.dropdown-menu {
+  width: 100%;
+  margin: 0;
+  border-color: $black;
+  border-top: 0;
+  border-radius: 0;
+  background-color: $background;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.dropdown-item {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+
+  &:hover {
+    background-color: $beige;
+  }
+
+  &.active {
+    background-color: $red;
+  }
+}

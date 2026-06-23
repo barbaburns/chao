@@ -1,0 +1,117 @@
+.home .wrap {
+  padding: 0;
+  max-width: unset;
+
+  @include media-breakpoint-down(md) {
+    padding-top: $menu-mobile-visible-height;
+  }
+}
+
+.home-banner {
+  margin-left: calc(#{$menu-visible-width} + #{$page-edge-margin-left});
+  margin-right: $page-edge-margin-left;
+  position: relative;
+  margin-bottom: 0;
+
+  @include media-breakpoint-down(md) {
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+  }
+
+  figcaption {
+    position: absolute;
+    left: 2vw;
+    bottom: 2vw;
+    padding: 1vh;
+    color: $white;
+    font-family: $freight-bold-italic;
+    font-size: rem(20px);
+    margin-right: 2vw;
+    text-shadow: 1px 1px 1px #000;
+    background-color: rgba(0, 0, 0, 0.15);
+
+    @include media-breakpoint-down(xs) {
+      font-size: rem(15px);
+      padding: 0;
+      border: 0;
+      left: $page-edge-margin-left;
+      bottom: $page-edge-margin-left;
+      margin-right: $page-edge-margin-left;
+    }
+
+    a {
+      color: $white;
+      font-family: $freight-book-italic;
+      font-size: rem(15px);
+      text-decoration: underline;
+      margin-top: rem(10px);
+      display: block;
+
+      @include media-breakpoint-down(xs) {
+        display: none;
+      }
+    }
+  }
+}
+
+.featured-book,
+.blog-highlights-content {
+  @include max-content;
+
+  padding-top: $page-edge-margin-left;
+  padding-bottom: $page-edge-margin-left;
+
+  .grid-header a {
+    display: block;
+    font-family: $freight-book-italic;
+    margin-top: rem($default-margin);
+    text-decoration: underline;
+  }
+
+  @include media-breakpoint-down(sm) {
+    padding-top: $page-edge-margin-left * 2;
+    padding-bottom: $page-edge-margin-left * 2;
+  }
+}
+
+.featured-book .product-slider {
+  margin-bottom: 0;
+
+  @include media-breakpoint-down(md) {
+    margin-top: rem(22px);
+  }
+}
+
+.home .product-slider {
+  margin-left: calc(#{$overlines-title-space} + 1px);
+
+  @include media-breakpoint-down(md) {
+    margin-left: 0;
+  }
+}
+
+.blog-highlights {
+  background-color: $beige;
+}
+
+.blog-highlights-content {
+  .grid-content {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: max-content max-content;
+    grid-gap: $overlines-title-space;
+
+    @include media-breakpoint-down(md) {
+      margin-top: rem(22px);
+    }
+
+    @include media-breakpoint-down(sm) {
+      grid-gap: $overlines-title-space * 2;
+    }
+
+    @include media-breakpoint-down(xs) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}

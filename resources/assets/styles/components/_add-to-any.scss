@@ -1,0 +1,15 @@
+.addtoany_list a span {
+  background-color: black !important;
+}
+
+.addtoany_list {
+  a:hover img,
+  a:hover span {
+    opacity: 1;
+    background-color: #cb3f4f !important;
+
+    path {
+      fill: $white;
+    }
+  }
+}

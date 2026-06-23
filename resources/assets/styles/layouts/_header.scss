@@ -1,0 +1,207 @@
+.banner {
+  position: fixed;
+  z-index: 99;
+  //left: calc(-#{$menu-hidden-width} - var(--book-width));
+  // ate 9 livros left
+  // left: 275px - 1116px;
+  // acima de 9 livros
+  left: 215px - 1121px;
+  // left: calc(215px - var(--book-width));
+  top: 0;
+  height: 100vh;
+  border-right: solid 1px $black;
+  background-color: $background;
+  display: flex;
+  flex-direction: row-reverse;
+  transform: translateX(0);
+  transition: transform 500ms;
+  will-change: transform;
+
+  // 500px + 434px
+  &.open {
+    transform: translateX(calc(#{$menu-hidden-width} + 934px));
+    transform: translateX(calc(-13.4rem + 934px));
+  }
+}
+
+.banner .visible-area,
+.nav-primary {
+  padding-top: $page-edge-margin-top;
+  padding-bottom: $page-edge-margin-top;
+  width: 455px; //Adicionado p/ navegador da book-list
+}
+
+.banner .visible-area {
+  display: flex;
+  flex-direction: column;
+  width: $menu-visible-width - 10px;
+  align-items: center;
+  justify-content: space-between;
+  border-left: solid 1px $black;
+  border-right: solid 1px $black;
+  margin-right: 10px;
+}
+
+.banner .hidden-area {
+  display: flex;
+  flex-direction: row-reverse;
+  max-width: 900px;
+  // overflow-x: auto;
+}
+
+.banner a {
+  color: black;
+}
+
+.brand {
+  display: block;
+  width: 34px;
+
+  .logo-horizontal {
+    display: none;
+  }
+}
+
+#btn-open-menu {
+  @include reset-button;
+
+  width: 39px;
+}
+
+.blog,
+.archive.category,
+.archive.date,
+.archive.tag,
+.single-post {
+  .header-blog-title {
+    display: none;
+  }
+
+  .banner {
+    background-color: $black;
+    border-color: $white;
+  }
+
+  .banner .visible-area {
+    border-color: $white;
+  }
+
+  .banner .brand,
+  #btn-open-menu {
+    color: $white;
+  }
+}
+
+@include media-breakpoint-down(md) {
+  .banner {
+    left: 0;
+    height: $menu-mobile-visible-height;
+    width: 100%;
+    border: 0;
+    flex-direction: column-reverse;
+    transform: none;
+
+    &.open {
+      transform: none;
+    }
+  }
+
+  .nav-primary {
+    padding: $page-edge-margin-left; //Editado para acomodar os botões de navegação dos títulos, originalmente era '$page-edge-margin-left'
+    padding-bottom: $page-edge-margin-left / 2;
+
+    .search-form {
+      margin-bottom: rem(20px);
+    }
+  }
+
+  .banner .visible-area {
+    padding: 0 $page-edge-margin-left;
+    flex-direction: row-reverse;
+    height: $menu-mobile-visible-height;
+    width: 100%;
+    align-items: center;
+    justify-content: flex-end;
+    border-left: 0;
+    border-right: 0;
+    border-top: solid 1px $black;
+    border-bottom: solid 1px $black;
+    padding-bottom: 10px;
+    margin: 0;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background-color: $background;
+    z-index: 999;
+
+    &::after {
+      content: "";
+      border-bottom: solid 1px $black;
+      width: 100%;
+      position: absolute;
+      left: 0;
+      bottom: 9px;
+    }
+  }
+
+  .banner .hidden-area {
+    display: block;
+    position: fixed;
+    left: 0;
+    top: calc(-100vh + (#{$menu-mobile-visible-height} * 2));
+    background-color: $background;
+    width: 100%;
+    max-width: none;
+    overflow-y: auto;
+    height: calc(100vh - #{$menu-mobile-visible-height});
+    z-index: 998;
+    transform: translateY(0);
+    transition: transform 500ms;
+    will-change: transform;
+  }
+
+  .banner.open .hidden-area {
+    transform: translateY(calc(100vh - #{$menu-mobile-visible-height}));
+  }
+
+  .brand {
+    width: 92px;
+    position: absolute;
+    left: 50%;
+    margin-left: -46px;
+
+    .logo-vertical {
+      display: none;
+    }
+
+    .logo-horizontal {
+      display: block;
+    }
+  }
+
+  .blog,
+  .archive.category,
+  .archive.date,
+  .archive.tag,
+  .single-post {
+    .header-blog-title {
+      display: block;
+      color: $white;
+      font-family: $tungsten;
+      font-weight: 600;
+      line-height: 1;
+      font-size: rem(30px);
+      position: absolute;
+      right: 4.6vw;
+    }
+
+    .visible-area,
+    .hidden-area {
+      background-color: $black;
+    }
+
+    .visible-area::after {
+      border-color: $white;
+    }
+  }
+}

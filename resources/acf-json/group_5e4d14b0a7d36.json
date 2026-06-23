@@ -1,0 +1,95 @@
+{
+    "key": "group_5e4d14b0a7d36",
+    "title": "Ebook",
+    "fields": [
+        {
+            "key": "field_5e4d1567da694",
+            "label": "",
+            "name": "buy_links",
+            "type": "repeater",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "collapsed": "",
+            "min": 0,
+            "max": 0,
+            "layout": "block",
+            "button_label": "",
+            "sub_fields": [
+                {
+                    "key": "field_5e4d15afda695",
+                    "label": "Livraria",
+                    "name": "buy_link_bookstore",
+                    "type": "select",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "",
+                        "id": ""
+                    },
+                    "choices": {
+                        "Amazon": "Amazon",
+                        "Apple Books": "Apple Books",
+                        "Editora 34": "Editora 34",
+                        "Kobo": "Kobo",
+                        "Google Play": "Google Play",
+                        "Livraria Cultura": "Livraria Cultura",
+                        "Livrarias Curitiba": "Livrarias Curitiba",
+                        "Livraria da Travessa": "Livraria da Travessa",
+                        "Livraria da Vila": "Livraria da Vila",
+                        "Martins Fontes Paulista": "Martins Fontes Paulista"
+                    },
+                    "default_value": false,
+                    "allow_null": 0,
+                    "multiple": 0,
+                    "ui": 0,
+                    "return_format": "value",
+                    "ajax": 0,
+                    "placeholder": ""
+                },
+                {
+                    "key": "field_5e4d15cada696",
+                    "label": "Link",
+                    "name": "buy_link",
+                    "type": "url",
+                    "instructions": "",
+                    "required": 0,
+                    "conditional_logic": 0,
+                    "wrapper": {
+                        "width": "50",
+                        "class": "",
+                        "id": ""
+                    },
+                    "default_value": "",
+                    "placeholder": ""
+                }
+            ]
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "product"
+            }
+        ]
+    ],
+    "menu_order": 50,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "CPT product",
+    "show_in_rest": 0,
+    "modified": 1657721878
+}

@@ -1,0 +1,56 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: manuscripts_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: escriptorium
+      POSTGRES_USER: escriptorium
+      POSTGRES_PASSWORD: escriptorium
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  redis:
+    image: redis:7
+    container_name: manuscripts_redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+
+  pdf-worker:
+    build:
+      context: ./pdf-worker
+    container_name: manuscripts_pdf_worker
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      STORAGE_DIR: /data
+      REDIS_URL: redis://redis:6379/0
+      ESCRIPTORIUM_BASE_URL: http://host.docker.internal:8001
+      ESCRIPTORIUM_TOKEN: ee7bc597918323045f8136a1c905148631c0c156
+      ESCRIPTORIUM_PROJECT_ID: "1"
+      ESCRIPTORIUM_MAIN_SCRIPT: Latin
+      ESCRIPTORIUM_READ_DIRECTION: ltr
+      ESCRIPTORIUM_LINE_OFFSET: "0"
+      ESCRIPTORIUM_TRANSCRIPTION_ID: ""
+      ESCRIPTORIUM_POLL_SECONDS: "2"
+      ESCRIPTORIUM_POLL_ATTEMPTS: "1"
+      ESCRIPTORIUM_SEGMENT_PATH_TEMPLATE: /documents/{document_id}/segment/
+      ESCRIPTORIUM_TRANSCRIBE_PATH_TEMPLATE: /documents/{document_id}/transcribe/
+      ESCRIPTORIUM_SEGMENT_MODEL_ID: ""
+      ESCRIPTORIUM_TRANSCRIBE_MODEL_ID: ""
+      ESCRIPTORIUM_SEGMENT_OVERRIDE: "1"
+      MANUSCRIPT_WORKER_ENABLE_MOCK_LAYOUT: "1"
+    volumes:
+      - manuscript_storage:/data
+    ports:
+      - "8002:8002"
+
+volumes:
+  postgres_data:
+  manuscript_storage:

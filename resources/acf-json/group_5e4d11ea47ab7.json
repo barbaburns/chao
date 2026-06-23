@@ -1,0 +1,43 @@
+{
+    "key": "group_5e4d11ea47ab7",
+    "title": "Livrarias",
+    "fields": [
+        {
+            "key": "field_5e4d11f7d38ca",
+            "label": "Lista de livrarias",
+            "name": "bookstores",
+            "type": "textarea",
+            "instructions": "Informe um nome por linha",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "",
+            "maxlength": "",
+            "rows": "",
+            "new_lines": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "options_page",
+                "operator": "==",
+                "value": "livrarias"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "seamless",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": 1,
+    "description": "Option",
+    "modified": 1582109811
+}

@@ -1,0 +1,39 @@
+.popular-posts {
+  border-top: solid 1px $black;
+  padding-top: rem(55px);
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 5px;
+    width: 100%;
+    height: 1px;
+    background-color: $black;
+  }
+
+  h3 {
+    font-size: rem(17px);
+    font-family: $freight-bold-italic;
+    margin-bottom: rem(20px);
+  }
+}
+
+.popular-posts-list {
+  @extend .list-unstyled;
+
+  li {
+    margin-bottom: rem(6px);
+  }
+
+  .underline {
+    font-family: $freight-book-italic;
+
+    &::before {
+      content: "|";
+      display: inline-block;
+      margin-right: 5px;
+    }
+  }
+}

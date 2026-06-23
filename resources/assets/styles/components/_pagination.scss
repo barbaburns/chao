@@ -1,0 +1,23 @@
+ul.page-numbers {
+  @extend .list-unstyled;
+
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0;
+
+  li {
+    font-family: $freight-book-italic;
+    font-size: rem(17px);
+  }
+
+  .page-numbers {
+    margin: 0 rem(3px);
+    padding: 0 rem(3px);
+  }
+
+  span.current,
+  a.page-numbers:hover {
+    color: $red;
+    text-decoration: none;
+  }
+}

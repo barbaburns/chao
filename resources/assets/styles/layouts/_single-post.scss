@@ -1,0 +1,147 @@
+.post-header {
+  border-top: solid 5px $black;
+  padding-top: rem(40px);
+  margin-bottom: rem(40px);
+
+  @include media-breakpoint-down(md) {
+    margin-top: rem(25px);
+  }
+}
+
+.post-categories,
+.post-tags {
+  display: inline-block;
+  font-size: rem(14px);
+  letter-spacing: letter-spacing(100);
+  text-transform: uppercase;
+  font-family: $freight-sans-medium;
+  padding-bottom: rem(20px);
+
+  a {
+    margin: 0 rem(6px) 0 rem(5px);
+
+    &:hover,
+    &:focus {
+      color: $red;
+      text-decoration: none;
+    }
+
+    &:first-child {
+      margin-left: 0;
+    }
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+.post-categories {
+  font-family: $freight-sans-bold;
+
+  &::after {
+    content: "|";
+    display: inline-block;
+    font-family: $freight-sans-medium;
+  }
+}
+
+.post-header .entry-title {
+  font-family: $freight-sans-bold;
+  font-size: rem(30px);
+  margin-bottom: rem(20px);
+}
+
+.post-header .updated,
+.post-header .author {
+  font-family: $freight-book-italic;
+}
+
+.post-header .author::before {
+  content: "|";
+  display: inline-block;
+}
+
+.single-post .entry-content {
+  margin-bottom: rem(50px);
+
+  ul {
+    padding-left: rem(19px);
+  }
+
+  li {
+    margin-bottom: rem(8px);
+  }
+
+  p a,
+  li a {
+    text-decoration: underline;
+  }
+
+  figcaption {
+    margin-top: rem(8px);
+    margin-bottom: 0;
+    font-family: $freight-book-italic;
+  }
+
+  h2,
+  h3 {
+    font-size: rem(17px);
+    margin-bottom: rem($default-margin);
+    font-family: $freight-sans-bold;
+  }
+
+  .wp-block-quote {
+    padding-left: 5vw;
+    margin-top: rem(50px);
+    margin-bottom: rem(50px);
+
+    p {
+      margin-bottom: rem(8px);
+      font-size: rem($default-margin);
+      font-family: $freight-sans-bold;
+    }
+
+    cite {
+      font-size: rem(15px);
+      font-family: $freight-book-italic;
+    }
+  }
+
+  .addtoany_shortcode {
+    margin-top: rem(50px);
+
+    @include media-breakpoint-down(md) {
+      border-top: solid 1px $black;
+      border-bottom: solid 1px $black;
+      padding: rem(25px) 0;
+
+      .addtoany_list {
+        display: flex;
+        justify-content: space-around;
+      }
+    }
+  }
+}
+
+.single-post .feautured-image {
+  margin-bottom: 0;
+
+  @include media-breakpoint-down(md) {
+    margin-top: rem(25px);
+  }
+}
+
+.single-post .related-books {
+  margin-top: 11.4vh;
+
+  @include media-breakpoint-down(md) {
+    margin-top: 0;
+  }
+}
+
+.single-post .popular-posts {
+  @include media-breakpoint-down(md) {
+    margin-top: rem(33px);
+  }
+}

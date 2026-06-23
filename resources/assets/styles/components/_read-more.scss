@@ -1,0 +1,44 @@
+.read-more {
+  display: none;
+
+  &.active,
+  &.mobile-only {
+    display: block;
+  }
+
+  @include media-breakpoint-down(xs) {
+    &.mobile-only {
+      display: none;
+    }
+
+    &.mobile-only.active {
+      display: block;
+    }
+  }
+}
+
+.btn-read-more {
+  @include reset-button;
+
+  font-size: rem(14px);
+  font-family: $freight-sans-medium;
+  text-transform: uppercase;
+  margin-bottom: rem(25px);
+  letter-spacing: letter-spacing(100);
+  width: 100%;
+
+  &:hover,
+  &:focus {
+    color: $red;
+  }
+
+  .mobile-only + & {
+    display: none;
+  }
+
+  @include media-breakpoint-down(xs) {
+    .mobile-only + & {
+      display: block;
+    }
+  }
+}

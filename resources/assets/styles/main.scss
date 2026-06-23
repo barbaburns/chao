@@ -1,0 +1,56 @@
+@import "common/fonts";
+@import "common/variables";
+
+/** Import everything from autoload */
+@import "./autoload/**/*";
+@import "~swiper/swiper.scss";
+
+/**
+ * Import npm dependencies
+ *
+ * Prefix your imports with `~` to grab from node_modules/
+ * @see https://github.com/webpack-contrib/sass-loader#imports
+ */
+// @import "~some-node-module";
+
+/** Import theme styles */
+@import "common/global";
+@import "components/buttons";
+@import "components/comments";
+@import "components/navigation";
+@import "components/forms";
+@import "components/wp-classes";
+@import "components/slider";
+@import "components/alert";
+@import "components/page-header";
+@import "components/read-more";
+@import "components/pagination";
+@import "components/dropdown";
+@import "components/card";
+@import "components/product";
+@import "components/add-to-any";
+@import "layouts/header";
+@import "layouts/short-texts";
+@import "layouts/popular-posts";
+@import "layouts/team-list";
+@import "layouts/books-list";
+@import "layouts/footer";
+@import "layouts/grid";
+@import "layouts/pages";
+@import "layouts/manuscripts";
+@import "layouts/posts";
+@import "layouts/single-post";
+@import "layouts/home";
+@import "layouts/cart-checkout";
+@import "layouts/tinymce";
+@import "layouts/custom";
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 25px;
+  background-color: black;
+}

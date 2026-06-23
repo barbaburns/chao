@@ -1,0 +1,151 @@
+version: "3.9"
+
+x-app:
+  &app
+  image: registry.gitlab.com/scripta/escriptorium:latest
+  env_file: variables.env
+  volumes:
+    - static:/usr/src/app/static
+    - media:/usr/src/app/media
+  working_dir: /usr/src/app
+
+x-runtime:
+  &runtime
+  <<: *app
+
+services:
+  init:
+    <<: *app
+    container_name: escriptorium_init
+    entrypoint:
+      - /bin/sh
+      - -lc
+      - while ! nc -z db 5432; do sleep 0.1; done; python manage.py migrate && python manage.py collectstatic --no-input
+    depends_on:
+      - db
+
+  web:
+    <<: *app
+    container_name: escriptorium_web
+    entrypoint:
+      - /bin/sh
+      - -lc
+      - uwsgi --ini /usr/src/app/uwsgi.ini
+    expose:
+      - "8000"
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+
+  channelserver:
+    <<: *app
+    container_name: escriptorium_channelserver
+    entrypoint:
+      - /bin/sh
+      - -lc
+      - daphne --bind 0.0.0.0 --port 5000 -v 1 escriptorium.asgi:application
+    expose:
+      - "5000"
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+
+  db:
+    image: postgres:15
+    container_name: escriptorium_db
+    env_file: variables.env
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+    container_name: escriptorium_redis
+
+  nginx:
+    image: registry.gitlab.com/scripta/escriptorium/nginx:latest
+    container_name: escriptorium_nginx
+    environment:
+      SERVERNAME: ${DOMAIN:-localhost}
+    volumes:
+      - static:/usr/src/app/static
+      - media:/usr/src/app/media
+    ports:
+      - "8001:80"
+    depends_on:
+      - web
+      - channelserver
+
+  celery-main:
+    <<: *app
+    container_name: escriptorium_celery_main
+    environment:
+      OMP_NUM_THREADS: "1"
+    entrypoint:
+      - /bin/sh
+      - -lc
+      - celery -A escriptorium worker -l INFO -E -Ofair --prefetch-multiplier 1 -Q default -c ${CELERY_MAIN_CONC:-2} --max-tasks-per-child=10
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+
+  celery-live:
+    <<: *app
+    container_name: escriptorium_celery_live
+    entrypoint:
+      - /bin/sh
+      - -lc
+      - celery -A escriptorium worker -l INFO -E -Ofair --prefetch-multiplier 1 -Q live -c ${CELERY_LIVE_CONC:-1} --max-tasks-per-child=10
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+
+  celery-low-priority:
+    <<: *app
+    container_name: escriptorium_celery_low
+    entrypoint:
+      - /bin/sh
+      - -lc
+      - celery -A escriptorium worker -l INFO -E -Ofair --prefetch-multiplier 1 -Q low-priority -c ${CELERY_LOW_CONC:-1} --max-tasks-per-child=10
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+
+  celery-gpu:
+    <<: *app
+    container_name: escriptorium_celery_gpu
+    environment:
+      KRAKEN_TRAINING_DEVICE: cpu
+    entrypoint:
+      - /bin/sh
+      - -lc
+      - celery -A escriptorium worker -l INFO -E -Ofair --prefetch-multiplier 1 -Q gpu -c 1 --max-tasks-per-child=1
+    shm_size: "3gb"
+    depends_on:
+      init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+
+  mail:
+    image: registry.gitlab.com/scripta/escriptorium/mail:latest
+    container_name: escriptorium_mail
+    environment:
+      PRIMARY_HOST: ${DOMAIN:-localhost}
+      ALLOWED_HOSTS: web ; celery-main ; celery-low-priority; docker0
+    expose:
+      - "25"
+
+volumes:
+  static:
+  media:
+  postgres:

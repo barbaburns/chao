@@ -1,0 +1,221 @@
+// Import Bootstrap functions
+@import "~bootstrap/scss/functions";
+
+// Fonts
+$freight-book: "FreightTextBook", serif;
+$freight-book-italic: "FreightTextBookItalic", serif;
+$freight-bold: "FreightTextBold", serif;
+$freight-bold-italic: "FreightTextBoldItalic", serif;
+$freight-sans-medium: "FreightSansMedium", sans-serif;
+$freight-sans-bold: "FreightSansBold", sans-serif;
+$tungsten: "HCo Tungsten", sans-serif;
+
+// Colors
+$red: #cb3f4f;
+$blue: #5889b4;
+$green: #517f74;
+$brown: #bb6123;
+$beige: #d8d1cd;
+$background: #f4f2ef;
+$black: #000;
+$white: #fff;
+$yellow: #f2bb57;
+
+// Sizes
+$base-font-size: 16px;
+$menu-visible-width: 95px;
+$menu-mobile-visible-height: 68px;
+$menu-hidden-width: 282px;
+$page-edge-margin-top: 10vh;
+$page-edge-margin-left: 4.6vw;
+$overlines-title-space: 2.6vw;
+$page-max-width: 1190px;
+$grid-gap: 5.2vw;
+$default-margin: 22px;
+$default-line-height: 1.38;
+$book-list-size: 62px; //alterar também o arquivo book-area.blade.php e no common.js
+$book-list-size-mobile: 52px; //alterar também o arquivo book-area.blade.php e no common.js
+
+// Mixins
+@mixin reset-button {
+  background: transparent;
+  padding: 0;
+  border: 0;
+}
+
+@mixin placeholder($color) {
+  ::-webkit-input-placeholder {
+    opacity: 1;
+    color: $color;
+    text-transform: uppercase;
+  }
+
+  ::-moz-placeholder {
+    color: $color;
+    opacity: 1;
+    text-transform: uppercase;
+  }
+
+  :-ms-input-placeholder {
+    color: $color;
+    opacity: 1;
+    text-transform: uppercase;
+  }
+
+  :-moz-placeholder {
+    color: $color;
+    opacity: 1;
+    text-transform: uppercase;
+  }
+
+  &::placeholder {
+    color: $color;
+    opacity: 1;
+    text-transform: uppercase;
+  }
+}
+
+@mixin max-content {
+  padding-left: calc(#{$menu-visible-width} + #{$page-edge-margin-left});
+  padding-right: $page-edge-margin-left;
+  max-width: calc(#{$page-max-width} + #{$menu-visible-width} + (#{$page-edge-margin-left} * 2));
+
+  @include media-breakpoint-down(md) {
+    padding-left: $page-edge-margin-left;
+    max-width: unset;
+  }
+}
+
+@mixin overlined-top-title {
+  font-family: $freight-sans-bold;
+  font-size: rem(15px);
+  letter-spacing: letter-spacing(100);
+  border-top: solid 1px $black;
+  text-transform: uppercase;
+  padding-top: rem(4px);
+  margin-bottom: rem($default-margin);
+}
+
+@mixin page-title {
+  font-family: $freight-sans-bold;
+  font-size: rem(26px);
+  line-height: 1.14;
+  margin-bottom: rem(50px);
+
+  @include media-breakpoint-down(sm) {
+    font-size: rem(21px);
+  }
+}
+
+@mixin loop-title {
+  font-family: $freight-bold-italic;
+  font-size: rem(17px);
+  margin: 0;
+
+  @include media-breakpoint-down(sm) {
+    font-size: rem(15px);
+  }
+}
+
+@mixin overlined-top-left($height: 100%) {
+  border-top: solid 1px $black;
+  padding-left: $overlines-title-space;
+  padding-top: $overlines-title-space;
+  position: relative;
+
+  @include media-breakpoint-down(sm) {
+    padding-left: $overlines-title-space * 2;
+    padding-top: $overlines-title-space * 2;
+  }
+
+  &::before {
+    content: "";
+    width: 1px;
+    height: $height;
+    background-color: $black;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}
+
+@mixin full-link {
+  position: relative;
+
+  a::before {
+    content: "";
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    white-space: nowrap;
+    text-indent: 200%;
+  }
+}
+
+@mixin page-header {
+  font-family: $tungsten;
+  font-weight: 600;
+  font-size: rem(42px);
+
+  @include media-breakpoint-down(sm) {
+    font-size: rem(30px);
+  }
+
+  &::after {
+    content: "";
+    width: 46px;
+    height: 5px;
+    background-color: $black;
+    display: block;
+    margin-top: 4px;
+
+    @include media-breakpoint-down(sm) {
+      width: 35px;
+    }
+  }
+}
+
+@mixin input-border-bottom {
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+@mixin loader() {
+  &::before {
+    content: "";
+    height: 38px;
+    width: 38px;
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-left: -19px;
+    margin-top: -19px;
+    background: url("../images/preloader.svg") center center;
+    background-size: cover;
+    line-height: 1;
+    text-align: center;
+    font-size: 2em;
+    opacity: 1;
+  }
+}
+
+@mixin checkbox {
+  @extend .custom-control;
+  @extend .custom-checkbox;
+}
+
+@mixin checkbox-input {
+  @extend .custom-control-input;
+}
+
+@mixin checkbox-label {
+  @extend .custom-control-label;
+}

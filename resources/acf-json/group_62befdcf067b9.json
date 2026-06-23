@@ -1,0 +1,66 @@
+{
+    "key": "group_62befdcf067b9",
+    "title": "Posts relacionados",
+    "fields": [
+        {
+            "key": "field_62befdcf0a508",
+            "label": "Posts relacionados",
+            "name": "related_posts",
+            "type": "post_object",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "post_type": [
+                "post"
+            ],
+            "taxonomy": "",
+            "allow_null": 1,
+            "multiple": 1,
+            "return_format": "id",
+            "ui": 1
+        },
+        {
+            "key": "field_62befdcf0a50d",
+            "label": "Esconder post da listagem principal?",
+            "name": "hide_post",
+            "type": "true_false",
+            "instructions": "Esse post não aparecerá na listagem de posts da página Mais. Somente na listagem de posts da categoria a qual esle está associado.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "message": "",
+            "default_value": 0,
+            "ui": 1,
+            "ui_on_text": "",
+            "ui_off_text": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "post"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "field",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "CPT post",
+    "show_in_rest": 0,
+    "modified": 1656964569
+}

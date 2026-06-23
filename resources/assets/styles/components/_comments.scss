@@ -1,0 +1,133 @@
+.comment-list,
+.commentlist {
+  @extend .list-unstyled;
+}
+
+.comment-list ol {
+  list-style: none;
+
+  @include media-breakpoint-down(md) {
+    padding-left: rem(20px);
+  }
+}
+
+.comment-form .comment-form-author input[type="text"],
+.comment-form .comment-form-email input[type="email"] {
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+#comment {
+  height: 150px;
+}
+
+.comment-form input[type="submit"] {
+  @extend .btn;
+  @extend .btn-secondary;
+}
+
+#comments {
+  padding-top: rem(50px);
+  border-top: solid 5px $black;
+
+  @include media-breakpoint-down(md) {
+    margin-top: rem(50px);
+  }
+
+  h2,
+  #reply-title {
+    @include overlined-top-title;
+  }
+
+  #reply-title {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .reply {
+    margin-bottom: rem($default-margin);
+  }
+}
+
+.comment-awaiting-moderation,
+.woocommerce-review__awaiting-approval {
+  display: block;
+  color: $red;
+  font-family: $freight-sans-medium;
+  font-size: rem(12px);
+  border-top: solid 1px $red;
+  border-bottom: solid 1px $red;
+  padding: rem(4px) 0;
+  margin: rem($default-margin / 2) 0;
+  font-style: normal;
+}
+
+.comment-meta,
+.commentlist .meta {
+  margin-bottom: rem($default-margin / 2);
+}
+
+.comment-author .fn {
+  font-family: $freight-bold;
+}
+
+.comment-metadata,
+.woocommerce-review__published-date {
+  font-family: $freight-book-italic;
+}
+
+.comment-metadata {
+  text-decoration: underline;
+}
+
+.woocommerce-review__published-date {
+  display: block;
+}
+
+#cancel-comment-reply-link {
+  font-family: $freight-sans-medium;
+  font-size: rem(12px);
+  text-transform: uppercase;
+
+  &:hover,
+  &:focus {
+    color: $red;
+    text-decoration: none;
+  }
+}
+
+.comment-reply-link,
+#commentform #submit {
+  @extend .btn;
+}
+
+.comment-form-cookies-consent {
+  margin-bottom: rem(16px);
+
+  label {
+    font-family: $freight-sans-medium;
+  }
+}
+
+#reviews {
+  margin-top: rem(50px);
+}
+
+.commentlist {
+  .woocommerce-review__dash {
+    display: none;
+  }
+}
+
+#review_form {
+  #reply-title {
+    @include overlined-top-title;
+  }
+
+  #submit {
+    min-width: 140px;
+  }
+}
