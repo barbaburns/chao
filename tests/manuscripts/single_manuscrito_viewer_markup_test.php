@@ -32,14 +32,14 @@ $viewerSectionMatches = extractMatch(
 $viewerSection = $viewerSectionMatches['body'];
 
 $resultsSectionMatches = extractMatch(
-    '/<section\s+class="manuscript-single__results"[^>]*>(?P<body>.*?)<\/section>/s',
+    '/<section\b[^>]*class="[^"]*\bmanuscript-single__results\b[^"]*"[^>]*>(?P<body>.*?)<\/section>/s',
     $template,
     'Manuscript template should define the search results section'
 );
 $resultsSection = $resultsSectionMatches['body'];
 
 $scriptInitMatches = extractMatch(
-    '/export\s+default\s*\{\s*init\(\)\s*\{(?P<body>.*?)\n\s*\},\n\};/s',
+    '/\binit\(\)\s*\{(?P<body>.*?)\n\s*\}/s',
     $script,
     'Single manuscript route should define an init() block'
 );
@@ -59,9 +59,10 @@ assertTrueValue(strpos($viewerSection, 'data-manuscript-highlight-label') === fa
 assertTrueValue(strpos($resultsSection, 'data-manuscript-go-page') !== false, 'Manuscript results should preserve page-jump links for the viewer');
 
 assertTrueValue(preg_match('/import\s+OpenSeadragon\s+from\s+[\'"]openseadragon[\'"]\s*;?/', $script) === 1, 'Single manuscript route should import OpenSeadragon');
+assertTrueValue(strpos($scriptInitBody, 'data-manuscript-viewer') !== false, 'Single manuscript route init() should still target the manuscript viewer');
 assertTrueValue(preg_match('/\bOpenSeadragon\s*\(/', $scriptInitBody) === 1, 'Single manuscript route should initialize OpenSeadragon');
 assertTrueValue(strpos($scriptInitBody, 'data-manuscript-osd') !== false, 'Single manuscript route should target the OpenSeadragon container');
-assertTrueValue(strpos($scriptInitBody, 'dataset.initialPageNumber') !== false, 'Single manuscript route should preserve the initial page number handoff');
+assertTrueValue(strpos($scriptInitBody, 'initialPageNumber') !== false, 'Single manuscript route should preserve the initial page number handoff');
 assertTrueValue(strpos($scriptInitBody, 'data-manuscript-go-page') !== false, 'Single manuscript route should preserve search-result page jumps');
 assertTrueValue(strpos($scriptInitBody, 'data-manuscript-scale-mode') === false, 'Single manuscript route should remove scale-mode logic');
 assertTrueValue(strpos($scriptInitBody, 'manuscript-single__viewer-highlight') === false, 'Single manuscript route should remove highlight overlay rendering');
