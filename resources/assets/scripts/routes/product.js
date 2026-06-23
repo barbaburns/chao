@@ -1,4 +1,4 @@
-import { relatedProductsSwiper } from '../partials/slider.js';
+import { relatedProductsSwiper, productManuscriptSwiper } from '../partials/slider.js';
 
 export default {
   init() {
@@ -6,5 +6,6 @@ export default {
   },
   finalize() {
     relatedProductsSwiper();
+    productManuscriptSwiper();
   },
 };

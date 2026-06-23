@@ -53,9 +53,7 @@
 }
 
 .product-manuscript {
-  display: grid;
-  gap: $default-margin / 2;
-  grid-template-columns: repeat(auto-fit, minmax(rem(180px), 1fr));
+  display: block;
   width: 100%;
 
   figure {
@@ -67,6 +65,28 @@
     height: auto;
     width: 100%;
   }
+
+  figcaption {
+    margin-top: $default-margin / 3;
+  }
+}
+
+.product-manuscript-slider {
+  display: block;
+  max-width: 400px;
+  width: 100%;
+
+  .swiper-wrapper {
+    display: flex;
+  }
+
+  .swiper-slide {
+    height: auto;
+  }
+}
+
+.product-manuscript-slide {
+  height: 100%;
 
   figcaption {
     margin-top: $default-margin / 3;

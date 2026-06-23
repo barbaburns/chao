@@ -79,16 +79,27 @@
     @if($manuscript)
       <div class="product-extra product-extra-manuscript">
         <h2>Manuscrito</h2>
-        <div class="product-manuscript">
-          @foreach($manuscript['images'] as $image)
-            <figure>
-              {!! $image['image'] !!}
+        <div class="swiper-container product-manuscript product-manuscript-slider">
+          <div class="swiper-wrapper">
+            @foreach($manuscript['images'] as $image)
+              <div class="swiper-slide">
+                <figure class="product-manuscript-slide">
+                  @if($manuscript['url'])
+                    <a href="{{ $manuscript['url'] }}">
+                      {!! $image['image'] !!}
+                    </a>
+                  @else
+                    {!! $image['image'] !!}
+                  @endif
 
-              @if($image['caption'])
-                <figcaption>{{ $image['caption'] }}</figcaption>
-              @endif
-            </figure>
-          @endforeach
+                  @if($image['caption'])
+                    <figcaption>{{ $image['caption'] }}</figcaption>
+                  @endif
+                </figure>
+              </div>
+            @endforeach
+          </div>
+          <div class="swiper-pagination-product-manuscript"></div>
         </div>
       </div>
     @endif

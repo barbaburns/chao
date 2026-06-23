@@ -88,6 +88,7 @@ trait ProductExtra
     public static function getProductManuscript($id)
     {
         $gallery = get_field('manuscript_gallery', $id);
+        $manuscriptPost = get_field('manuscrito', $id);
 
         if(!$gallery || !is_array($gallery)) {
             return false;
@@ -108,8 +109,19 @@ trait ProductExtra
             return false;
         }
 
+        $manuscriptUrl = '';
+
+        if ($manuscriptPost) {
+            $manuscriptPostId = is_object($manuscriptPost) ? ($manuscriptPost->ID ?? null) : $manuscriptPost;
+
+            if ($manuscriptPostId) {
+                $manuscriptUrl = esc_url(get_permalink($manuscriptPostId));
+            }
+        }
+
         return [
             'images' => $images,
+            'url' => $manuscriptUrl,
         ];
     }
 
