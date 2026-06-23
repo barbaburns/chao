@@ -80,29 +80,37 @@ trait ProductExtra
     }
 
     /**
-     * Retorna as informações do ACF iconografia
+     * Retorna as informações do ACF manuscrito
      *
      * @param int $id ID do produto
      * @return false|array
      */
-    public static function getProductIconography($id)
+    public static function getProductManuscript($id)
     {
-        $image = get_field('iconography_image', $id);
+        $gallery = get_field('manuscript_gallery', $id);
 
-        if(!$image) {
+        if(!$gallery || !is_array($gallery)) {
             return false;
         }
 
-        $caption = get_field('iconography_caption', $id);
-        $url = get_field('iconography_link', $id);
+        $images = array_values(array_filter(array_map(function ($image) {
+            if (empty($image['ID'])) {
+                return null;
+            }
 
-        $data = [
-            'image'      => wp_get_attachment_image($image, 'large'),
-            'caption'    => esc_html($caption),
-            'url'        => esc_url($url),
+            return [
+                'image' => wp_get_attachment_image($image['ID'], 'large'),
+                'caption' => esc_html($image['caption'] ?? ''),
+            ];
+        }, $gallery)));
+
+        if(!$images) {
+            return false;
+        }
+
+        return [
+            'images' => $images,
         ];
-
-        return $data;
     }
 
     /**

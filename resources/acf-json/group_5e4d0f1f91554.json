@@ -214,7 +214,7 @@
         },
         {
             "key": "field_5e58deb0f0d1e",
-            "label": "Iconografia",
+            "label": "Manuscrito",
             "name": "",
             "type": "tab",
             "instructions": "",
@@ -230,10 +230,10 @@
         },
         {
             "key": "field_5e58ded8f0d1f",
-            "label": "Imagem",
-            "name": "iconography_image",
-            "type": "image",
-            "instructions": "A imagem deve ter pelo menos 300px.",
+            "label": "Galeria",
+            "name": "manuscript_gallery",
+            "type": "gallery",
+            "instructions": "",
             "required": 0,
             "conditional_logic": 0,
             "wrapper": {
@@ -241,8 +241,9 @@
                 "class": "",
                 "id": ""
             },
-            "return_format": "id",
-            "preview_size": "thumbnail",
+            "min": "",
+            "max": "",
+            "insert": "append",
             "library": "all",
             "min_width": "",
             "min_height": "",
@@ -250,42 +251,9 @@
             "max_width": "",
             "max_height": "",
             "max_size": "",
-            "mime_types": ""
-        },
-        {
-            "key": "field_5e58def6f0d20",
-            "label": "Legenda",
-            "name": "iconography_caption",
-            "type": "text",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "50",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "",
-            "placeholder": "",
-            "prepend": "",
-            "append": "",
-            "maxlength": ""
-        },
-        {
-            "key": "field_5e58df08f0d21",
-            "label": "Link",
-            "name": "iconography_link",
-            "type": "url",
-            "instructions": "",
-            "required": 0,
-            "conditional_logic": 0,
-            "wrapper": {
-                "width": "50",
-                "class": "",
-                "id": ""
-            },
-            "default_value": "",
-            "placeholder": ""
+            "mime_types": "",
+            "return_format": "array",
+            "preview_size": "thumbnail"
         }
     ],
     "location": [

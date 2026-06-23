@@ -3,10 +3,10 @@
   $audio = App::getProductAudio($id);
   $video = App::getProductVideo($id);
   $excerpt = App::getProductExcerpt($id);
-  $iconography = App::getProductIconography($id);
+  $manuscript = App::getProductManuscript($id);
 @endphp
 
-@if($clipping || $audio || $video || $excerpt || $iconography)
+@if($clipping || $audio || $video || $excerpt || $manuscript)
   <section class="product-extra">
     @if($clipping)
       <div class="product-extra product-extra-clipping">
@@ -76,24 +76,19 @@
       </div>
     @endif
 
-    @if($iconography)
-      <div class="product-extra product-extra-iconography">
+    @if($manuscript)
+      <div class="product-extra product-extra-manuscript">
         <h2>Manuscrito</h2>
-        <div class="product-iconography">
-          <figure>
-            {!! $iconography['image'] !!}
+        <div class="product-manuscript">
+          @foreach($manuscript['images'] as $image)
+            <figure>
+              {!! $image['image'] !!}
 
-            @if($iconography['caption'])
-              <figcaption>
-                {{ $iconography['caption'] }}
-                @if($iconography['url'])
-                  @component('components.link', ['link' => $iconography['url']])
-                    Leia mais
-                  @endcomponent
-                @endif
-              </figcaption>
-            @endif
-          </figure>
+              @if($image['caption'])
+                <figcaption>{{ $image['caption'] }}</figcaption>
+              @endif
+            </figure>
+          @endforeach
         </div>
       </div>
     @endif

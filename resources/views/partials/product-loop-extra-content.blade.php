@@ -66,23 +66,18 @@
   </div>
 @endif
 
-@if($iconography = App::getProductIconography($id))
-  <div class="swiper-slide">
-    <div class="product-iconography">
-      <figure>
-        {!! $iconography['image'] !!}
+@if($manuscript = App::getProductManuscript($id))
+  @foreach($manuscript['images'] as $image)
+    <div class="swiper-slide">
+      <div class="product-manuscript">
+        <figure>
+          {!! $image['image'] !!}
 
-        @if($iconography['caption'])
-          <figcaption>
-            {{ $iconography['caption'] }}
-            @if($iconography['url'])
-              @component('components.link', ['link' => $iconography['url']])
-                Leia mais
-              @endcomponent
-            @endif
-          </figcaption>
-        @endif
-      </figure>
+          @if($image['caption'])
+            <figcaption>{{ $image['caption'] }}</figcaption>
+          @endif
+        </figure>
+      </div>
     </div>
-  </div>
+  @endforeach
 @endif
