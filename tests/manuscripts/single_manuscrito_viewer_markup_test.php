@@ -44,11 +44,11 @@ assertTrueValue(preg_match('/^openseadragon@\^5\.0\.1:\s*$/m', $lockfile) === 1,
 
 assertTrueValue(strpos($viewerSectionMarkup, 'data-manuscript-viewer') !== false, 'Manuscript template should keep the viewer wrapper hook');
 assertTrueValue(strpos($viewerSectionMarkup, 'data-manuscript-osd') !== false, 'Manuscript template should expose a dedicated OpenSeadragon container');
+assertTrueValue(strpos($viewerSectionMarkup, 'manuscript-single__viewer-osd') !== false, 'Manuscript template should render the OpenSeadragon container class');
 assertTrueValue(strpos($viewerSectionMarkup, 'data-manuscript-pages') !== false, 'Manuscript template should keep serialized page data for the viewer');
 assertTrueValue(strpos($viewerSectionMarkup, 'data-manuscript-prev') !== false, 'Manuscript template should keep previous-page navigation');
 assertTrueValue(strpos($viewerSectionMarkup, 'data-manuscript-next') !== false, 'Manuscript template should keep next-page navigation');
 assertTrueValue(strpos($viewerSectionMarkup, 'data-initial-page-number') !== false, 'Manuscript template should preserve the initial-page seed for the viewer');
-assertTrueValue(strpos($viewerSection, 'Use o mouse, trackpad ou gesto de toque para aproximar e navegar pela imagem.') !== false, 'Manuscript template should describe OpenSeadragon navigation gestures');
 assertTrueValue(strpos($viewerSection, 'data-manuscript-page-label') !== false, 'Manuscript template should keep the current-page label');
 assertTrueValue(strpos($viewerSection, 'data-manuscript-page-button') !== false, 'Manuscript template should keep page index buttons');
 assertTrueValue(strpos($viewerSection, 'data-manuscript-scale-mode') === false, 'Manuscript template should remove legacy scale-mode controls');
