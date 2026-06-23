@@ -59,11 +59,11 @@
     "imagemin-mozjpeg": "~7.0.0",
     "imagemin-webpack-plugin": "~2.2.0",
     "import-glob": "~1.5",
-    "sass": "^1.77.8",
     "postcss-loader": "~2.1.0",
     "postcss-safe-parser": "~3.0",
     "resolve-url-loader": "~2.3.1",
     "rimraf": "~2.6",
+    "sass": "^1.77.8",
     "sass-loader": "^7.3.1",
     "style-loader": "^0.22.1",
     "stylelint": "^8.4.0",
@@ -83,6 +83,7 @@
     "@fortawesome/free-brands-svg-icons": "^5.13.1",
     "bootstrap": "v4.3.1",
     "jquery": "^3.3.1",
+    "openseadragon": "^5.0.1",
     "popper.js": "^1.14.7",
     "swiper": "6.0.4"
   }
