@@ -57,7 +57,8 @@ export default {
 
     osdElement.setAttribute('tabindex', '0');
     osdElement.setAttribute('role', 'region');
-    osdElement.setAttribute('aria-live', 'polite');
+    pageLabel.setAttribute('aria-live', 'polite');
+    pageLabel.setAttribute('aria-atomic', 'true');
 
     const osd = OpenSeadragon({
       element: osdElement,
@@ -102,6 +103,7 @@ export default {
 
         if (pageIndex >= 0) {
           goToPage(pageIndex);
+          osdElement.focus();
         }
       });
     });

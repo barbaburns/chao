@@ -76,7 +76,10 @@ assertTrueValue(strpos($script, 'data-manuscript-go-page') !== false, 'Single ma
 assertTrueValue(strpos($script, "pageLinks.forEach((link) => {") !== false, 'Single manuscript route should keep search-result page-jump wiring');
 assertTrueValue(strpos($script, "osdElement.setAttribute('tabindex', '0')") !== false, 'Single manuscript route should make the OpenSeadragon mount keyboard focusable');
 assertTrueValue(strpos($script, "osdElement.setAttribute('role', 'region')") !== false, 'Single manuscript route should expose an accessible viewer region');
+assertTrueValue(strpos($script, "pageLabel.setAttribute('aria-live', 'polite')") !== false, 'Single manuscript route should expose the page label as a live region');
+assertTrueValue(strpos($script, "pageLabel.setAttribute('aria-atomic', 'true')") !== false, 'Single manuscript route should make live page announcements atomic');
 assertTrueValue(strpos($script, "osdElement.addEventListener('keydown'") !== false, 'Single manuscript route should support keyboard viewer controls');
+assertTrueValue(strpos($script, 'osdElement.focus()') !== false, 'Single manuscript route should focus the viewer after a search-result page jump');
 assertTrueValue(strpos($script, 'console.error(') !== false, 'Single manuscript route should log invalid manuscript page payloads');
 assertTrueValue(strpos($script, 'data-manuscript-scale-mode') === false, 'Single manuscript route should remove scale-mode logic');
 assertTrueValue(strpos($script, 'manuscript-single__viewer-highlight') === false, 'Single manuscript route should remove highlight overlay rendering');
