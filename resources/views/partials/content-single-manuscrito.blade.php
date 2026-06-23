@@ -79,7 +79,7 @@
 
       <div class="manuscript-single__viewer-header">
         <h3 id="manuscript-viewer-title">Visualizador</h3>
-        <p>Use os controles para navegar pelas paginas e ajustar a escala da imagem.</p>
+        <p>Use o mouse, trackpad ou gesto de toque para aproximar e navegar pela imagem.</p>
       </div>
 
       <div class="manuscript-single__viewer-toolbar">
@@ -88,26 +88,9 @@
           <span data-manuscript-page-label>Pagina</span>
           <button type="button" class="btn" data-manuscript-next>Proxima</button>
         </div>
-
-        <div class="manuscript-single__viewer-zoom">
-          <button type="button" class="btn" data-manuscript-scale-mode="fit-width">Fit width</button>
-          <button type="button" class="btn" data-manuscript-scale-mode="fit-height">Fit height</button>
-          <button type="button" class="btn" data-manuscript-scale-mode="actual">100%</button>
-          <button type="button" class="btn" data-manuscript-zoom-out>-</button>
-          <button type="button" class="btn" data-manuscript-zoom-in>+</button>
-        </div>
       </div>
 
-      <p class="manuscript-single__viewer-highlight-label" data-manuscript-highlight-label></p>
-
-      <div class="manuscript-single__viewer-frame" data-manuscript-frame>
-        <div class="manuscript-single__viewer-stage" data-manuscript-stage>
-          <div class="manuscript-single__viewer-canvas" data-manuscript-canvas>
-            <img data-manuscript-image alt="">
-            <div class="manuscript-single__viewer-overlay" data-manuscript-overlay></div>
-          </div>
-        </div>
-      </div>
+      <div class="manuscript-single__viewer-osd" data-manuscript-osd></div>
 
       <ol class="manuscript-single__viewer-index">
         @foreach($viewerPages as $page)
