@@ -3,13 +3,12 @@
     max-width: 100%;
   }
 
-  .manuscript-single__header {
-    border-top: solid 5px $black;
+  .manuscript-single__title {
     margin-bottom: rem(30px);
     padding-top: rem(36px);
   }
 
-  .manuscript-single__header .entry-title,
+  .manuscript-single__title .entry-title,
   .manuscript-single h3 {
     font-family: $freight-sans-bold;
   }
