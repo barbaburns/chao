@@ -115,6 +115,7 @@ export default {
 
         if (pageIndex >= 0) {
           goToPage(pageIndex);
+          osdElement.focus();
         }
       });
     });
