@@ -18,7 +18,6 @@
       'pageNumber' => (int) ($page['page_number'] ?? 0),
       'imageUrl' => (string) ($page['image_url'] ?? ''),
       'imageAlt' => 'Pagina ' . (int) ($page['page_number'] ?? 0) . ' de ' . get_the_title(),
-      'highlightBoxes' => array_values($page['highlight_boxes'] ?? []),
     ];
   }, array_filter($search['pages'], function ($page) {
     return !empty($page['image_url']);
@@ -121,9 +120,6 @@
                 <a href="#manuscript-viewer" data-manuscript-go-page="{{ $match['page_number'] }}">Pagina {{ $match['page_number'] }}</a>
                 <span>{{ $match['occurrences'] }} ocorrencia(s)</span>
                 <span>{{ $statusLabels[$match['editorial_status']] ?? $match['editorial_status'] }}</span>
-                @if(!empty($match['highlight_box_count']))
-                  <span>{{ $match['highlight_box_count'] }} destaque(s) visual(is)</span>
-                @endif
               </div>
               <p class="manuscript-single__result-excerpt">{!! $match['excerpt_html'] !!}</p>
             </li>
