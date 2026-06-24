@@ -78,7 +78,7 @@
 
       <div class="manuscript-single__viewer-header">
         <h3 id="manuscript-viewer-title">Visualizador</h3>
-        <p>Use o mouse, trackpad ou gesto de toque para aproximar e navegar pela imagem.</p>
+        <p>Use o mouse, trackpad, gesto de toque ou, com o visualizador em foco, as teclas +, - e 0 para zoom.</p>
       </div>
 
       <div class="manuscript-single__viewer-toolbar">

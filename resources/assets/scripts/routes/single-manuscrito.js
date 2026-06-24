@@ -122,10 +122,12 @@ export default {
 
     previousButton.addEventListener('click', () => {
       goToPage(state.activeIndex - 1);
+      osdElement.focus();
     });
 
     nextButton.addEventListener('click', () => {
       goToPage(state.activeIndex + 1);
+      osdElement.focus();
     });
 
     osdElement.addEventListener('keydown', (event) => {
