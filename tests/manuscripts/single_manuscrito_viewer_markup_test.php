@@ -88,6 +88,12 @@ assertTrueValue(strpos($script, 'data-manuscript-scale-mode') === false, 'Single
 assertTrueValue(strpos($script, 'manuscript-single__viewer-highlight') === false, 'Single manuscript route should remove highlight overlay rendering');
 
 assertTrueValue(preg_match('/\.manuscript-single__viewer-osd\b/', $styles) === 1, 'Manuscript styles should define an OpenSeadragon viewer container');
+assertTrueValue(preg_match('/\.manuscript-single__viewer-osd\s+\.openseadragon-container\b/', $styles) === 1, 'Manuscript styles should size the nested OpenSeadragon container');
+assertTrueValue(preg_match('/\.manuscript-single__viewer-frame\b/', $styles) === 0, 'Manuscript styles should remove the legacy viewer frame');
+assertTrueValue(preg_match('/\.manuscript-single__viewer-stage\b/', $styles) === 0, 'Manuscript styles should remove the legacy viewer stage');
+assertTrueValue(preg_match('/\.manuscript-single__viewer-canvas\b/', $styles) === 0, 'Manuscript styles should remove the legacy viewer canvas');
+assertTrueValue(preg_match('/\.manuscript-single__viewer-overlay\b/', $styles) === 0, 'Manuscript styles should remove the legacy viewer overlay');
 assertTrueValue(preg_match('/\.manuscript-single__viewer-highlight\b/', $styles) === 0, 'Manuscript styles should remove highlight overlay styles');
+assertTrueValue(preg_match('/\.manuscript-single__viewer-zoom\b/', $styles) === 0, 'Manuscript styles should remove the legacy zoom control group');
 
 echo 'single_manuscrito_viewer_markup_test: ok' . PHP_EOL;
