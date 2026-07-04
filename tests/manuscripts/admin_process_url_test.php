@@ -21,6 +21,8 @@ $requestData = Admin::extractImportRequestData([
     'chao_manuscript_import_nonce' => 'nonce-value',
 ]);
 $notice = Admin::getNoticeConfig('success', 'import');
+$missingZipNotice = Admin::getNoticeConfig('missing_zip', 'import');
+$importUnavailableNotice = Admin::getNoticeConfig('import_unavailable', 'import');
 
 assertTrueValue(strpos($url, 'admin-post.php') !== false, 'Import URL should target admin-post.php');
 assertTrueValue(strpos($url, 'action=chao_import_manuscript_zip') !== false, 'Import URL should include the ZIP action');
@@ -34,5 +36,9 @@ assertTrueValue($requestData['post_id'] === 77, 'Import request parser should re
 assertTrueValue($requestData['nonce'] === 'nonce-value', 'Import request parser should read ZIP nonce');
 assertTrueValue($notice['type'] === 'success', 'ZIP success notice should use success type');
 assertTrueValue($notice['message'] === 'Pacote ZIP do manuscrito importado com sucesso.', 'ZIP success notice should use ZIP-specific copy');
+assertTrueValue($missingZipNotice['type'] === 'error', 'Missing ZIP notice should use error type');
+assertTrueValue($missingZipNotice['message'] === 'Nao foi possivel importar: envie um pacote ZIP do manuscrito.', 'Missing ZIP notice should explain that the manuscript ZIP is required');
+assertTrueValue($importUnavailableNotice['type'] === 'warning', 'Unavailable ZIP import notice should use warning type');
+assertTrueValue($importUnavailableNotice['message'] === 'A importacao do pacote ZIP ainda nao esta disponivel neste ambiente.', 'Unavailable ZIP import notice should explain that the ZIP pipeline is not ready yet');
 
 echo 'admin_process_url_test: ok' . PHP_EOL;

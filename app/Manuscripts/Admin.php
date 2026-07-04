@@ -17,7 +17,7 @@ class Admin
     {
         add_meta_box(
             'manuscript-worker',
-            __('Worker local de manuscritos', 'chao'),
+            __('Importacao de manuscrito', 'chao'),
             [static::class, 'renderMetabox'],
             'manuscrito',
             'side'
@@ -25,7 +25,7 @@ class Admin
 
         add_meta_box(
             'manuscript-worker-pages',
-            __('Paginas extraidas', 'chao'),
+            __('Paginas importadas', 'chao'),
             [static::class, 'renderPagesMetabox'],
             'manuscrito',
             'normal',
@@ -35,96 +35,71 @@ class Admin
 
     public static function renderMetabox($post)
     {
-        $resolver = new MasterPdfResolver();
-        $masterPdf = $resolver->resolveForPost($post->ID);
-        $pdfUrl = !empty($masterPdf['url']) ? $masterPdf['url'] : '';
-        $pdfSource = !empty($masterPdf['source']) ? $masterPdf['source'] : '';
-        $lastJob = get_post_meta($post->ID, 'chao_manuscript_worker_last_job', true);
-        $lastResponse = get_post_meta($post->ID, 'chao_manuscript_worker_last_response', true);
-        $lastError = get_post_meta($post->ID, 'chao_manuscript_worker_last_error', true);
-        $lastRequest = get_post_meta($post->ID, 'chao_manuscript_worker_last_request', true);
+        $zipFile = static::resolveZipAttachment($post->ID);
+        $snapshot = get_post_meta($post->ID, 'chao_manuscript_import_last_snapshot', true);
+        $lastError = get_post_meta($post->ID, 'chao_manuscript_import_last_error', true);
 
-        echo '<p>' . esc_html__('Use este painel para enviar ao pdf-worker o PDF mestre salvo no campo do manuscrito ou o primeiro bloco Arquivo do editor.', 'chao') . '</p>';
+        echo '<p>' . esc_html__('Use este painel para importar o pacote ZIP do manuscrito salvo no campo dedicado do ACF.', 'chao') . '</p>';
 
-        if ($pdfUrl) {
-            $processUrl = static::buildProcessUrl($post->ID, wp_create_nonce('chao_process_manuscript_pdf_' . $post->ID));
-            $sourceLabel = __('Campo PDF mestre', 'chao');
+        if (!empty($zipFile['url'])) {
+            $importUrl = static::buildImportUrl($post->ID, wp_create_nonce('chao_import_manuscript_zip_' . $post->ID));
 
-            if ($pdfSource === 'block') {
-                $sourceLabel = __('Bloco Arquivo', 'chao');
-            } elseif ($pdfSource === 'content') {
-                $sourceLabel = __('Conteudo salvo do editor', 'chao');
-            } elseif ($pdfSource === 'attachment') {
-                $sourceLabel = __('Arquivo anexado ao post', 'chao');
-            }
-
-            echo '<p><strong>' . esc_html__('PDF mestre:', 'chao') . '</strong> ';
-            echo '<a href="' . esc_url($pdfUrl) . '" target="_blank" rel="noopener noreferrer">' . esc_html(basename($pdfUrl)) . '</a></p>';
-            echo '<p><strong>' . esc_html__('Origem:', 'chao') . '</strong> ' . esc_html($sourceLabel) . '</p>';
-            echo '<p><a class="button button-secondary" href="' . esc_url($processUrl) . '">' . esc_html__('Enviar para o worker local', 'chao') . '</a></p>';
+            echo '<p><strong>' . esc_html__('Pacote ZIP do manuscrito:', 'chao') . '</strong> ';
+            echo '<a href="' . esc_url($zipFile['url']) . '" target="_blank" rel="noopener noreferrer">' . esc_html($zipFile['filename']) . '</a></p>';
+            echo '<p><a class="button button-secondary" href="' . esc_url($importUrl) . '">' . esc_html__('Importar pacote ZIP', 'chao') . '</a></p>';
         } else {
-            echo '<p>' . esc_html__('Adicione um PDF mestre no campo do manuscrito ou insira um bloco Arquivo com um PDF para habilitar o teste do worker local.', 'chao') . '</p>';
+            echo '<p>' . esc_html__('Envie um pacote ZIP no campo do manuscrito para habilitar a importacao.', 'chao') . '</p>';
         }
 
         if (!empty($lastError)) {
             echo '<p><strong>' . esc_html__('Ultimo erro:', 'chao') . '</strong><br>' . esc_html($lastError) . '</p>';
         }
 
-        if (!empty($lastJob) && is_array($lastJob)) {
-            echo '<p><strong>' . esc_html__('Ultimo job salvo:', 'chao') . '</strong></p>';
-            echo '<p><strong>' . esc_html__('Job ID:', 'chao') . '</strong> ' . esc_html($lastJob['job_id'] ?? '') . '<br>';
-            echo '<strong>' . esc_html__('Paginas:', 'chao') . '</strong> ' . esc_html((string) ($lastJob['page_count'] ?? 0)) . '<br>';
+        if (!empty($snapshot) && is_array($snapshot)) {
+            echo '<p><strong>' . esc_html__('Ultima importacao salva:', 'chao') . '</strong></p>';
+            echo '<p><strong>' . esc_html__('Arquivo ZIP:', 'chao') . '</strong> ' . esc_html($snapshot['zip_name'] ?? '') . '<br>';
+            echo '<strong>' . esc_html__('Paginas:', 'chao') . '</strong> ' . esc_html((string) ($snapshot['page_count'] ?? 0)) . '<br>';
             echo '<strong>' . esc_html__('Revisao:', 'chao') . '</strong> <a href="#manuscript-worker-pages">' . esc_html__('ver tabela de paginas', 'chao') . '</a></p>';
-        }
-
-        if (!empty($lastResponse) && is_array($lastResponse)) {
-            echo '<p><strong>' . esc_html__('Ultima resposta do worker:', 'chao') . '</strong></p>';
-            echo '<pre style="max-height: 220px; overflow: auto; white-space: pre-wrap;">' . esc_html(wp_json_encode($lastResponse, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) . '</pre>';
-        }
-
-        if (!empty($lastRequest) && is_array($lastRequest)) {
-            echo '<p><strong>' . esc_html__('Ultimo payload enviado ao worker:', 'chao') . '</strong></p>';
-            echo '<pre style="max-height: 180px; overflow: auto; white-space: pre-wrap;">' . esc_html(wp_json_encode($lastRequest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) . '</pre>';
         }
     }
 
     public static function renderPagesMetabox($post)
     {
-        $lastJob = get_post_meta($post->ID, 'chao_manuscript_worker_last_job', true);
+        $snapshot = get_post_meta($post->ID, 'chao_manuscript_import_last_snapshot', true);
         $savedReview = get_post_meta($post->ID, 'chao_manuscript_page_review', true);
-        $rows = static::buildWorkerPageRows(
-            is_array($lastJob) ? $lastJob : [],
+        $rows = static::buildImportedPageRows(
+            is_array($snapshot) ? $snapshot : [],
             is_array($savedReview) ? $savedReview : []
         );
 
         if (empty($rows)) {
-            echo '<p>' . esc_html__('Envie o PDF ao worker local para gerar a lista de paginas extraidas.', 'chao') . '</p>';
+            echo '<p>' . esc_html__('Importe um pacote ZIP do manuscrito para gerar a lista de paginas importadas.', 'chao') . '</p>';
             return;
         }
 
         wp_nonce_field('chao_save_manuscript_page_review_' . $post->ID, 'chao_manuscript_page_review_nonce');
 
-        echo '<p>' . esc_html__('Resumo das paginas geradas pelo pdf-worker para este manuscrito.', 'chao') . '</p>';
+        echo '<p>' . esc_html__('Resumo das paginas importadas do pacote ZIP para este manuscrito.', 'chao') . '</p>';
         echo '<div style="overflow-x: auto;">';
         echo '<table class="widefat striped">';
         echo '<thead><tr>';
         echo '<th>' . esc_html__('Pagina', 'chao') . '</th>';
         echo '<th>' . esc_html__('Arquivo', 'chao') . '</th>';
-        echo '<th>' . esc_html__('HTR', 'chao') . '</th>';
+        echo '<th>' . esc_html__('Importacao', 'chao') . '</th>';
+        echo '<th>' . esc_html__('Realce', 'chao') . '</th>';
         echo '<th>' . esc_html__('Texto indexado', 'chao') . '</th>';
         echo '<th>' . esc_html__('Status editorial', 'chao') . '</th>';
         echo '<th>' . esc_html__('Transcricao revisada', 'chao') . '</th>';
         echo '<th>' . esc_html__('Observacoes', 'chao') . '</th>';
-        echo '<th>' . esc_html__('Job HTR', 'chao') . '</th>';
-        echo '<th>' . esc_html__('Documento', 'chao') . '</th>';
         echo '</tr></thead><tbody>';
 
         foreach ($rows as $row) {
             $fieldBase = 'chao_manuscript_page_review[' . (int) $row['page_number'] . ']';
             echo '<tr>';
             echo '<td>' . esc_html((string) $row['page_number']) . '</td>';
-            echo '<td><strong>' . esc_html($row['filename']) . '</strong><br><code>' . esc_html($row['image_path']) . '</code></td>';
-            echo '<td>' . esc_html($row['htr_status']) . '</td>';
+            echo '<td><strong>' . esc_html($row['filename']) . '</strong></td>';
+            echo '<td>' . esc_html($row['import_status']) . '</td>';
+            echo '<td>' . esc_html($row['highlight_status']) . '</td>';
             echo '<td style="min-width: 240px;">' . esc_html(static::buildIndexedTextPreview($row)) . '</td>';
             echo '<td><select name="' . esc_attr($fieldBase . '[status]') . '">';
 
@@ -133,10 +108,8 @@ class Admin
             }
 
             echo '</select></td>';
-            echo '<td><textarea name="' . esc_attr($fieldBase . '[transcription]') . '" rows="4" style="width: 100%; min-width: 220px;">' . esc_textarea($row['review_transcription']) . '</textarea></td>';
-            echo '<td><textarea name="' . esc_attr($fieldBase . '[notes]') . '" rows="3" style="width: 100%; min-width: 180px;">' . esc_textarea($row['review_notes']) . '</textarea></td>';
-            echo '<td>' . esc_html($row['htr_job_id']) . '</td>';
-            echo '<td>' . esc_html($row['htr_document_id']) . '</td>';
+            echo '<td><textarea name="' . esc_attr($fieldBase . '[transcription]') . '" rows="4" style="width: 100%; min-width: 220px;">' . esc_textarea($row['review_transcription'] ?? '') . '</textarea></td>';
+            echo '<td><textarea name="' . esc_attr($fieldBase . '[notes]') . '" rows="3" style="width: 100%; min-width: 180px;">' . esc_textarea($row['review_notes'] ?? '') . '</textarea></td>';
             echo '</tr>';
         }
 
@@ -197,11 +170,44 @@ class Admin
 
     public static function importZip()
     {
-        if (function_exists('wp_die')) {
-            wp_die(__('Importacao de manuscrito via ZIP ainda nao implementada.', 'chao'));
+        $requestData = static::extractImportRequestData(
+            array_merge(
+                is_array($_GET) ? $_GET : [],
+                is_array($_POST) ? $_POST : []
+            )
+        );
+        $postId = $requestData['post_id'];
+        $nonce = $requestData['nonce'];
+
+        if (
+            !$postId ||
+            !$nonce ||
+            !wp_verify_nonce($nonce, 'chao_import_manuscript_zip_' . $postId)
+        ) {
+            if (function_exists('wp_die')) {
+                wp_die(__('Solicitacao invalida.', 'chao'));
+            }
+
+            exit(1);
         }
 
-        exit(1);
+        if (!current_user_can('edit_post', $postId)) {
+            if (function_exists('wp_die')) {
+                wp_die(__('Voce nao tem permissao para importar este manuscrito.', 'chao'));
+            }
+
+            exit(1);
+        }
+
+        $zipFile = static::resolveZipAttachment($postId);
+
+        if (empty($zipFile['url'])) {
+            update_post_meta($postId, 'chao_manuscript_import_last_error', __('Pacote ZIP do manuscrito ausente ou invalido.', 'chao'));
+            static::redirectBack($postId, 'missing_zip', 'import');
+        }
+
+        update_post_meta($postId, 'chao_manuscript_import_last_error', '');
+        static::redirectBack($postId, 'import_unavailable', 'import');
     }
 
     public static function extractProcessRequestData(array $request)
@@ -273,6 +279,14 @@ class Admin
             'success' => [
                 'type' => 'success',
                 'message' => static::translate($successMessage),
+            ],
+            'missing_zip' => [
+                'type' => 'error',
+                'message' => static::translate('Nao foi possivel importar: envie um pacote ZIP do manuscrito.'),
+            ],
+            'import_unavailable' => [
+                'type' => 'warning',
+                'message' => static::translate('A importacao do pacote ZIP ainda nao esta disponivel neste ambiente.'),
             ],
             'missing_pdf' => [
                 'type' => 'error',
@@ -368,6 +382,8 @@ class Admin
                 'import_status' => isset($page['import_status']) ? (string) $page['import_status'] : 'pending',
                 'highlight_status' => !empty($page['highlight_exact']) ? 'exato' : 'aproximado',
                 'editorial_status' => !empty($review['status']) ? (string) $review['status'] : 'pendente',
+                'review_transcription' => !empty($review['transcription']) ? (string) $review['transcription'] : '',
+                'review_notes' => !empty($review['notes']) ? (string) $review['notes'] : '',
             ];
         }, (array) ($snapshot['pages'] ?? []));
     }
@@ -430,16 +446,58 @@ class Admin
         ];
     }
 
-    protected static function redirectBack($postId, $notice = null)
+    protected static function redirectBack($postId, $notice = null, $source = 'worker')
     {
         $queryArgs = [];
 
         if ($notice) {
-            $queryArgs['chao_manuscript_worker_notice'] = $notice;
+            $noticeKey = $source === 'import'
+                ? 'chao_manuscript_import_notice'
+                : 'chao_manuscript_worker_notice';
+            $queryArgs[$noticeKey] = $notice;
         }
 
         wp_safe_redirect(static::buildEditUrl($postId, $queryArgs));
         exit;
+    }
+
+    protected static function resolveZipAttachment($postId)
+    {
+        $attachmentId = 0;
+        $namespacedGetField = __NAMESPACE__ . '\\get_field';
+        $namespacedAttachmentUrl = __NAMESPACE__ . '\\wp_get_attachment_url';
+
+        if (function_exists($namespacedGetField)) {
+            $attachmentId = (int) call_user_func($namespacedGetField, 'manuscript_zip_file', $postId, false);
+        } elseif (function_exists('get_field')) {
+            $attachmentId = (int) get_field('manuscript_zip_file', $postId, false);
+        }
+
+        if (!$attachmentId) {
+            $attachmentId = (int) get_post_meta($postId, 'manuscript_zip_file', true);
+        }
+
+        if (!$attachmentId) {
+            return [
+                'id' => 0,
+                'url' => '',
+                'filename' => '',
+            ];
+        }
+
+        if (function_exists($namespacedAttachmentUrl)) {
+            $url = (string) call_user_func($namespacedAttachmentUrl, $attachmentId);
+        } elseif (function_exists('wp_get_attachment_url')) {
+            $url = (string) wp_get_attachment_url($attachmentId);
+        } else {
+            $url = '';
+        }
+
+        return [
+            'id' => $attachmentId,
+            'url' => $url,
+            'filename' => $url !== '' ? basename($url) : '',
+        ];
     }
 
     public static function buildProcessUrl($postId, $nonce, $adminBaseUrl = null)
