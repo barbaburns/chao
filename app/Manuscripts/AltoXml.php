@@ -4,24 +4,36 @@ namespace App\Manuscripts;
 
 class AltoXml
 {
-    const ALTO_NAMESPACE = 'http://www.loc.gov/standards/alto/ns-v4#';
-
     public static function parse($xml)
     {
+        $previousLibxmlState = libxml_use_internal_errors(true);
         $document = simplexml_load_string((string) $xml);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousLibxmlState);
 
         if (!$document) {
             throw new \InvalidArgumentException('Invalid ALTO XML.');
         }
 
-        $document->registerXPathNamespace('a', self::ALTO_NAMESPACE);
-        $pages = $document->xpath('//a:Page');
-        $page = !empty($pages[0]) ? $pages[0] : null;
+        $namespace = self::detectNamespace($document);
+        $document->registerXPathNamespace('a', $namespace);
+        $pages = $document->xpath('//a:Layout/a:Page');
+
+        if ($pages === false || count($pages) === 0) {
+            throw new \InvalidArgumentException('ALTO XML does not expose the expected page structure.');
+        }
+
+        if (count($pages) !== 1) {
+            throw new \InvalidArgumentException('ALTO XML must contain exactly one page.');
+        }
+
+        $page = $pages[0];
+        $page->registerXPathNamespace('a', $namespace);
         $lines = [];
         $fullText = [];
 
-        foreach ($document->xpath('//a:TextLine') as $lineNode) {
-            $lineNode->registerXPathNamespace('a', self::ALTO_NAMESPACE);
+        foreach ($page->xpath('.//a:TextLine') ?: [] as $lineNode) {
+            $lineNode->registerXPathNamespace('a', $namespace);
             $stringNodes = $lineNode->xpath('./a:String') ?: [];
             $lineText = trim(implode(' ', array_map(function ($stringNode) {
                 return trim((string) $stringNode['CONTENT']);
@@ -63,5 +75,17 @@ class AltoXml
             'text' => trim(implode(' ', array_filter($fullText))),
             'lines' => $lines,
         ];
+    }
+
+    protected static function detectNamespace(\SimpleXMLElement $document)
+    {
+        $namespaces = $document->getDocNamespaces();
+        $namespace = isset($namespaces['']) ? (string) $namespaces[''] : '';
+
+        if (preg_match('~^http://www\.loc\.gov/standards/alto/ns-v[0-9]+#$~', $namespace)) {
+            return $namespace;
+        }
+
+        throw new \InvalidArgumentException('Unsupported ALTO XML namespace.');
     }
 }
