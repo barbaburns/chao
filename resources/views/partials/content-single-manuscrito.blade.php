@@ -14,10 +14,16 @@
     'revisado' => 'Revisado',
   ];
   $viewerPages = array_values(array_map(function ($page) {
+    $layoutData = isset($page['layout_data']) && is_array($page['layout_data']) ? $page['layout_data'] : [];
+    $pageMeta = isset($layoutData['page']) && is_array($layoutData['page']) ? $layoutData['page'] : [];
+
     return [
       'pageNumber' => (int) ($page['page_number'] ?? 0),
       'imageUrl' => (string) ($page['image_url'] ?? ''),
       'imageAlt' => 'Pagina ' . (int) ($page['page_number'] ?? 0) . ' de ' . get_the_title(),
+      'pageWidth' => (float) ($pageMeta['width'] ?? 0),
+      'pageHeight' => (float) ($pageMeta['height'] ?? 0),
+      'highlightBoxes' => array_values((array) ($page['highlight_boxes'] ?? [])),
     ];
   }, array_filter($search['pages'], function ($page) {
     return !empty($page['image_url']);

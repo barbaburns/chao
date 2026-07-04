@@ -17,17 +17,12 @@ class Frontend
             return $data;
         }
 
-        $job = get_post_meta($postId, 'chao_manuscript_worker_last_job', true);
-        $lastResponse = get_post_meta($postId, 'chao_manuscript_worker_last_response', true);
+        $snapshot = get_post_meta($postId, 'chao_manuscript_import_last_snapshot', true);
         $review = get_post_meta($postId, 'chao_manuscript_page_review', true);
         $query = isset($_GET['busca']) ? static::wpUnslash($_GET['busca']) : '';
-        $resolvedJob = Search::mergeJobWithWorkerResponse(
-            is_array($job) ? $job : [],
-            is_array($lastResponse) ? $lastResponse : []
-        );
 
         $data['manuscript_search'] = Search::buildViewModel(
-            $resolvedJob,
+            is_array($snapshot) ? $snapshot : ['pages' => []],
             is_array($review) ? $review : [],
             is_string($query) ? $query : ''
         );

@@ -13,6 +13,10 @@ $mockAttachmentUrls = [
 $mockMeta = [
     77 => [
         'chao_manuscript_import_last_error' => '',
+        'chao_manuscript_import_last_errors' => [
+            'Missing pair for venanciaCaderno_0099A',
+            'Invalid XML for venanciaCaderno_0100A: Invalid ALTO XML.',
+        ],
         'chao_manuscript_page_review' => [
             1 => [
                 'status' => 'revisado',
@@ -168,6 +172,8 @@ assertTrueValue(strpos($metaboxMarkup, 'Pacote ZIP do manuscrito') !== false, 'M
 assertTrueValue(strpos($metaboxMarkup, 'venancia.zip') !== false, 'Metabox should show the attached ZIP filename');
 assertTrueValue(strpos($metaboxMarkup, 'Importar pacote ZIP') !== false, 'Metabox should expose the ZIP import action');
 assertTrueValue(strpos($metaboxMarkup, 'action=chao_import_manuscript_zip') !== false, 'Metabox button should point to the ZIP import action');
+assertTrueValue(strpos($metaboxMarkup, 'Missing pair for venanciaCaderno_0099A') !== false, 'Metabox should list partial import warnings from the last ZIP import');
+assertTrueValue(strpos($metaboxMarkup, 'Invalid XML for venanciaCaderno_0100A: Invalid ALTO XML.') !== false, 'Metabox should show XML parsing warnings from the last ZIP import');
 assertTrueValue(strpos($metaboxMarkup, 'pdf-worker') === false, 'Metabox should no longer mention the PDF worker flow');
 
 ob_start();

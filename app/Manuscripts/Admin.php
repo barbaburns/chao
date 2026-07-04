@@ -37,6 +37,7 @@ class Admin
         $zipFile = static::resolveZipAttachment($post->ID);
         $snapshot = get_post_meta($post->ID, 'chao_manuscript_import_last_snapshot', true);
         $lastError = get_post_meta($post->ID, 'chao_manuscript_import_last_error', true);
+        $lastErrors = get_post_meta($post->ID, 'chao_manuscript_import_last_errors', true);
 
         echo '<p>' . esc_html__('Use este painel para importar o pacote ZIP do manuscrito salvo no campo dedicado do ACF.', 'chao') . '</p>';
 
@@ -52,6 +53,23 @@ class Admin
 
         if (!empty($lastError)) {
             echo '<p><strong>' . esc_html__('Ultimo erro:', 'chao') . '</strong><br>' . esc_html($lastError) . '</p>';
+        }
+
+        if (!empty($lastErrors) && is_array($lastErrors)) {
+            echo '<p><strong>' . esc_html__('Avisos da ultima importacao:', 'chao') . '</strong></p>';
+            echo '<ul>';
+
+            foreach ($lastErrors as $importWarning) {
+                $importWarning = trim((string) $importWarning);
+
+                if ($importWarning === '') {
+                    continue;
+                }
+
+                echo '<li>' . esc_html($importWarning) . '</li>';
+            }
+
+            echo '</ul>';
         }
 
         if (!empty($snapshot) && is_array($snapshot)) {
@@ -200,15 +218,43 @@ class Admin
 
         $zipFile = static::resolveZipAttachment($postId);
 
-        if (empty($zipFile['url'])) {
-            update_post_meta($postId, 'chao_manuscript_import_last_error', __('Pacote ZIP do manuscrito ausente ou invalido.', 'chao'));
+        if (empty($zipFile['path']) || !is_readable($zipFile['path'])) {
+            $errorMessage = __('Pacote ZIP do manuscrito ausente ou invalido.', 'chao');
+            update_post_meta($postId, 'chao_manuscript_import_last_error', $errorMessage);
+            update_post_meta($postId, 'chao_manuscript_import_last_errors', [$errorMessage]);
             static::redirectBack($postId, 'missing_zip', 'import');
             return;
         }
 
+        try {
+            $zipFilename = !empty($zipFile['filename']) ? (string) $zipFile['filename'] : basename((string) $zipFile['path']);
+            $zipSlug = static::sanitizeKey((string) pathinfo($zipFilename, PATHINFO_FILENAME));
+            $imageOutputDir = dirname((string) $zipFile['path']) . DIRECTORY_SEPARATOR . 'manuscript-imports' . DIRECTORY_SEPARATOR . $postId . DIRECTORY_SEPARATOR . $zipSlug;
+            $imageOutputUrl = !empty($zipFile['url'])
+                ? rtrim(dirname((string) $zipFile['url']), '/') . '/manuscript-imports/' . rawurlencode((string) $postId) . '/' . rawurlencode($zipSlug)
+                : '';
+            $result = ZipImport::fromZipPath($zipFile['path'], [
+                'image_output_dir' => $imageOutputDir,
+                'image_output_url' => $imageOutputUrl,
+            ]);
+        } catch (\RuntimeException $exception) {
+            $errorMessage = $exception->getMessage();
+            update_post_meta($postId, 'chao_manuscript_import_last_error', $errorMessage);
+            update_post_meta($postId, 'chao_manuscript_import_last_errors', [$errorMessage]);
+            static::redirectBack($postId, 'import_error', 'import');
+            return;
+        }
+
         update_post_meta($postId, 'chao_manuscript_import_last_error', '');
-        static::redirectBack($postId, 'import_unavailable', 'import');
-        return;
+        update_post_meta($postId, 'chao_manuscript_import_source', [
+            'zip_id' => (int) ($zipFile['id'] ?? 0),
+            'zip_path' => (string) ($zipFile['path'] ?? ''),
+            'zip_url' => (string) ($zipFile['url'] ?? ''),
+            'zip_filename' => (string) ($zipFile['filename'] ?? ''),
+        ]);
+        update_post_meta($postId, 'chao_manuscript_import_last_snapshot', static::buildImportSnapshot($result));
+        update_post_meta($postId, 'chao_manuscript_import_last_errors', array_values((array) ($result['errors'] ?? [])));
+        static::redirectBack($postId, 'success', 'import');
     }
 
     public static function extractProcessRequestData(array $request)
@@ -288,6 +334,10 @@ class Admin
             'import_unavailable' => [
                 'type' => 'warning',
                 'message' => static::translate('A importacao do pacote ZIP ainda nao esta disponivel neste ambiente.'),
+            ],
+            'import_error' => [
+                'type' => 'error',
+                'message' => static::translate('O pacote ZIP do manuscrito nao pode ser importado. Veja os detalhes no metabox do manuscrito.'),
             ],
             'missing_pdf' => [
                 'type' => 'error',
@@ -467,6 +517,7 @@ class Admin
         $attachmentId = 0;
         $namespacedGetField = __NAMESPACE__ . '\\get_field';
         $namespacedAttachmentUrl = __NAMESPACE__ . '\\wp_get_attachment_url';
+        $namespacedAttachedFile = __NAMESPACE__ . '\\get_attached_file';
 
         if (function_exists($namespacedGetField)) {
             $attachmentId = (int) call_user_func($namespacedGetField, 'manuscript_zip_file', $postId, false);
@@ -494,10 +545,19 @@ class Admin
             $url = '';
         }
 
+        if (function_exists($namespacedAttachedFile)) {
+            $path = (string) call_user_func($namespacedAttachedFile, $attachmentId);
+        } elseif (function_exists('get_attached_file')) {
+            $path = (string) get_attached_file($attachmentId);
+        } else {
+            $path = '';
+        }
+
         return [
             'id' => $attachmentId,
             'url' => $url,
-            'filename' => $url !== '' ? basename($url) : '',
+            'path' => $path,
+            'filename' => $url !== '' ? basename($url) : ($path !== '' ? basename($path) : ''),
         ];
     }
 

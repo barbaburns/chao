@@ -30,6 +30,63 @@ function getTileSource(page) {
   };
 }
 
+function clearOverlays(osd, overlayIds) {
+  overlayIds.forEach((overlayId) => {
+    osd.removeOverlay(overlayId);
+  });
+
+  return [];
+}
+
+function getNormalizedOverlayRect(page, box) {
+  const pageWidth = Number(page.pageWidth || 0);
+  const pageHeight = Number(page.pageHeight || 0);
+  const x = Number(box.x || 0);
+  const y = Number(box.y || 0);
+  const width = Number(box.width || 0);
+  const height = Number(box.height || 0);
+
+  if (pageWidth > 0 && pageHeight > 0) {
+    return new OpenSeadragon.Rect(
+      x / page.pageWidth,
+      y / page.pageHeight,
+      width / page.pageWidth,
+      height / page.pageHeight
+    );
+  }
+
+  return new OpenSeadragon.Rect(x, y, width, height);
+}
+
+function renderHighlightOverlays(osd, page, overlayIds) {
+  const nextOverlayIds = clearOverlays(osd, overlayIds);
+
+  (page.highlightBoxes || []).forEach((box, index) => {
+    const width = Number(box.width || 0);
+    const height = Number(box.height || 0);
+
+    if (width <= 0 || height <= 0) {
+      return;
+    }
+
+    const element = document.createElement('span');
+    const overlayId = `manuscript-highlight-${page.pageNumber}-${index}`;
+
+    element.className = 'manuscript-single__viewer-highlight';
+    element.dataset.manuscriptHighlightLayer = 'true';
+    element.id = overlayId;
+
+    osd.addOverlay({
+      element,
+      location: getNormalizedOverlayRect(page, box),
+    });
+
+    nextOverlayIds.push(overlayId);
+  });
+
+  return nextOverlayIds;
+}
+
 export default {
   init() {
     const viewerElement = document.querySelector('[data-manuscript-viewer]');
@@ -49,6 +106,7 @@ export default {
     const initialPageNumber = Number(viewerElement.dataset.initialPageNumber || 0);
     const state = {
       activeIndex: 0,
+      overlayIds: [],
     };
 
     if (!osdElement || !pageLabel || !previousButton || !nextButton || !pages.length) {
@@ -89,6 +147,10 @@ export default {
       const page = pages[boundedIndex];
 
       state.activeIndex = boundedIndex;
+      state.overlayIds = clearOverlays(osd, state.overlayIds);
+      osd.addOnceHandler('open', () => {
+        state.overlayIds = renderHighlightOverlays(osd, page, state.overlayIds);
+      });
       osd.open(getTileSource(page));
       pageLabel.textContent = `Pagina ${page.pageNumber} de ${pages.length}`;
       setButtonState(pageButtons, page.pageNumber);

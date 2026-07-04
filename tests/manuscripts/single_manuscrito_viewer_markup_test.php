@@ -46,6 +46,9 @@ assertTrueValue(strpos($viewerSectionMarkup, 'data-manuscript-viewer') !== false
 assertTrueValue(strpos($viewerSectionMarkup, 'data-manuscript-osd') !== false, 'Manuscript template should expose a dedicated OpenSeadragon container');
 assertTrueValue(strpos($viewerSectionMarkup, 'manuscript-single__viewer-osd') !== false, 'Manuscript template should render the OpenSeadragon container class');
 assertTrueValue(strpos($viewerSectionMarkup, 'data-manuscript-pages') !== false, 'Manuscript template should keep serialized page data for the viewer');
+assertTrueValue(strpos($template, 'highlightBoxes') !== false, 'Manuscript template should serialize highlight boxes in the viewer payload');
+assertTrueValue(strpos($template, 'pageWidth') !== false, 'Manuscript template should serialize page width for viewer highlight normalization');
+assertTrueValue(strpos($template, 'pageHeight') !== false, 'Manuscript template should serialize page height for viewer highlight normalization');
 assertTrueValue(strpos($viewerSectionMarkup, 'data-manuscript-prev') !== false, 'Manuscript template should keep previous-page navigation');
 assertTrueValue(strpos($viewerSectionMarkup, 'data-manuscript-next') !== false, 'Manuscript template should keep next-page navigation');
 assertTrueValue(strpos($viewerSectionMarkup, 'data-initial-page-number') !== false, 'Manuscript template should preserve the initial-page seed for the viewer');
@@ -85,7 +88,11 @@ assertTrueValue(
 );
 assertTrueValue(strpos($script, 'console.error(') !== false, 'Single manuscript route should log invalid manuscript page payloads');
 assertTrueValue(strpos($script, 'data-manuscript-scale-mode') === false, 'Single manuscript route should remove scale-mode logic');
-assertTrueValue(strpos($script, 'manuscript-single__viewer-highlight') === false, 'Single manuscript route should remove highlight overlay rendering');
+assertTrueValue(strpos($script, 'manuscript-single__viewer-highlight') !== false, 'Single manuscript route should render viewer highlight overlays');
+assertTrueValue(strpos($script, 'clearOverlays') !== false, 'Single manuscript route should clear overlays between page changes');
+assertTrueValue(strpos($script, 'addOverlay(') !== false, 'Single manuscript route should add OpenSeadragon overlays for search highlights');
+assertTrueValue(strpos($script, 'page.pageWidth') !== false, 'Single manuscript route should normalize highlight x coordinates with page width');
+assertTrueValue(strpos($script, 'page.pageHeight') !== false, 'Single manuscript route should normalize highlight y coordinates with page height');
 
 assertTrueValue(preg_match('/\.manuscript-single__viewer-osd\b/', $styles) === 1, 'Manuscript styles should define an OpenSeadragon viewer container');
 assertTrueValue(preg_match('/\.manuscript-single__viewer-osd\s+\.openseadragon-container\b/', $styles) === 1, 'Manuscript styles should size the nested OpenSeadragon container');
@@ -93,7 +100,7 @@ assertTrueValue(preg_match('/\.manuscript-single__viewer-frame\b/', $styles) ===
 assertTrueValue(preg_match('/\.manuscript-single__viewer-stage\b/', $styles) === 0, 'Manuscript styles should remove the legacy viewer stage');
 assertTrueValue(preg_match('/\.manuscript-single__viewer-canvas\b/', $styles) === 0, 'Manuscript styles should remove the legacy viewer canvas');
 assertTrueValue(preg_match('/\.manuscript-single__viewer-overlay\b/', $styles) === 0, 'Manuscript styles should remove the legacy viewer overlay');
-assertTrueValue(preg_match('/\.manuscript-single__viewer-highlight\b/', $styles) === 0, 'Manuscript styles should remove highlight overlay styles');
+assertTrueValue(preg_match('/\.manuscript-single__viewer-highlight\b/', $styles) === 1, 'Manuscript styles should define highlight overlay styles');
 assertTrueValue(preg_match('/\.manuscript-single__viewer-zoom\b/', $styles) === 0, 'Manuscript styles should remove the legacy zoom control group');
 
 echo 'single_manuscrito_viewer_markup_test: ok' . PHP_EOL;
