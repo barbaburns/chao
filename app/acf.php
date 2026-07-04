@@ -124,17 +124,17 @@ add_filter('acf/load_field/name=discount_user_roles', function($field) {
 if (function_exists('acf_add_local_field_group')) {
     acf_add_local_field_group([
         'key' => 'group_manuscript_local_pilot',
-        'title' => 'Manuscrito',
+        'title' => 'Importacao de manuscrito',
         'fields' => [
             [
-                'key' => 'field_manuscript_master_pdf',
-                'label' => 'PDF mestre',
-                'name' => 'manuscript_master_pdf',
+                'key' => 'field_manuscript_zip_file',
+                'label' => 'Pacote ZIP do manuscrito',
+                'name' => 'manuscript_zip_file',
                 'type' => 'file',
                 'return_format' => 'id',
-                'mime_types' => 'pdf',
+                'mime_types' => 'zip',
                 'required' => 0,
-                'instructions' => 'Opcional no piloto: se preferir, voce pode usar o primeiro bloco Arquivo do editor como PDF mestre.',
+                'instructions' => 'Envie um pacote ZIP contendo as imagens e os arquivos ALTO XML pareados pelo mesmo nome-base.',
             ],
         ],
         'location' => [

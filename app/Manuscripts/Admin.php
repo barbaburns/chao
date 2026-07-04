@@ -41,11 +41,18 @@ class Admin
 
         echo '<p>' . esc_html__('Use este painel para importar o pacote ZIP do manuscrito salvo no campo dedicado do ACF.', 'chao') . '</p>';
 
-        if (!empty($zipFile['url'])) {
+        if (!empty($zipFile['id']) || !empty($zipFile['path'])) {
             $importUrl = static::buildImportUrl($post->ID, wp_create_nonce('chao_import_manuscript_zip_' . $post->ID));
 
             echo '<p><strong>' . esc_html__('Pacote ZIP do manuscrito:', 'chao') . '</strong> ';
-            echo '<a href="' . esc_url($zipFile['url']) . '" target="_blank" rel="noopener noreferrer">' . esc_html($zipFile['filename']) . '</a></p>';
+
+            if (!empty($zipFile['url'])) {
+                echo '<a href="' . esc_url($zipFile['url']) . '" target="_blank" rel="noopener noreferrer">' . esc_html($zipFile['filename']) . '</a>';
+            } else {
+                echo esc_html($zipFile['filename']);
+            }
+
+            echo '</p>';
             echo '<p><a class="button button-secondary" href="' . esc_url($importUrl) . '">' . esc_html__('Importar pacote ZIP', 'chao') . '</a></p>';
         } else {
             echo '<p>' . esc_html__('Envie um pacote ZIP no campo do manuscrito para habilitar a importacao.', 'chao') . '</p>';
@@ -518,15 +525,28 @@ class Admin
         $namespacedGetField = __NAMESPACE__ . '\\get_field';
         $namespacedAttachmentUrl = __NAMESPACE__ . '\\wp_get_attachment_url';
         $namespacedAttachedFile = __NAMESPACE__ . '\\get_attached_file';
+        $fieldNames = ['manuscript_zip_file', 'manuscript_master_pdf'];
 
-        if (function_exists($namespacedGetField)) {
-            $attachmentId = (int) call_user_func($namespacedGetField, 'manuscript_zip_file', $postId, false);
-        } elseif (function_exists('get_field')) {
-            $attachmentId = (int) get_field('manuscript_zip_file', $postId, false);
+        foreach ($fieldNames as $fieldName) {
+            if (function_exists($namespacedGetField)) {
+                $attachmentId = (int) call_user_func($namespacedGetField, $fieldName, $postId, false);
+            } elseif (function_exists('get_field')) {
+                $attachmentId = (int) get_field($fieldName, $postId, false);
+            }
+
+            if ($attachmentId) {
+                break;
+            }
         }
 
         if (!$attachmentId) {
-            $attachmentId = (int) get_post_meta($postId, 'manuscript_zip_file', true);
+            foreach ($fieldNames as $fieldName) {
+                $attachmentId = (int) get_post_meta($postId, $fieldName, true);
+
+                if ($attachmentId) {
+                    break;
+                }
+            }
         }
 
         if (!$attachmentId) {

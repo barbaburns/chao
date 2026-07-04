@@ -25,11 +25,11 @@ function assertTrueValue($condition, $message)
 $zipPath = tempnam(sys_get_temp_dir(), 'manuscript-zip-') . '.zip';
 $zip = new ZipArchive();
 $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
-$zip->addFromString('venanciaCaderno_0052A.jpg', 'fake-image-two');
-$zip->addFromString('venanciaCaderno_0052A.xml', '<?xml version="1.0" encoding="UTF-8"?><alto xmlns="http://www.loc.gov/standards/alto/ns-v4#"><Layout><Page WIDTH="10" HEIGHT="20"><PrintSpace><TextBlock><TextLine HPOS="3" VPOS="4" WIDTH="5" HEIGHT="6"><String CONTENT="Margem" HPOS="3" VPOS="4" WIDTH="5" HEIGHT="6"/></TextLine></TextBlock></PrintSpace></Page></Layout></alto>');
-$zip->addFromString('venanciaCaderno_0051B.jpg', 'fake-image-one');
-$zip->addFromString('venanciaCaderno_0051B.xml', '<?xml version="1.0" encoding="UTF-8"?><alto xmlns="http://www.loc.gov/standards/alto/ns-v4#"><Layout><Page WIDTH="10" HEIGHT="20"><PrintSpace><TextBlock><TextLine HPOS="1" VPOS="2" WIDTH="3" HEIGHT="4"><String CONTENT="Casa" HPOS="1" VPOS="2" WIDTH="3" HEIGHT="4"/></TextLine></TextBlock></PrintSpace></Page></Layout></alto>');
-$zip->addFromString('venanciaCaderno_0099A.jpg', 'orphan-image');
+$zip->addFromString('testesMetsALTO/venanciaCaderno_0052A.jpg', 'fake-image-two');
+$zip->addFromString('testesMetsALTO/venanciaCaderno_0052A.xml', '<?xml version="1.0" encoding="UTF-8"?><alto xmlns="http://www.loc.gov/standards/alto/ns-v4#"><Layout><Page WIDTH="10" HEIGHT="20"><PrintSpace><TextBlock><TextLine HPOS="3" VPOS="4" WIDTH="5" HEIGHT="6"><String CONTENT="Margem" HPOS="3" VPOS="4" WIDTH="5" HEIGHT="6"/></TextLine></TextBlock></PrintSpace></Page></Layout></alto>');
+$zip->addFromString('testesMetsALTO/venanciaCaderno_0051B.jpg', 'fake-image-one');
+$zip->addFromString('testesMetsALTO/venanciaCaderno_0051B.xml', '<?xml version="1.0" encoding="UTF-8"?><alto xmlns="http://www.loc.gov/standards/alto/ns-v4#"><Layout><Page WIDTH="10" HEIGHT="20"><PrintSpace><TextBlock><TextLine HPOS="1" VPOS="2" WIDTH="3" HEIGHT="4"><String CONTENT="Casa" HPOS="1" VPOS="2" WIDTH="3" HEIGHT="4"/></TextLine></TextBlock></PrintSpace></Page></Layout></alto>');
+$zip->addFromString('testesMetsALTO/venanciaCaderno_0099A.jpg', 'orphan-image');
 $zip->close();
 
 $imageOutputDir = sys_get_temp_dir() . '/manuscript-zip-import-test';
@@ -53,6 +53,7 @@ assertTrueValue(is_file($result['pages'][0]['image_path']), 'ZIP import should p
 assertSameValue(true, $result['pages'][0]['highlight_exact'], 'ZIP import should detect exact word geometry when word boxes are present');
 assertSameValue([], $result['pages'][0]['import_errors'], 'ZIP import should keep valid pages free of per-page errors');
 assertTrueValue(in_array('Missing pair for venanciaCaderno_0099A', $result['errors'], true), 'ZIP import should report orphan files by basename');
+assertTrueValue(!in_array('Subdirectories are not supported: testesMetsALTO/venanciaCaderno_0051B.jpg', $result['errors'], true), 'ZIP import should accept page files stored inside a root folder');
 
 @unlink($result['pages'][0]['image_path']);
 @unlink($result['pages'][1]['image_path']);

@@ -23,14 +23,9 @@ class ZipImport
             if (static::shouldIgnoreEntry($name)) {
                 continue;
             }
-
-            if (strpos($name, '/') !== false) {
-                $errors[] = 'Subdirectories are not supported: ' . $name;
-                continue;
-            }
-
-            $basename = (string) pathinfo($name, PATHINFO_FILENAME);
-            $extension = strtolower((string) pathinfo($name, PATHINFO_EXTENSION));
+            $filename = basename($name);
+            $basename = (string) pathinfo($filename, PATHINFO_FILENAME);
+            $extension = strtolower((string) pathinfo($filename, PATHINFO_EXTENSION));
 
             if ($basename === '') {
                 continue;

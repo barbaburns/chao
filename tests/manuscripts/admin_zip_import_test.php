@@ -10,6 +10,10 @@ $mockAttachmentUrls = [
     321 => 'http://example.test/uploads/venancia.zip',
 ];
 
+$mockAttachmentPaths = [
+    321 => '/srv/uploads/venancia.zip',
+];
+
 $mockMeta = [
     77 => [
         'chao_manuscript_import_last_error' => '',
@@ -46,6 +50,13 @@ function wp_get_attachment_url($attachmentId)
     global $mockAttachmentUrls;
 
     return isset($mockAttachmentUrls[$attachmentId]) ? $mockAttachmentUrls[$attachmentId] : '';
+}
+
+function get_attached_file($attachmentId)
+{
+    global $mockAttachmentPaths;
+
+    return isset($mockAttachmentPaths[$attachmentId]) ? $mockAttachmentPaths[$attachmentId] : '';
 }
 
 function wp_create_nonce($action)
@@ -175,6 +186,27 @@ assertTrueValue(strpos($metaboxMarkup, 'action=chao_import_manuscript_zip') !== 
 assertTrueValue(strpos($metaboxMarkup, 'Missing pair for venanciaCaderno_0099A') !== false, 'Metabox should list partial import warnings from the last ZIP import');
 assertTrueValue(strpos($metaboxMarkup, 'Invalid XML for venanciaCaderno_0100A: Invalid ALTO XML.') !== false, 'Metabox should show XML parsing warnings from the last ZIP import');
 assertTrueValue(strpos($metaboxMarkup, 'pdf-worker') === false, 'Metabox should no longer mention the PDF worker flow');
+
+$GLOBALS['mockAttachmentUrls'][321] = '';
+
+ob_start();
+Admin::renderMetabox($post);
+$pathOnlyMetaboxMarkup = ob_get_clean();
+
+assertTrueValue(strpos($pathOnlyMetaboxMarkup, 'Importar pacote ZIP') !== false, 'Metabox should still expose the ZIP import action when only the attachment path is available');
+assertTrueValue(strpos($pathOnlyMetaboxMarkup, 'venancia.zip') !== false, 'Metabox should still show the ZIP filename when only the attachment path is available');
+
+unset($GLOBALS['mockFields']['manuscript_zip_file']);
+$GLOBALS['mockFields']['manuscript_master_pdf'] = 654;
+$GLOBALS['mockAttachmentUrls'][654] = 'http://example.test/uploads/venancia-legado.zip';
+$GLOBALS['mockAttachmentPaths'][654] = '/srv/uploads/venancia-legado.zip';
+
+ob_start();
+Admin::renderMetabox($post);
+$legacyFieldMetaboxMarkup = ob_get_clean();
+
+assertTrueValue(strpos($legacyFieldMetaboxMarkup, 'Importar pacote ZIP') !== false, 'Metabox should still expose the ZIP import action for legacy master PDF field values');
+assertTrueValue(strpos($legacyFieldMetaboxMarkup, 'venancia-legado.zip') !== false, 'Metabox should reuse the saved legacy field attachment as ZIP source when present');
 
 ob_start();
 Admin::renderPagesMetabox($post);
