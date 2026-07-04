@@ -241,9 +241,11 @@ class Admin
         $postId = isset($_GET['post']) ? (int) $_GET['post'] : 0;
         $action = isset($_GET['action']) ? (string) $_GET['action'] : '';
         $status = '';
+        $noticeSource = 'worker';
 
         if (isset($_GET['chao_manuscript_import_notice'])) {
             $status = (string) $_GET['chao_manuscript_import_notice'];
+            $noticeSource = 'import';
         } elseif (isset($_GET['chao_manuscript_worker_notice'])) {
             $status = (string) $_GET['chao_manuscript_worker_notice'];
         }
@@ -252,7 +254,7 @@ class Admin
             return;
         }
 
-        $notice = static::getNoticeConfig($status);
+        $notice = static::getNoticeConfig($status, $noticeSource);
 
         if (!$notice) {
             return;
@@ -261,12 +263,16 @@ class Admin
         echo '<div class="notice notice-' . esc_attr($notice['type']) . ' is-dismissible"><p>' . esc_html($notice['message']) . '</p></div>';
     }
 
-    public static function getNoticeConfig($status)
+    public static function getNoticeConfig($status, $source = 'worker')
     {
+        $successMessage = $source === 'import'
+            ? 'Pacote ZIP do manuscrito importado com sucesso.'
+            : 'PDF enviado ao worker local com sucesso.';
+
         $notices = [
             'success' => [
                 'type' => 'success',
-                'message' => static::translate('PDF enviado ao worker local com sucesso.'),
+                'message' => static::translate($successMessage),
             ],
             'missing_pdf' => [
                 'type' => 'error',
