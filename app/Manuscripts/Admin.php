@@ -7,7 +7,6 @@ class Admin
     public static function register()
     {
         add_action('add_meta_boxes', [static::class, 'addMetabox']);
-        add_action('admin_post_chao_process_manuscript_pdf', [static::class, 'processPdf']);
         add_action('admin_post_chao_import_manuscript_zip', [static::class, 'importZip']);
         add_action('admin_notices', [static::class, 'renderAdminNotice']);
         add_action('save_post_manuscrito', [static::class, 'savePageReview']);
@@ -204,10 +203,12 @@ class Admin
         if (empty($zipFile['url'])) {
             update_post_meta($postId, 'chao_manuscript_import_last_error', __('Pacote ZIP do manuscrito ausente ou invalido.', 'chao'));
             static::redirectBack($postId, 'missing_zip', 'import');
+            return;
         }
 
         update_post_meta($postId, 'chao_manuscript_import_last_error', '');
         static::redirectBack($postId, 'import_unavailable', 'import');
+        return;
     }
 
     public static function extractProcessRequestData(array $request)
