@@ -8,6 +8,7 @@ class Admin
     {
         add_action('add_meta_boxes', [static::class, 'addMetabox']);
         add_action('admin_post_chao_process_manuscript_pdf', [static::class, 'processPdf']);
+        add_action('admin_post_chao_import_manuscript_zip', [static::class, 'importZip']);
         add_action('admin_notices', [static::class, 'renderAdminNotice']);
         add_action('save_post_manuscrito', [static::class, 'savePageReview']);
     }
@@ -194,6 +195,15 @@ class Admin
         static::redirectBack($postId, 'success');
     }
 
+    public static function importZip()
+    {
+        if (function_exists('wp_die')) {
+            wp_die(__('Importacao de manuscrito via ZIP ainda nao implementada.', 'chao'));
+        }
+
+        exit(1);
+    }
+
     public static function extractProcessRequestData(array $request)
     {
         return [
@@ -230,7 +240,13 @@ class Admin
     {
         $postId = isset($_GET['post']) ? (int) $_GET['post'] : 0;
         $action = isset($_GET['action']) ? (string) $_GET['action'] : '';
-        $status = isset($_GET['chao_manuscript_worker_notice']) ? (string) $_GET['chao_manuscript_worker_notice'] : '';
+        $status = '';
+
+        if (isset($_GET['chao_manuscript_import_notice'])) {
+            $status = (string) $_GET['chao_manuscript_import_notice'];
+        } elseif (isset($_GET['chao_manuscript_worker_notice'])) {
+            $status = (string) $_GET['chao_manuscript_worker_notice'];
+        }
 
         if (!$postId || $action !== 'edit' || !$status) {
             return;
@@ -294,6 +310,17 @@ class Admin
         ];
     }
 
+    public static function buildImportSnapshot(array $result)
+    {
+        return [
+            'zip_name' => isset($result['zip_name']) ? (string) $result['zip_name'] : '',
+            'page_count' => isset($result['page_count']) ? (int) $result['page_count'] : count((array) ($result['pages'] ?? [])),
+            'pages' => array_values((array) ($result['pages'] ?? [])),
+            'errors' => array_values((array) ($result['errors'] ?? [])),
+            'stored_at' => static::currentTimestamp(),
+        ];
+    }
+
     public static function buildWorkerPageRows(array $job, array $reviewData = [])
     {
         $rows = [];
@@ -318,6 +345,25 @@ class Admin
         }
 
         return $rows;
+    }
+
+    public static function buildImportedPageRows(array $snapshot, array $reviewData = [])
+    {
+        return array_map(function ($page) use ($reviewData) {
+            $pageNumber = isset($page['page_number']) ? (int) $page['page_number'] : 0;
+            $review = isset($reviewData[$pageNumber]) && is_array($reviewData[$pageNumber]) ? $reviewData[$pageNumber] : [];
+
+            return [
+                'page_number' => $pageNumber,
+                'basename' => isset($page['basename']) ? (string) $page['basename'] : '',
+                'filename' => isset($page['filename']) ? (string) $page['filename'] : '',
+                'image_url' => isset($page['image_url']) ? (string) $page['image_url'] : '',
+                'raw_text' => isset($page['raw_text']) ? (string) $page['raw_text'] : '',
+                'import_status' => isset($page['import_status']) ? (string) $page['import_status'] : 'pending',
+                'highlight_status' => !empty($page['highlight_exact']) ? 'exato' : 'aproximado',
+                'editorial_status' => !empty($review['status']) ? (string) $review['status'] : 'pendente',
+            ];
+        }, (array) ($snapshot['pages'] ?? []));
     }
 
     protected static function buildIndexedTextPreview(array $row)
@@ -405,6 +451,31 @@ class Admin
         }
 
         return $basePath . '?' . http_build_query($queryArgs);
+    }
+
+    public static function buildImportUrl($postId, $nonce, $adminBaseUrl = null)
+    {
+        $adminBaseUrl = $adminBaseUrl ?: admin_url();
+        $basePath = rtrim($adminBaseUrl, '/') . '/admin-post.php';
+        $queryArgs = [
+            'action' => 'chao_import_manuscript_zip',
+            'post_id' => (int) $postId,
+            'chao_manuscript_import_nonce' => $nonce,
+        ];
+
+        if (function_exists('add_query_arg')) {
+            return add_query_arg($queryArgs, $basePath);
+        }
+
+        return $basePath . '?' . http_build_query($queryArgs);
+    }
+
+    public static function extractImportRequestData(array $request)
+    {
+        return [
+            'post_id' => isset($request['post_id']) ? (int) $request['post_id'] : 0,
+            'nonce' => isset($request['chao_manuscript_import_nonce']) ? (string) $request['chao_manuscript_import_nonce'] : '',
+        ];
     }
 
     public static function buildEditUrl($postId, array $queryArgs = [], $adminBaseUrl = null)
