@@ -9,12 +9,12 @@ Cada pacote deve conter:
 - imagens das paginas
 - arquivos `ALTO XML`
 
-Cada imagem deve ter um arquivo XML correspondente com o mesmo nome-base. Exemplo:
+Cada imagem deve ter um arquivo XML correspondente com o mesmo nome-base. O formato esperado do nome pode incluir o identificador do manuscrito seguido da numeracao da pagina. Exemplo:
 
-- `0001.jpg`
-- `0001.xml`
-- `0002.jpg`
-- `0002.xml`
+- `venanciaCaderno_0051B.jpg`
+- `venanciaCaderno_0051B.xml`
+- `venanciaCaderno_0052A.jpg`
+- `venanciaCaderno_0052A.xml`
 
 O texto extraido por HTR continua invisivel no frontend. Ele sera usado apenas para:
 
@@ -66,10 +66,10 @@ Regras do pacote:
 
 Exemplo valido:
 
-- `0001.jpg`
-- `0001.xml`
-- `0002.jpg`
-- `0002.xml`
+- `venanciaCaderno_0051B.jpg`
+- `venanciaCaderno_0051B.xml`
+- `venanciaCaderno_0052A.jpg`
+- `venanciaCaderno_0052A.xml`
 
 Exemplos invalidos:
 
@@ -132,11 +132,13 @@ Cada pagina deve armazenar ao menos:
 
 O numero da pagina sera derivado da ordem alfabetica dos basenames validados no pacote.
 
-Isso evita dependencia de um campo numerico dentro do XML e torna o lote previsivel desde que a equipe use nomes consistentes, como:
+Isso evita dependencia de um campo numerico dentro do XML e torna o lote previsivel desde que a equipe use nomes consistentes. O basename nao precisa ser apenas numerico; ele pode seguir o padrao `nomeDoManuscrito_numeracao`, como:
 
-- `0001`
-- `0002`
-- `0003`
+- `venanciaCaderno_0051B`
+- `venanciaCaderno_0052A`
+- `venanciaCaderno_0052B`
+
+Como a ordenacao depende do basename, a equipe deve manter um padrao estavel de prefixo e numeracao zero-padded para evitar inversoes.
 
 ## Interpretacao do ALTO XML
 
