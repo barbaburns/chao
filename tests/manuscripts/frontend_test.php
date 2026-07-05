@@ -12,28 +12,22 @@ $mockMeta = [
                     'basename' => 'venanciaCaderno_0051B',
                     'filename' => 'venanciaCaderno_0051B.jpg',
                     'image_url' => 'http://example.test/uploads/venanciaCaderno_0051B.jpg',
-                    'raw_text' => 'Casa perto do rio.',
+                    'raw_text' => 'Casa perto de Paraíso.',
                     'layout_data' => [
-                        'text' => 'Casa perto do rio.',
+                        'text' => 'Casa perto de Paraíso.',
                         'lines' => [
                             [
-                                'text' => 'Casa perto do rio.',
+                                'text' => 'Casa perto de Paraíso.',
                                 'bbox' => ['x' => 10, 'y' => 20, 'width' => 120, 'height' => 30],
                                 'words' => [
                                     ['text' => 'Casa', 'bbox' => ['x' => 10, 'y' => 20, 'width' => 40, 'height' => 30]],
+                                    ['text' => 'Paraíso.', 'bbox' => ['x' => 70, 'y' => 20, 'width' => 60, 'height' => 30]],
                                 ],
                             ],
                         ],
                     ],
                 ],
             ],
-        ],
-        'chao_manuscript_page_review' => [],
-        'chao_manuscript_worker_last_job' => [
-            'pages' => [],
-        ],
-        'chao_manuscript_worker_last_response' => [
-            'pages' => [],
         ],
     ],
 ];
@@ -84,5 +78,14 @@ assertSameValue(1, $search['page_count'], 'Frontend should build search data fro
 assertSameValue(1, $search['match_count'], 'Frontend should search imported manuscript pages');
 assertSameValue('venanciaCaderno_0051B.jpg', $search['pages'][0]['filename'], 'Frontend should expose imported page data to the viewer');
 assertTrueValue($search['viewer_enabled'] === true, 'Frontend should enable the viewer when imported pages include image URLs');
+
+$_GET = [
+    'busca' => 'paraiso',
+];
+
+$accentData = Frontend::withSingleTemplateData([]);
+$accentSearch = $accentData['manuscript_search'];
+
+assertSameValue(1, $accentSearch['match_count'], 'Frontend should keep accent-insensitive searching available for imported pages');
 
 echo 'frontend_test: ok' . PHP_EOL;

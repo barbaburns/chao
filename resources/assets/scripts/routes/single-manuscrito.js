@@ -38,7 +38,7 @@ function clearOverlays(osd, overlayIds) {
   return [];
 }
 
-function getNormalizedOverlayRect(page, box) {
+function getOverlayRect(page, box) {
   const pageWidth = Number(page.pageWidth || 0);
   const pageHeight = Number(page.pageHeight || 0);
   const x = Number(box.x || 0);
@@ -48,10 +48,10 @@ function getNormalizedOverlayRect(page, box) {
 
   if (pageWidth > 0 && pageHeight > 0) {
     return new OpenSeadragon.Rect(
-      x / page.pageWidth,
-      y / page.pageHeight,
-      width / page.pageWidth,
-      height / page.pageHeight
+      x / pageWidth,
+      y / pageWidth,
+      width / pageWidth,
+      height / pageWidth
     );
   }
 
@@ -78,7 +78,7 @@ function renderHighlightOverlays(osd, page, overlayIds) {
 
     osd.addOverlay({
       element,
-      location: getNormalizedOverlayRect(page, box),
+      location: getOverlayRect(page, box),
     });
 
     nextOverlayIds.push(overlayId);
@@ -120,6 +120,7 @@ export default {
 
     const osd = OpenSeadragon({
       element: osdElement,
+      drawer: ['html', 'canvas', 'webgl'],
       showNavigationControl: false,
       showNavigator: false,
       preserveImageSizeOnResize: true,

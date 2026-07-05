@@ -97,70 +97,63 @@ $job = [
                 ],
             ],
         ],
-    ],
-];
-
-$review = [
-    1 => [
-        'status' => 'revisado',
-        'transcription' => 'Casa grande. Outra casa na margem.',
-        'notes' => '',
-    ],
-    2 => [
-        'status' => 'revisado',
-        'transcription' => 'Casario antigo ao fundo.',
-        'notes' => '',
-    ],
-    3 => [
-        'status' => 'em_revisao',
-        'transcription' => 'A CASA fica longe da estrada.',
-        'notes' => '',
-    ],
-];
-$reviewApproximate = $review;
-$reviewApproximate[1]['transcription'] = 'Casa grande. Outra casa no caderno da margem.';
-
-$result = Search::buildViewModel($job, $review, 'casa');
-$rawFallbackResult = Search::buildViewModel($job, $review, 'carta');
-$approximateFallbackResult = Search::buildViewModel($job, $reviewApproximate, 'caderno');
-$emptyQuery = Search::buildViewModel($job, $review, '');
-$hydratedJob = Search::mergeJobWithWorkerResponse(
-    [
-        'pages' => [
-            [
-                'page_number' => 1,
-                'filename' => 'page-1.png',
-                'image_url' => 'http://127.0.0.1:8002/jobs/job-123/pages/page-1.png',
+        [
+            'page_number' => 5,
+            'filename' => 'page-5.png',
+            'image_url' => 'http://127.0.0.1:8002/jobs/job-123/pages/page-5.png',
+            'raw_text' => 'Na dobra ficou a marca.',
+            'layout_data' => [
+                'text' => 'Na dobra ficou a marca.',
+                'lines' => [
+                    [
+                        'text' => 'Na dobra ficou a marca.',
+                        'bbox' => ['x' => 16, 'y' => 38, 'width' => 260, 'height' => 34],
+                        'words' => [],
+                    ],
+                ],
             ],
         ],
     ],
-    [
-        'pages' => [
-            [
-                'page_number' => 1,
-                'raw_text' => 'Casa grande.',
-                'layout_data' => [
-                    'text' => 'Casa grande.',
-                    'lines' => [
-                        [
-                            'text' => 'Casa grande.',
-                            'words' => [
-                                ['text' => 'Casa', 'bbox' => ['x' => 20, 'y' => 30, 'width' => 54, 'height' => 28]],
-                            ],
+];
+
+$result = Search::buildViewModel($job, 'casa');
+$quotedResult = Search::buildViewModel($job, '"casa"');
+$rawFallbackResult = Search::buildViewModel($job, 'carta');
+$approxFallbackResult = Search::buildViewModel($job, 'dobra');
+$noMatchResult = Search::buildViewModel($job, 'caderno');
+$accentInsensitiveResult = Search::buildViewModel([
+    'pages' => [
+        [
+            'page_number' => 1,
+            'filename' => 'page-accent.png',
+            'image_url' => 'http://127.0.0.1:8002/jobs/job-123/pages/page-accent.png',
+            'raw_text' => 'Em Paraíso, Paraná.',
+            'layout_data' => [
+                'text' => 'Em Paraíso, Paraná.',
+                'lines' => [
+                    [
+                        'text' => 'Em Paraíso, Paraná.',
+                        'bbox' => ['x' => 12, 'y' => 18, 'width' => 200, 'height' => 28],
+                        'words' => [
+                            ['text' => 'Em', 'bbox' => ['x' => 12, 'y' => 18, 'width' => 24, 'height' => 28]],
+                            ['text' => 'Paraíso,', 'bbox' => ['x' => 44, 'y' => 18, 'width' => 88, 'height' => 28]],
+                            ['text' => 'Paraná.', 'bbox' => ['x' => 140, 'y' => 18, 'width' => 72, 'height' => 28]],
                         ],
                     ],
                 ],
             ],
         ],
-    ]
-);
+    ],
+], 'paraiso');
+$emptyQuery = Search::buildViewModel($job, '');
 
 assertSameValue('casa', $result['query'], 'Search should normalize the submitted query');
 assertTrueValue($result['viewer_enabled'] === true, 'Search should enable the viewer when page images are available');
 assertSameValue(1, $result['initial_page_number'], 'Search should open the viewer on the first matching page');
-assertSameValue(4, $result['page_count'], 'Search should keep total indexed pages');
-assertSameValue(4, $result['pages_with_text_count'], 'Search should count pages with searchable text');
+assertSameValue(5, $result['page_count'], 'Search should keep total indexed pages');
+assertSameValue(5, $result['pages_with_text_count'], 'Search should count pages with searchable text');
 assertSameValue(2, $result['match_count'], 'Search should only match pages with exact-word occurrences');
+assertSameValue(2, $quotedResult['match_count'], 'Search should ignore wrapping quotes in the submitted query');
 assertSameValue(2, count($result['matches']), 'Search should return one result entry per matching page');
 assertSameValue(1, $result['matches'][0]['page_number'], 'Search should keep the first matching page number');
 assertSameValue(2, $result['matches'][0]['occurrences'], 'Search should count repeated exact-word matches on the same page');
@@ -169,25 +162,27 @@ assertSameValue(2, $result['matches'][0]['highlight_box_count'], 'Search should 
 assertTrueValue(strpos($result['matches'][0]['excerpt_html'], '<mark>Casa</mark>') !== false, 'Search should highlight the matched term in the excerpt');
 assertSameValue(3, $result['matches'][1]['page_number'], 'Search should keep later matching pages');
 assertSameValue('http://127.0.0.1:8002/jobs/job-123/pages/page-1.png', $result['pages'][0]['image_url'], 'Search should expose page image url to the viewer');
-assertSameValue('reviewed', $result['pages'][0]['effective_text_source'], 'Search should prefer reviewed text when available');
+assertSameValue('raw', $result['pages'][0]['effective_text_source'], 'Search should prioritize imported HTR text for manuscript search');
 assertSameValue(2, count($result['pages'][0]['highlight_boxes']), 'Search should expose highlight boxes for exact matched words');
 assertSameValue(20.0, $result['pages'][0]['highlight_boxes'][0]['x'], 'Search should keep box coordinates from layout data');
-assertTrueValue(strpos($result['pages'][1]['effective_text_html'], 'Casario') !== false, 'Search should still expose non-matching page text');
+assertTrueValue(strpos($result['pages'][1]['effective_text_html'], 'Carta velha ao fundo.') !== false, 'Search should expose imported HTR text even when a review transcription exists');
 assertTrueValue(strpos($result['pages'][1]['effective_text_html'], '<mark>') === false, 'Search should not highlight partial-word matches');
-assertSameValue(1, $rawFallbackResult['match_count'], 'Search should fallback to raw text when a page has not been manually reviewed');
-assertSameValue(4, $rawFallbackResult['matches'][0]['page_number'], 'Search should find the raw-text-only page');
-assertSameValue('raw', $rawFallbackResult['pages'][3]['effective_text_source'], 'Search should mark raw text fallback in the page model');
+assertSameValue(2, $rawFallbackResult['match_count'], 'Search should search imported HTR text even when legacy review transcriptions differ');
+assertSameValue(2, $rawFallbackResult['matches'][0]['page_number'], 'Search should include the imported HTR text from page 2');
+assertSameValue(4, $rawFallbackResult['matches'][1]['page_number'], 'Search should still find the raw-text-only page');
+assertSameValue('raw', $rawFallbackResult['pages'][3]['effective_text_source'], 'Search should mark imported HTR text as the active source in the page model');
 assertSameValue(1, count($rawFallbackResult['pages'][3]['highlight_boxes']), 'Search should expose raw-layout highlights when raw text matched');
-assertSameValue(1, $approximateFallbackResult['match_count'], 'Search should still match reviewed-only words');
-assertSameValue(1, $approximateFallbackResult['matches'][0]['page_number'], 'Search should keep the reviewed page for approximate fallback');
-assertSameValue(1, count($approximateFallbackResult['pages'][0]['highlight_boxes']), 'Search should create one approximate box when no exact word box exists');
-assertSameValue(true, $approximateFallbackResult['pages'][0]['highlight_boxes'][0]['approximate'], 'Search should flag approximate fallback boxes');
-assertSameValue('approx-line', $approximateFallbackResult['pages'][0]['highlight_boxes'][0]['box_source'], 'Search should mark the fallback box source');
-assertSameValue(74.0, $approximateFallbackResult['pages'][0]['highlight_boxes'][0]['y'], 'Search should map the approximate highlight to the closest layout line');
-assertSameValue('Casa grande.', $hydratedJob['pages'][0]['raw_text'], 'Search should hydrate missing raw text from the worker response');
-assertSameValue('Casa grande.', $hydratedJob['pages'][0]['layout_data']['text'], 'Search should hydrate missing layout data from the worker response');
+assertSameValue(1, $approxFallbackResult['match_count'], 'Search should still match imported HTR text when only line-level geometry is available');
+assertSameValue(5, $approxFallbackResult['matches'][0]['page_number'], 'Search should return the page that only has approximate line geometry');
+assertSameValue(1, count($approxFallbackResult['pages'][4]['highlight_boxes']), 'Search should build a fallback highlight box from line geometry');
+assertTrueValue($approxFallbackResult['pages'][4]['highlight_boxes'][0]['approximate'] === true, 'Search should mark fallback line highlights as approximate');
+assertSameValue('approx-line', $approxFallbackResult['pages'][4]['highlight_boxes'][0]['box_source'], 'Search should label fallback highlights with the approximate line source');
+assertSameValue(0, $noMatchResult['match_count'], 'Search should only depend on the imported manuscript text in this flow');
+assertSameValue(1, $accentInsensitiveResult['match_count'], 'Search should match accent-insensitive queries against imported text');
+assertTrueValue(strpos($accentInsensitiveResult['matches'][0]['excerpt_html'], '<mark>Paraíso</mark>') !== false, 'Search should keep the original accented text in excerpts');
+assertSameValue(1, count($accentInsensitiveResult['pages'][0]['highlight_boxes']), 'Search should keep exact word boxes for accent-insensitive matches');
 assertSameValue(0, $emptyQuery['match_count'], 'Search should not return matches for an empty query');
 assertSameValue(1, $emptyQuery['initial_page_number'], 'Search should fallback to the first page when there is no query');
-assertSameValue(4, count($emptyQuery['pages']), 'Search should still expose indexed pages without a query');
+assertSameValue(5, count($emptyQuery['pages']), 'Search should still expose indexed pages without a query');
 
 echo 'search_test: ok' . PHP_EOL;

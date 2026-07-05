@@ -60,4 +60,43 @@ assertTrueValue(!in_array('Subdirectories are not supported: testesMetsALTO/vena
 @rmdir($imageOutputDir);
 @unlink($zipPath);
 
+$sourceJpegPath = sys_get_temp_dir() . '/manuscript-source-normalize.jpg';
+$sourceImage = imagecreatetruecolor(8, 6);
+$background = imagecolorallocate($sourceImage, 240, 220, 180);
+imagefill($sourceImage, 0, 0, $background);
+imagejpeg($sourceImage, $sourceJpegPath, 92);
+imagedestroy($sourceImage);
+file_put_contents($sourceJpegPath, file_get_contents($sourceJpegPath) . 'MANUSCRIPT_TRAILING_BYTES');
+
+$zipPath = tempnam(sys_get_temp_dir(), 'manuscript-zip-normalize-') . '.zip';
+$zip = new ZipArchive();
+$zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+$zip->addFile($sourceJpegPath, 'normalize/venanciaCaderno_0101A.jpg');
+$zip->addFromString('normalize/venanciaCaderno_0101A.xml', '<?xml version="1.0" encoding="UTF-8"?><alto xmlns="http://www.loc.gov/standards/alto/ns-v4#"><Layout><Page WIDTH="8" HEIGHT="6"><PrintSpace><TextBlock><TextLine HPOS="1" VPOS="2" WIDTH="3" HEIGHT="4"><String CONTENT="Teste" HPOS="1" VPOS="2" WIDTH="3" HEIGHT="4"/></TextLine></TextBlock></PrintSpace></Page></Layout></alto>');
+$zip->close();
+
+$imageOutputDir = sys_get_temp_dir() . '/manuscript-zip-normalize-test';
+@mkdir($imageOutputDir, 0777, true);
+
+$originalMemoryLimit = ini_get('memory_limit');
+ini_set('memory_limit', '64M');
+
+$normalizedResult = ZipImport::fromZipPath($zipPath, [
+    'image_output_dir' => $imageOutputDir,
+    'image_output_url' => 'http://example.test/uploads/manuscripts-normalized',
+    'image_max_dimension' => 4,
+]);
+
+assertSameValue(1, $normalizedResult['page_count'], 'ZIP import should import the normalization fixture');
+assertTrueValue(md5_file($normalizedResult['pages'][0]['image_path']) !== md5_file($sourceJpegPath), 'ZIP import should normalize extracted JPEGs instead of copying the original binary untouched');
+assertSameValue('64M', ini_get('memory_limit'), 'ZIP import should restore the original PHP memory limit after normalizing a page image');
+assertSameValue([4, 3], array_slice(getimagesize($normalizedResult['pages'][0]['image_path']), 0, 2), 'ZIP import should downscale oversized viewer images to a browser-safer dimension');
+
+ini_set('memory_limit', $originalMemoryLimit);
+
+@unlink($normalizedResult['pages'][0]['image_path']);
+@rmdir($imageOutputDir);
+@unlink($zipPath);
+@unlink($sourceJpegPath);
+
 echo 'zip_import_test: ok' . PHP_EOL;

@@ -51,6 +51,21 @@ function update_post_meta($postId, $key, $value)
     ];
 }
 
+function delete_post_meta($postId, $key)
+{
+    global $mockMeta, $mockUpdatedMeta;
+
+    if (isset($mockMeta[$postId]) && array_key_exists($key, $mockMeta[$postId])) {
+        unset($mockMeta[$postId][$key]);
+    }
+
+    $mockUpdatedMeta[] = [
+        'post_id' => $postId,
+        'key' => $key,
+        'value' => null,
+    ];
+}
+
 function wp_get_attachment_url($attachmentId)
 {
     global $mockAttachmentUrls;
@@ -90,7 +105,7 @@ class TestAdmin extends Admin
 {
     public static $redirects = [];
 
-    protected static function redirectBack($postId, $notice = null, $source = 'worker')
+    protected static function redirectBack($postId, $notice = null, $source = 'import')
     {
         static::$redirects[] = [
             'post_id' => $postId,
@@ -143,7 +158,7 @@ $registeredHooks = array_map(function ($registration) {
 }, $mockActions);
 
 assertTrueValue(in_array('admin_post_chao_import_manuscript_zip', $registeredHooks, true), 'Register should include the ZIP import admin action');
-assertTrueValue(!in_array('admin_post_chao_process_manuscript_pdf', $registeredHooks, true), 'Register should no longer include the legacy PDF worker admin action');
+assertTrueValue(!in_array('admin_post_chao_process_manuscript_pdf', $registeredHooks, true), 'Register should no longer include the legacy PDF admin action');
 
 resetImportZipState();
 $_GET = [
@@ -183,7 +198,7 @@ assertSameValue('', $mockMeta[77]['chao_manuscript_import_last_error'], 'ZIP imp
 assertSameValue([], $mockMeta[77]['chao_manuscript_import_last_errors'], 'ZIP import should persist an empty error list when the package is valid');
 assertSameValue(321, $mockMeta[77]['chao_manuscript_import_source']['zip_id'], 'ZIP import should persist the imported attachment id');
 assertSameValue($zipPath, $mockMeta[77]['chao_manuscript_import_source']['zip_path'], 'ZIP import should persist the imported ZIP path');
-assertSameValue('venancia-admin-action.zip', $mockMeta[77]['chao_manuscript_import_last_snapshot']['zip_name'], 'ZIP import should persist the imported ZIP filename in the snapshot');
+assertSameValue('venancia.zip', $mockMeta[77]['chao_manuscript_import_last_snapshot']['zip_name'], 'ZIP import should persist the imported ZIP filename in the snapshot');
 assertSameValue(1, $mockMeta[77]['chao_manuscript_import_last_snapshot']['page_count'], 'ZIP import should persist imported pages in the snapshot');
 assertSameValue('venanciaCaderno_0051B', $mockMeta[77]['chao_manuscript_import_last_snapshot']['pages'][0]['basename'], 'ZIP import should persist imported page basenames');
 assertSameValue('http://example.test/uploads/manuscript-imports/77/venancia/venanciaCaderno_0051B.jpg', $mockMeta[77]['chao_manuscript_import_last_snapshot']['pages'][0]['image_url'], 'ZIP import should persist extracted image URLs for the viewer');
@@ -193,6 +208,40 @@ $extractedImagePath = $mockMeta[77]['chao_manuscript_import_last_snapshot']['pag
 @rmdir(dirname($extractedImagePath));
 @rmdir(dirname(dirname($extractedImagePath)));
 @rmdir(dirname(dirname(dirname($extractedImagePath))));
+
+@unlink($zipPath);
+
+resetImportZipState();
+$zipPath = sys_get_temp_dir() . '/venancia-admin-fallback.zip';
+$zip = new \ZipArchive();
+$zip->open($zipPath, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+$zip->addFromString('venanciaCaderno_0052A.jpg', 'fake-image');
+$zip->addFromString('venanciaCaderno_0052A.xml', '<?xml version="1.0" encoding="UTF-8"?><alto xmlns="http://www.loc.gov/standards/alto/ns-v4#"><Layout><Page WIDTH="10" HEIGHT="20"><PrintSpace><TextBlock><TextLine HPOS="1" VPOS="2" WIDTH="3" HEIGHT="4"><String CONTENT="Margem" HPOS="1" VPOS="2" WIDTH="3" HEIGHT="4"/></TextLine></TextBlock></PrintSpace></Page></Layout></alto>');
+$zip->close();
+
+$mockMeta[77]['chao_manuscript_import_source'] = [
+    'zip_id' => 654,
+    'zip_path' => $zipPath,
+    'zip_url' => 'http://example.test/uploads/venancia-fallback.zip',
+    'zip_filename' => 'venancia-fallback.zip',
+];
+$_GET = [
+    'post_id' => '77',
+    'chao_manuscript_import_nonce' => 'nonce-value',
+];
+
+TestAdmin::importZip();
+
+assertSameValue(1, count(TestAdmin::$redirects), 'Stored import source fallback should still trigger a single redirect');
+assertSameValue('success', TestAdmin::$redirects[0]['notice'], 'Stored import source fallback should still import successfully');
+assertSameValue('venancia-fallback.zip', $mockMeta[77]['chao_manuscript_import_last_snapshot']['zip_name'], 'Stored import source fallback should keep the previous ZIP filename');
+assertSameValue('venanciaCaderno_0052A', $mockMeta[77]['chao_manuscript_import_last_snapshot']['pages'][0]['basename'], 'Stored import source fallback should still import the ZIP pages');
+
+$fallbackExtractedImagePath = $mockMeta[77]['chao_manuscript_import_last_snapshot']['pages'][0]['image_path'];
+@unlink($fallbackExtractedImagePath);
+@rmdir(dirname($fallbackExtractedImagePath));
+@rmdir(dirname(dirname($fallbackExtractedImagePath)));
+@rmdir(dirname(dirname(dirname($fallbackExtractedImagePath))));
 
 @unlink($zipPath);
 

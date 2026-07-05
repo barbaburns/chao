@@ -18,12 +18,10 @@ class Frontend
         }
 
         $snapshot = get_post_meta($postId, 'chao_manuscript_import_last_snapshot', true);
-        $review = get_post_meta($postId, 'chao_manuscript_page_review', true);
         $query = isset($_GET['busca']) ? static::wpUnslash($_GET['busca']) : '';
 
         $data['manuscript_search'] = Search::buildViewModel(
             is_array($snapshot) ? $snapshot : ['pages' => []],
-            is_array($review) ? $review : [],
             is_string($query) ? $query : ''
         );
 

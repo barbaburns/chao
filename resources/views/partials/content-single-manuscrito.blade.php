@@ -8,11 +8,6 @@
     'matches' => [],
     'pages' => [],
   ];
-  $statusLabels = [
-    'pendente' => 'Pendente',
-    'em_revisao' => 'Em revisao',
-    'revisado' => 'Revisado',
-  ];
   $viewerPages = array_values(array_map(function ($page) {
     $layoutData = isset($page['layout_data']) && is_array($page['layout_data']) ? $page['layout_data'] : [];
     $pageMeta = isset($layoutData['page']) && is_array($layoutData['page']) ? $layoutData['page'] : [];
@@ -47,7 +42,7 @@
         <section class="manuscript-single__search" aria-labelledby="manuscript-search-title">
             <div class="manuscript-single__search-header">
                 <h3 id="manuscript-search-title">Busca no manuscrito</h3>
-                <p>Digite uma palavra para localizar em quais páginas ela aparece na transcrição.</p>
+                <p>Digite uma palavra para localizar em quais páginas ela aparece no texto indexado do manuscrito.</p>
             </div>
 
             <form class="manuscript-single__search-form" method="get" action="{{ get_permalink() }}">
@@ -125,7 +120,6 @@
               <div class="manuscript-single__result-meta">
                 <a href="#manuscript-viewer" data-manuscript-go-page="{{ $match['page_number'] }}">Pagina {{ $match['page_number'] }}</a>
                 <span>{{ $match['occurrences'] }} ocorrencia(s)</span>
-                <span>{{ $statusLabels[$match['editorial_status']] ?? $match['editorial_status'] }}</span>
               </div>
               <p class="manuscript-single__result-excerpt">{!! $match['excerpt_html'] !!}</p>
             </li>

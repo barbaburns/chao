@@ -4,39 +4,10 @@ namespace App\Manuscripts;
 
 class Search
 {
-    public static function mergeJobWithWorkerResponse(array $job, array $response = [])
-    {
-        $jobPages = [];
-
-        foreach ((array) ($job['pages'] ?? []) as $page) {
-            $pageNumber = isset($page['page_number']) ? (int) $page['page_number'] : 0;
-
-            if ($pageNumber > 0) {
-                $jobPages[$pageNumber] = $page;
-            }
-        }
-
-        foreach ((array) ($response['pages'] ?? []) as $page) {
-            $pageNumber = isset($page['page_number']) ? (int) $page['page_number'] : 0;
-
-            if ($pageNumber <= 0) {
-                continue;
-            }
-
-            $current = isset($jobPages[$pageNumber]) && is_array($jobPages[$pageNumber]) ? $jobPages[$pageNumber] : [];
-            $jobPages[$pageNumber] = static::mergePagePayload($current, $page);
-        }
-
-        ksort($jobPages);
-        $job['pages'] = array_values($jobPages);
-
-        return $job;
-    }
-
-    public static function buildViewModel(array $job, array $reviewData = [], $query = '')
+    public static function buildViewModel(array $job, $query = '')
     {
         $normalizedQuery = static::normalizeQuery($query);
-        $pages = static::buildPages($job, $reviewData, $normalizedQuery);
+        $pages = static::buildPages($job, $normalizedQuery);
         $matches = static::buildMatches($pages, $normalizedQuery);
         $viewerPages = array_values(array_filter($pages, function ($page) {
             return $page['image_url'] !== '';
@@ -57,7 +28,7 @@ class Search
         ];
     }
 
-    public static function buildPages(array $job, array $reviewData = [], $query = '')
+    public static function buildPages(array $job, $query = '')
     {
         $pages = [];
 
@@ -68,17 +39,14 @@ class Search
                 continue;
             }
 
-            $review = isset($reviewData[$pageNumber]) && is_array($reviewData[$pageNumber]) ? $reviewData[$pageNumber] : [];
-            $reviewedText = isset($review['transcription']) ? trim((string) $review['transcription']) : '';
             $rawText = static::extractRawText($page);
             $layoutData = static::extractLayoutData($page);
-            $effectiveText = $reviewedText !== '' ? $reviewedText : $rawText;
-            $effectiveTextSource = $reviewedText !== '' ? 'reviewed' : ($rawText !== '' ? 'raw' : 'none');
+            $effectiveText = $rawText;
+            $effectiveTextSource = $rawText !== '' ? 'raw' : 'none';
             $highlightBoxes = static::buildHighlightBoxes(
                 $layoutData,
                 $query,
-                $effectiveText,
-                $effectiveTextSource
+                $effectiveText
             );
 
             $pages[] = [
@@ -90,12 +58,10 @@ class Search
                 'layout_data' => $layoutData,
                 'layout_available' => !empty($layoutData['lines']),
                 'effective_text_source' => $effectiveTextSource,
-                'editorial_status' => !empty($review['status']) ? (string) $review['status'] : 'pendente',
                 'effective_text' => $effectiveText,
                 'effective_text_html' => static::buildHighlightedHtml($effectiveText, $query),
                 'highlight_boxes' => $highlightBoxes,
                 'highlight_box_count' => count($highlightBoxes),
-                'review_notes' => isset($review['notes']) ? trim((string) $review['notes']) : '',
             ];
         }
 
@@ -120,18 +86,29 @@ class Search
             return nl2br(htmlspecialchars($text, ENT_QUOTES, 'UTF-8'));
         }
 
-        $parts = preg_split($pattern, $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+        $matches = static::collectNormalizedMatches($text, $pattern);
 
-        if (!is_array($parts)) {
+        if (empty($matches)) {
             return nl2br(htmlspecialchars($text, ENT_QUOTES, 'UTF-8'));
         }
 
         $html = '';
+        $cursor = 0;
 
-        foreach ($parts as $index => $part) {
-            $escapedPart = htmlspecialchars($part, ENT_QUOTES, 'UTF-8');
-            $html .= $index % 2 === 1 ? '<mark>' . $escapedPart . '</mark>' : $escapedPart;
+        foreach ($matches as $match) {
+            $start = isset($match['original_start']) ? (int) $match['original_start'] : 0;
+            $length = isset($match['original_length']) ? (int) $match['original_length'] : 0;
+
+            if ($length <= 0 || $start < $cursor) {
+                continue;
+            }
+
+            $html .= htmlspecialchars(static::stringSlice($text, $cursor, $start - $cursor), ENT_QUOTES, 'UTF-8');
+            $html .= '<mark>' . htmlspecialchars(static::stringSlice($text, $start, $length), ENT_QUOTES, 'UTF-8') . '</mark>';
+            $cursor = $start + $length;
         }
+
+        $html .= htmlspecialchars(static::stringSlice($text, $cursor), ENT_QUOTES, 'UTF-8');
 
         return nl2br($html);
     }
@@ -151,7 +128,7 @@ class Search
                 continue;
             }
 
-            $occurrences = preg_match_all($pattern, $page['effective_text'], $found);
+            $occurrences = count(static::collectNormalizedMatches($page['effective_text'], $pattern));
 
             if (!$occurrences) {
                 continue;
@@ -161,7 +138,6 @@ class Search
                 'page_number' => $page['page_number'],
                 'anchor_id' => $page['anchor_id'],
                 'filename' => $page['filename'],
-                'editorial_status' => $page['editorial_status'],
                 'occurrences' => (int) $occurrences,
                 'highlight_box_count' => isset($page['highlight_box_count']) ? (int) $page['highlight_box_count'] : 0,
                 'excerpt_html' => static::buildExcerptHtml($page['effective_text'], $query),
@@ -221,7 +197,7 @@ class Search
         return $layoutData;
     }
 
-    protected static function buildHighlightBoxes(array $layoutData, $query = '', $effectiveText = '', $effectiveTextSource = 'none')
+    protected static function buildHighlightBoxes(array $layoutData, $query = '', $effectiveText = '')
     {
         $exactBoxes = static::buildExactHighlightBoxes($layoutData, $query);
 
@@ -229,7 +205,7 @@ class Search
             return $exactBoxes;
         }
 
-        if ($effectiveTextSource !== 'reviewed') {
+        if (trim((string) $effectiveText) === '') {
             return [];
         }
 
@@ -255,7 +231,11 @@ class Search
                 $wordText = isset($word['text']) ? trim((string) $word['text']) : '';
                 $bbox = isset($word['bbox']) && is_array($word['bbox']) ? $word['bbox'] : [];
 
-                if ($wordText === '' || !preg_match($pattern, $wordText) || empty($bbox)) {
+                if (
+                    $wordText === '' ||
+                    !preg_match($pattern, static::normalizeSearchText($wordText)) ||
+                    empty($bbox)
+                ) {
                     continue;
                 }
 
@@ -340,18 +320,9 @@ class Search
 
     protected static function collectMatchOffsets($text, $pattern)
     {
-        $found = [];
-        $matches = preg_match_all($pattern, (string) $text, $found, PREG_OFFSET_CAPTURE);
-
-        if (!$matches || empty($found[0])) {
-            return [];
-        }
-
-        return array_values(array_map(function ($match) use ($text) {
-            $byteOffset = isset($match[1]) ? (int) $match[1] : 0;
-
-            return static::stringLength(substr((string) $text, 0, $byteOffset));
-        }, $found[0]));
+        return array_values(array_map(function ($match) {
+            return (int) ($match['original_start'] ?? 0);
+        }, static::collectNormalizedMatches((string) $text, $pattern)));
     }
 
     protected static function buildLineSegments(array $lines)
@@ -422,36 +393,6 @@ class Search
         ];
     }
 
-    protected static function mergePagePayload(array $current, array $incoming)
-    {
-        $merged = array_merge($current, $incoming);
-
-        if (empty($merged['raw_text'])) {
-            if (!empty($incoming['raw_text'])) {
-                $merged['raw_text'] = $incoming['raw_text'];
-            } elseif (!empty($incoming['text'])) {
-                $merged['raw_text'] = $incoming['text'];
-            }
-        }
-
-        if (
-            (!isset($merged['layout_data']) || !is_array($merged['layout_data']) || empty($merged['layout_data']['lines'])) &&
-            isset($incoming['layout_data']) &&
-            is_array($incoming['layout_data'])
-        ) {
-            $merged['layout_data'] = $incoming['layout_data'];
-        }
-
-        if (
-            (!isset($merged['image_url']) || $merged['image_url'] === '') &&
-            !empty($incoming['image_url'])
-        ) {
-            $merged['image_url'] = $incoming['image_url'];
-        }
-
-        return $merged;
-    }
-
     protected static function resolveInitialPageNumber(array $pages, array $matches)
     {
         if (!empty($matches[0]['page_number'])) {
@@ -470,16 +411,16 @@ class Search
     protected static function buildExcerptHtml($text, $query, $radius = 70)
     {
         $pattern = static::buildExactPattern($query);
+        $matches = static::collectNormalizedMatches((string) $text, $pattern);
 
-        if (!$pattern || !preg_match($pattern, $text, $firstMatch, PREG_OFFSET_CAPTURE)) {
+        if (!$pattern || empty($matches)) {
             return static::buildHighlightedHtml($text, '');
         }
 
-        $byteOffset = (int) $firstMatch[0][1];
-        $matchLength = static::stringLength((string) $firstMatch[0][0]);
-        $start = max(0, static::stringLength(substr($text, 0, $byteOffset)) - $radius);
+        $firstMatch = $matches[0];
+        $start = max(0, (int) $firstMatch['original_start'] - $radius);
         $totalLength = static::stringLength($text);
-        $excerptLength = min($totalLength - $start, ($radius * 2) + $matchLength);
+        $excerptLength = min($totalLength - $start, ($radius * 2) + (int) $firstMatch['original_length']);
         $excerpt = static::stringSlice($text, $start, $excerptLength);
         $prefix = $start > 0 ? '...' : '';
         $suffix = ($start + $excerptLength) < $totalLength ? '...' : '';
@@ -514,7 +455,137 @@ class Search
             return '';
         }
 
-        return preg_replace('/\s+/u', ' ', $query) ?: '';
+        $query = preg_replace('/\s+/u', ' ', $query) ?: '';
+        $parts = preg_split('/\s+/u', $query, -1, PREG_SPLIT_NO_EMPTY);
+
+        if (empty($parts)) {
+            return '';
+        }
+
+        $normalizedParts = array_values(array_filter(array_map(function ($part) {
+            $part = preg_replace('/^[\pP\pS]+|[\pP\pS]+$/u', '', (string) $part);
+
+            return $part === null ? '' : trim($part);
+        }, $parts), function ($part) {
+            return $part !== '';
+        }));
+
+        return implode(' ', $normalizedParts);
+    }
+
+    protected static function collectNormalizedMatches($text, $pattern)
+    {
+        if (!$pattern || (string) $text === '') {
+            return [];
+        }
+
+        $normalized = static::buildNormalizedStringMap((string) $text);
+        $found = [];
+        $matches = preg_match_all($pattern, $normalized['text'], $found, PREG_OFFSET_CAPTURE);
+
+        if (!$matches || empty($found[0])) {
+            return [];
+        }
+
+        $results = [];
+
+        foreach ($found[0] as $match) {
+            $normalizedStart = static::stringLength(substr($normalized['text'], 0, (int) ($match[1] ?? 0)));
+            $normalizedLength = static::stringLength((string) ($match[0] ?? ''));
+
+            if ($normalizedLength <= 0 || !isset($normalized['map'][$normalizedStart])) {
+                continue;
+            }
+
+            $lastNormalizedIndex = $normalizedStart + $normalizedLength - 1;
+
+            if (!isset($normalized['map'][$lastNormalizedIndex])) {
+                continue;
+            }
+
+            $originalStart = (int) $normalized['map'][$normalizedStart];
+            $originalEnd = (int) $normalized['map'][$lastNormalizedIndex] + 1;
+
+            $results[] = [
+                'original_start' => $originalStart,
+                'original_length' => max(1, $originalEnd - $originalStart),
+            ];
+        }
+
+        return $results;
+    }
+
+    protected static function buildNormalizedStringMap($text)
+    {
+        $characters = preg_split('//u', (string) $text, -1, PREG_SPLIT_NO_EMPTY);
+        $normalizedText = '';
+        $map = [];
+
+        if (!is_array($characters)) {
+            return [
+                'text' => static::normalizeSearchText((string) $text),
+                'map' => [],
+            ];
+        }
+
+        foreach ($characters as $index => $character) {
+            $folded = static::foldSearchCharacter($character);
+
+            if ($folded === '') {
+                continue;
+            }
+
+            $foldedCharacters = preg_split('//u', $folded, -1, PREG_SPLIT_NO_EMPTY);
+
+            if (!is_array($foldedCharacters)) {
+                continue;
+            }
+
+            foreach ($foldedCharacters as $foldedCharacter) {
+                $map[] = (int) $index;
+                $normalizedText .= $foldedCharacter;
+            }
+        }
+
+        return [
+            'text' => $normalizedText,
+            'map' => $map,
+        ];
+    }
+
+    protected static function normalizeSearchText($text)
+    {
+        $map = static::buildNormalizedStringMap((string) $text);
+
+        return isset($map['text']) ? (string) $map['text'] : '';
+    }
+
+    protected static function foldSearchCharacter($character)
+    {
+        $character = (string) $character;
+
+        if ($character === '') {
+            return '';
+        }
+
+        if (preg_match('/\s/u', $character)) {
+            return ' ';
+        }
+
+        $transliterated = function_exists('iconv')
+            ? @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $character)
+            : false;
+
+        if ($transliterated === false || $transliterated === '') {
+            $transliterated = $character;
+        }
+
+        $transliterated = preg_replace('/[\'"`´^~]+/u', '', (string) $transliterated) ?: '';
+        $lowered = function_exists('mb_strtolower')
+            ? mb_strtolower((string) $transliterated, 'UTF-8')
+            : strtolower((string) $transliterated);
+
+        return preg_replace('/\s+/u', ' ', $lowered) ?: '';
     }
 
     protected static function stringLength($value)

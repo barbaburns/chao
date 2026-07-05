@@ -18,8 +18,8 @@ $mockMeta = [
     77 => [
         'chao_manuscript_import_last_error' => '',
         'chao_manuscript_import_last_errors' => [
-            'Missing pair for venanciaCaderno_0099A',
-            'Invalid XML for venanciaCaderno_0100A: Invalid ALTO XML.',
+            'Imagem sem XML correspondente: venanciaCaderno_0099A',
+            'XML sem imagem correspondente: venanciaCaderno_0100A',
         ],
         'chao_manuscript_page_review' => [
             1 => [
@@ -163,7 +163,7 @@ $snapshot = Admin::buildImportSnapshot([
 
 $GLOBALS['mockMeta'][77]['chao_manuscript_import_last_snapshot'] = $snapshot;
 
-$rows = Admin::buildImportedPageRows($snapshot, $GLOBALS['mockMeta'][77]['chao_manuscript_page_review']);
+$rows = Admin::buildImportedPageRows($snapshot);
 
 assertSameValue('venancia.zip', $snapshot['zip_name'], 'Snapshot should keep ZIP filename');
 assertSameValue(2, $snapshot['page_count'], 'Snapshot should keep page count');
@@ -183,9 +183,9 @@ assertTrueValue(strpos($metaboxMarkup, 'Pacote ZIP do manuscrito') !== false, 'M
 assertTrueValue(strpos($metaboxMarkup, 'venancia.zip') !== false, 'Metabox should show the attached ZIP filename');
 assertTrueValue(strpos($metaboxMarkup, 'Importar pacote ZIP') !== false, 'Metabox should expose the ZIP import action');
 assertTrueValue(strpos($metaboxMarkup, 'action=chao_import_manuscript_zip') !== false, 'Metabox button should point to the ZIP import action');
-assertTrueValue(strpos($metaboxMarkup, 'Missing pair for venanciaCaderno_0099A') !== false, 'Metabox should list partial import warnings from the last ZIP import');
-assertTrueValue(strpos($metaboxMarkup, 'Invalid XML for venanciaCaderno_0100A: Invalid ALTO XML.') !== false, 'Metabox should show XML parsing warnings from the last ZIP import');
-assertTrueValue(strpos($metaboxMarkup, 'pdf-worker') === false, 'Metabox should no longer mention the PDF worker flow');
+assertTrueValue(strpos($metaboxMarkup, 'Imagem sem XML correspondente: venanciaCaderno_0099A') !== false, 'Metabox should list unmatched image warnings from the last ZIP import');
+assertTrueValue(strpos($metaboxMarkup, 'XML sem imagem correspondente: venanciaCaderno_0100A') !== false, 'Metabox should show unmatched XML warnings from the last ZIP import');
+assertTrueValue(strpos($metaboxMarkup, 'manuscript-worker') === false, 'Metabox should no longer use the previous import metabox identifiers');
 
 $GLOBALS['mockAttachmentUrls'][321] = '';
 
@@ -208,16 +208,36 @@ $legacyFieldMetaboxMarkup = ob_get_clean();
 assertTrueValue(strpos($legacyFieldMetaboxMarkup, 'Importar pacote ZIP') !== false, 'Metabox should still expose the ZIP import action for legacy master PDF field values');
 assertTrueValue(strpos($legacyFieldMetaboxMarkup, 'venancia-legado.zip') !== false, 'Metabox should reuse the saved legacy field attachment as ZIP source when present');
 
+unset($GLOBALS['mockFields']['manuscript_master_pdf']);
+$GLOBALS['mockMeta'][77]['chao_manuscript_import_source'] = [
+    'zip_id' => 987,
+    'zip_path' => '/srv/uploads/testesMetsALTO.zip',
+    'zip_url' => 'http://example.test/uploads/testesMetsALTO.zip',
+    'zip_filename' => 'testesMetsALTO.zip',
+];
+
+ob_start();
+Admin::renderMetabox($post);
+$importSourceFallbackMarkup = ob_get_clean();
+
+assertTrueValue(strpos($importSourceFallbackMarkup, 'Importar pacote ZIP') !== false, 'Metabox should still expose the ZIP import action when the current ACF field is empty but the last imported source exists');
+assertTrueValue(strpos($importSourceFallbackMarkup, 'testesMetsALTO.zip') !== false, 'Metabox should show the last imported ZIP filename when falling back to the stored import source');
+
 ob_start();
 Admin::renderPagesMetabox($post);
 $pagesMarkup = ob_get_clean();
 
-assertTrueValue(strpos($pagesMarkup, 'Resumo das paginas importadas do pacote ZIP') !== false, 'Pages metabox should describe imported ZIP pages');
+assertTrueValue(strpos($pagesMarkup, 'Resumo compacto das paginas importadas do pacote ZIP') !== false, 'Pages metabox should describe the compact ZIP page summary');
+assertTrueValue(strpos($pagesMarkup, 'Paginas importadas: 1') !== false, 'Pages metabox should show the imported pages count');
+assertTrueValue(strpos($pagesMarkup, 'Imagens sem XML correspondente: 1') !== false, 'Pages metabox should show unmatched image count');
+assertTrueValue(strpos($pagesMarkup, 'XML sem imagem correspondente: 1') !== false, 'Pages metabox should show unmatched XML count');
 assertTrueValue(strpos($pagesMarkup, 'venanciaCaderno_0051B.jpg') !== false, 'Pages metabox should render imported page filenames');
-assertTrueValue(strpos($pagesMarkup, 'aproximado') !== false, 'Pages metabox should render the highlight status from imported rows');
 assertTrueValue(strpos($pagesMarkup, 'imported') !== false, 'Pages metabox should render the import status from imported rows');
-assertTrueValue(strpos($pagesMarkup, 'Texto revisto') !== false, 'Pages metabox should merge saved review transcription for imported pages');
-assertTrueValue(strpos($pagesMarkup, 'Job HTR') === false, 'Pages metabox should no longer render worker-specific HTR columns');
+assertTrueValue(strpos($pagesMarkup, 'Status editorial') === false, 'Pages metabox should no longer render editorial status controls');
+assertTrueValue(strpos($pagesMarkup, 'Transcricao revisada') === false, 'Pages metabox should no longer render removed manual text review controls');
+assertTrueValue(strpos($pagesMarkup, 'Observacoes') === false, 'Pages metabox should no longer render editorial notes controls');
+assertTrueValue(strpos($pagesMarkup, 'Texto indexado') === false, 'Pages metabox should no longer render indexed text preview in the compact summary');
+assertTrueValue(strpos($pagesMarkup, 'Realce') === false, 'Pages metabox should no longer render highlight status in the compact summary');
 
 $_GET = [
     'post' => '77',

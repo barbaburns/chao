@@ -69,6 +69,7 @@ assertTrueValue(strpos($resultsSection, 'data-manuscript-go-page') !== false, 'M
 assertTrueValue(preg_match('/import\s+OpenSeadragon\s+from\s+[\'"]openseadragon[\'"]\s*;?/', $script) === 1, 'Single manuscript route should import OpenSeadragon');
 assertTrueValue(strpos($script, 'data-manuscript-viewer') !== false, 'Single manuscript route should still target the manuscript viewer');
 assertTrueValue(preg_match('/\bOpenSeadragon\s*\(/', $script) === 1, 'Single manuscript route should initialize OpenSeadragon');
+assertTrueValue(strpos($script, "drawer: ['html', 'canvas', 'webgl']") !== false, 'Single manuscript route should prefer the HTML drawer for large manuscript images');
 assertTrueValue(strpos($script, 'data-manuscript-osd') !== false, 'Single manuscript route should target the OpenSeadragon container');
 assertTrueValue(preg_match('/function\s+goToPage\s*\(/', $script) === 1, 'Single manuscript route should define goToPage for page changes');
 assertTrueValue(preg_match('/\bosd\.open\s*\(/', $script) === 1, 'Single manuscript route should open manuscript pages through the OpenSeadragon instance');
@@ -91,8 +92,10 @@ assertTrueValue(strpos($script, 'data-manuscript-scale-mode') === false, 'Single
 assertTrueValue(strpos($script, 'manuscript-single__viewer-highlight') !== false, 'Single manuscript route should render viewer highlight overlays');
 assertTrueValue(strpos($script, 'clearOverlays') !== false, 'Single manuscript route should clear overlays between page changes');
 assertTrueValue(strpos($script, 'addOverlay(') !== false, 'Single manuscript route should add OpenSeadragon overlays for search highlights');
-assertTrueValue(strpos($script, 'page.pageWidth') !== false, 'Single manuscript route should normalize highlight x coordinates with page width');
-assertTrueValue(strpos($script, 'page.pageHeight') !== false, 'Single manuscript route should normalize highlight y coordinates with page height');
+assertTrueValue(strpos($script, 'x / pageWidth') !== false, 'Single manuscript route should normalize highlight X coordinates by the original page width');
+assertTrueValue(strpos($script, 'y / pageWidth') !== false, 'Single manuscript route should normalize highlight Y coordinates by the original page width');
+assertTrueValue(strpos($script, 'width / pageWidth') !== false, 'Single manuscript route should normalize highlight widths by the original page width');
+assertTrueValue(strpos($script, 'height / pageWidth') !== false, 'Single manuscript route should normalize highlight heights by the original page width');
 
 assertTrueValue(preg_match('/\.manuscript-single__viewer-osd\b/', $styles) === 1, 'Manuscript styles should define an OpenSeadragon viewer container');
 assertTrueValue(preg_match('/\.manuscript-single__viewer-osd\s+\.openseadragon-container\b/', $styles) === 1, 'Manuscript styles should size the nested OpenSeadragon container');

@@ -124,6 +124,7 @@ class ZipImport
         static::ensureDirectory($outputDir);
 
         $imageContents = $zip->getFromName((string) $imageEntryName);
+        $extension = strtolower((string) pathinfo($filename, PATHINFO_EXTENSION));
 
         if ($imageContents === false) {
             throw new \RuntimeException('Unable to extract manuscript image: ' . $filename);
@@ -131,7 +132,7 @@ class ZipImport
 
         $outputPath = $outputDir . DIRECTORY_SEPARATOR . $filename;
 
-        if (file_put_contents($outputPath, $imageContents) === false) {
+        if (!static::persistBrowserSafeImage($imageContents, $outputPath, $extension, $options) && file_put_contents($outputPath, $imageContents) === false) {
             throw new \RuntimeException('Unable to persist manuscript image: ' . $filename);
         }
 
@@ -160,6 +161,171 @@ class ZipImport
         }
 
         return false;
+    }
+
+    protected static function persistBrowserSafeImage($imageContents, $outputPath, $extension, array $options = [])
+    {
+        if (!function_exists('imagecreatefromstring')) {
+            return false;
+        }
+
+        if (!in_array($extension, static::$imageExtensions, true)) {
+            return false;
+        }
+
+        $previousMemoryLimit = static::raiseImageMemoryLimit();
+        $image = @imagecreatefromstring($imageContents);
+
+        if ($image === false) {
+            static::restoreImageMemoryLimit($previousMemoryLimit);
+            return false;
+        }
+
+        $normalizedImage = static::resizeImageForViewer($image, $options);
+        $saved = false;
+
+        switch ($extension) {
+            case 'jpg':
+            case 'jpeg':
+                $saved = imagejpeg($normalizedImage, $outputPath, 92);
+                break;
+            case 'png':
+                imagesavealpha($normalizedImage, true);
+                $saved = imagepng($normalizedImage, $outputPath, 6);
+                break;
+            case 'webp':
+                if (function_exists('imagewebp')) {
+                    $saved = imagewebp($normalizedImage, $outputPath, 90);
+                }
+                break;
+        }
+
+        if ($normalizedImage !== $image) {
+            imagedestroy($normalizedImage);
+        }
+
+        imagedestroy($image);
+        static::restoreImageMemoryLimit($previousMemoryLimit);
+
+        return $saved;
+    }
+
+    protected static function resizeImageForViewer($image, array $options = [])
+    {
+        $maxDimension = isset($options['image_max_dimension']) ? (int) $options['image_max_dimension'] : 3200;
+
+        if ($maxDimension <= 0 || !function_exists('imagescale')) {
+            return $image;
+        }
+
+        $width = imagesx($image);
+        $height = imagesy($image);
+        $largestSide = max($width, $height);
+
+        if ($largestSide <= $maxDimension) {
+            return $image;
+        }
+
+        if ($width >= $height) {
+            $targetWidth = $maxDimension;
+            $targetHeight = max(1, (int) round(($height / $width) * $maxDimension));
+        } else {
+            $targetHeight = $maxDimension;
+            $targetWidth = max(1, (int) round(($width / $height) * $maxDimension));
+        }
+
+        $scaled = imagescale($image, $targetWidth, $targetHeight, IMG_BICUBIC_FIXED);
+
+        if ($scaled === false) {
+            return $image;
+        }
+
+        if (function_exists('imagealphablending')) {
+            imagealphablending($scaled, false);
+        }
+
+        if (function_exists('imagesavealpha')) {
+            imagesavealpha($scaled, true);
+        }
+
+        return $scaled;
+    }
+
+    protected static function raiseImageMemoryLimit()
+    {
+        if (!function_exists('ini_get') || !function_exists('ini_set')) {
+            return null;
+        }
+
+        $currentLimit = ini_get('memory_limit');
+        $currentBytes = static::parseIniSize($currentLimit);
+
+        if ($currentBytes === -1) {
+            return null;
+        }
+
+        if (function_exists('wp_raise_memory_limit')) {
+            wp_raise_memory_limit('image');
+            $currentLimit = ini_get('memory_limit');
+            $currentBytes = static::parseIniSize($currentLimit);
+
+            if ($currentBytes === -1) {
+                return null;
+            }
+        }
+
+        $targetBytes = 512 * 1024 * 1024;
+
+        if ($currentBytes >= $targetBytes) {
+            return null;
+        }
+
+        if (@ini_set('memory_limit', static::formatIniSize($targetBytes)) === false) {
+            return null;
+        }
+
+        return $currentLimit;
+    }
+
+    protected static function restoreImageMemoryLimit($previousMemoryLimit)
+    {
+        if ($previousMemoryLimit === null || !function_exists('ini_set')) {
+            return;
+        }
+
+        @ini_set('memory_limit', (string) $previousMemoryLimit);
+    }
+
+    protected static function parseIniSize($value)
+    {
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return 0;
+        }
+
+        if ($value === '-1') {
+            return -1;
+        }
+
+        $unit = strtolower(substr($value, -1));
+        $number = (float) $value;
+
+        switch ($unit) {
+            case 'g':
+                return (int) round($number * 1024 * 1024 * 1024);
+            case 'm':
+                return (int) round($number * 1024 * 1024);
+            case 'k':
+                return (int) round($number * 1024);
+            default:
+                return (int) round($number);
+        }
+    }
+
+    protected static function formatIniSize($bytes)
+    {
+        return (string) max(1, (int) ceil(((int) $bytes) / (1024 * 1024))) . 'M';
     }
 
     protected static function ensureDirectory($path)
