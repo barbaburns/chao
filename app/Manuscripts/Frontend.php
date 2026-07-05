@@ -24,8 +24,16 @@ class Frontend
             is_array($snapshot) ? $snapshot : ['pages' => []],
             is_string($query) ? $query : ''
         );
+        $data['related_books'] = static::getRelatedBooks($postId);
 
         return $data;
+    }
+
+    protected static function getRelatedBooks($postId)
+    {
+        $books = get_field('livros_relacionados', $postId);
+
+        return is_array($books) ? $books : [];
     }
 
     protected static function wpUnslash($value)

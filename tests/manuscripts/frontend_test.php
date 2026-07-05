@@ -31,6 +31,14 @@ $mockMeta = [
         ],
     ],
 ];
+$mockFields = [
+    77 => [
+        'livros_relacionados' => [
+            (object) ['ID' => 501],
+            (object) ['ID' => 502],
+        ],
+    ],
+];
 
 function get_the_ID()
 {
@@ -44,6 +52,15 @@ function get_post_meta($postId, $key, $single)
     global $mockMeta;
 
     return isset($mockMeta[$postId][$key]) ? $mockMeta[$postId][$key] : '';
+}
+
+function get_field($field, $postId = null)
+{
+    global $mockFields, $mockPostId;
+
+    $postId = $postId ?: $mockPostId;
+
+    return isset($mockFields[$postId][$field]) ? $mockFields[$postId][$field] : null;
 }
 
 require_once dirname(__DIR__, 2) . '/vendor/autoload.php';
@@ -78,6 +95,8 @@ assertSameValue(1, $search['page_count'], 'Frontend should build search data fro
 assertSameValue(1, $search['match_count'], 'Frontend should search imported manuscript pages');
 assertSameValue('venanciaCaderno_0051B.jpg', $search['pages'][0]['filename'], 'Frontend should expose imported page data to the viewer');
 assertTrueValue($search['viewer_enabled'] === true, 'Frontend should enable the viewer when imported pages include image URLs');
+assertSameValue(2, count($data['related_books']), 'Frontend should expose the livros_relacionados field to the manuscript template');
+assertSameValue(501, $data['related_books'][0]->ID, 'Frontend should preserve related book post objects');
 
 $_GET = [
     'busca' => 'paraiso',
