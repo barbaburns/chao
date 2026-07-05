@@ -13,6 +13,7 @@
 .archive.date .main,
 .archive.tag .main,
 .single-post .post,
+.single-manuscrito .post,
 .blog-highlights-content,
 .featured-book,
 .single-product .main-product,
@@ -41,8 +42,16 @@
     "side     content";
 }
 
-.single-post .post {
+.single-post .post,
+.single-manuscrito .post {
   grid-template-rows: max-content max-content auto;
+  grid-template-areas:
+    "header   title"
+    "image    content"
+    "side     content";
+}
+
+.single-post .post {
   grid-template-areas:
     "header   title"
     "image    content"
@@ -67,24 +76,28 @@
   grid-area: header;
 }
 
-.single-post .post-header {
+.single-post .post-header,
+.single-manuscrito .post-header {
   grid-area: title;
 }
 
 .single-post .feautured-image,
-.single-autores .feautured-image {
+.single-autores .feautured-image,
+.single-manuscrito .feautured-image {
   grid-area: image;
 }
 
 .team-list-wrapper,
 .grid-sidebar,
 .single-post .related-books,
+.single-manuscrito .manuscript-single__sidebar,
 .woocommerce-account .woocommerce-MyAccount-navigation {
   grid-area: side;
 }
 
 .grid-content,
 .single-post .entry-content,
+.single-manuscrito .entry-content,
 .woocommerce-cart .woocommerce,
 .woocommerce-checkout .woocommerce,
 .woocommerce-account .woocommerce {
@@ -159,6 +172,15 @@
       "side"
       "related"
       "comments";
+  }
+
+  .single-manuscrito .post {
+    grid-template-areas:
+      "header"
+      "image"
+      "title"
+      "content"
+      "side";
   }
 
   .woocommerce-account .main {

@@ -2,6 +2,7 @@
 
 $template = file_get_contents(dirname(__DIR__, 2) . '/resources/views/partials/content-single-manuscrito.blade.php');
 $script = file_get_contents(dirname(__DIR__, 2) . '/resources/assets/scripts/routes/single-manuscrito.js');
+$gridStyles = file_get_contents(dirname(__DIR__, 2) . '/resources/assets/styles/layouts/_grid.scss');
 $styles = file_get_contents(dirname(__DIR__, 2) . '/resources/assets/styles/layouts/_manuscripts.scss');
 $package = file_get_contents(dirname(__DIR__, 2) . '/package.json');
 $lockfile = file_get_contents(dirname(__DIR__, 2) . '/yarn.lock');
@@ -169,5 +170,14 @@ assertTrueValue(preg_match('/\.manuscript-single__viewer-overlay\b/', $styles) =
 assertTrueValue(preg_match('/\.manuscript-single__viewer-highlight\b/', $styles) === 1, 'Manuscript styles should define highlight overlay styles');
 assertTrueValue(preg_match('/\.manuscript-single__viewer-zoom\b/', $styles) === 0, 'Manuscript styles should remove the legacy zoom control group');
 assertTrueValue(preg_match('/\.manuscript-single__viewer-index\b/', $styles) === 0, 'Manuscript styles should remove the full page index grid');
+assertTrueValue(
+    preg_match('/\.single-post \.post,\s*\.single-manuscrito \.post,\s*\.blog-highlights-content,\s*\.featured-book,\s*\.single-product \.main-product,\s*\.woocommerce-cart \.main,\s*\.woocommerce-checkout \.main,\s*\.woocommerce-account \.main,\s*\.page-template-template-static \.main,\s*\.search-results \.main\s*\{[^}]*display:\s*grid;/s', $gridStyles) === 1,
+    'Grid styles should include single manuscripts in the base grid container rule'
+);
+assertTrueValue(strpos($gridStyles, '.single-manuscrito .post-header') !== false, 'Grid styles should place the manuscript header in the shared title area');
+assertTrueValue(strpos($gridStyles, '.single-manuscrito .feautured-image') !== false, 'Grid styles should place the manuscript featured image in the left rail');
+assertTrueValue(strpos($gridStyles, '.single-manuscrito .manuscript-single__sidebar') !== false, 'Grid styles should place the manuscript sidebar in the side column');
+assertTrueValue(strpos($styles, '.manuscript-single__sidebar') !== false, 'Manuscript styles should define the new sidebar stack');
+assertTrueValue(strpos($styles, '.manuscript-single__content') !== false, 'Manuscript styles should define the content block that precedes the viewer');
 
 echo 'single_manuscrito_viewer_markup_test: ok' . PHP_EOL;
