@@ -230,9 +230,9 @@
         },
         {
             "key": "field_5e58ded8f0d1f",
-            "label": "Galeria",
-            "name": "manuscript_gallery",
-            "type": "gallery",
+            "label": "Texto",
+            "name": "manuscript_text",
+            "type": "wysiwyg",
             "instructions": "",
             "required": 0,
             "conditional_logic": 0,
@@ -241,19 +241,33 @@
                 "class": "",
                 "id": ""
             },
-            "min": "",
-            "max": "",
-            "insert": "append",
-            "library": "all",
-            "min_width": "",
-            "min_height": "",
-            "min_size": "",
-            "max_width": "",
-            "max_height": "",
-            "max_size": "",
-            "mime_types": "",
-            "return_format": "array",
-            "preview_size": "thumbnail"
+            "default_value": "",
+            "tabs": "all",
+            "toolbar": "full",
+            "media_upload": 1,
+            "delay": 0
+        },
+        {
+            "key": "field_manuscrito_link",
+            "label": "Link do manuscrito",
+            "name": "manuscrito_link",
+            "type": "post_object",
+            "instructions": "",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "post_type": [
+                "manuscrito"
+            ],
+            "taxonomy": "",
+            "allow_null": 1,
+            "multiple": 0,
+            "return_format": "object",
+            "ui": 1
         }
     ],
     "location": [

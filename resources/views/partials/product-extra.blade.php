@@ -66,12 +66,7 @@
       <div class="product-extra product-extra-excerpt">
         <h2>Trecho</h2>
         <blockquote class="product-excerpt">
-
-            <!-- @component('components.link', ['link' => $excerpt['url']])
-              {!! $excerpt['text'] !!}
-            @endcomponent -->
             <?php echo wp_kses_post( the_field('excerpt_text') ); ?>
-
         </blockquote>
       </div>
     @endif
@@ -79,27 +74,13 @@
     @if($manuscript)
       <div class="product-extra product-extra-manuscript">
         <h2>Manuscrito</h2>
-        <div class="swiper-container product-manuscript product-manuscript-slider">
-          <div class="swiper-wrapper">
-            @foreach($manuscript['images'] as $image)
-              <div class="swiper-slide">
-                <figure class="product-manuscript-slide">
-                  @if($manuscript['url'])
-                    <a href="{{ $manuscript['url'] }}">
-                      {!! $image['image'] !!}
-                    </a>
-                  @else
-                    {!! $image['image'] !!}
-                  @endif
-
-                  @if($image['caption'])
-                    <figcaption>{{ $image['caption'] }}</figcaption>
-                  @endif
-                </figure>
-              </div>
-            @endforeach
-          </div>
-          <div class="swiper-pagination-product-manuscript"></div>
+        <div class="product-manuscript">
+          {!! $manuscript['text'] !!}
+          @if($manuscript['url'])
+            <p class="product-manuscript-link">
+              <a href="{{ $manuscript['url'] }}">Acesse o manuscrito</a>
+            </p>
+          @endif
         </div>
       </div>
     @endif

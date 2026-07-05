@@ -159,20 +159,4 @@ function relatedProductsSwiper() {
   }
 }
 
-function productManuscriptSwiper() {
-  if (!$('.product-manuscript-slider').length) {
-    return;
-  }
-
-  new Swiper('.product-manuscript-slider', withBulletVisibility({
-    autoplay: false,
-    speed: 500,
-    pagination: {
-      el: '.swiper-pagination-product-manuscript',
-      type: 'bullets',
-      clickable: true,
-    },
-  }));
-}
-
-export { shortTextSwiper, productSwiper, homeProductsSwiper, relatedProductsSwiper, productManuscriptSwiper }
+export { shortTextSwiper, productSwiper, homeProductsSwiper, relatedProductsSwiper }

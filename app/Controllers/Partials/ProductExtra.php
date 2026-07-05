@@ -87,25 +87,10 @@ trait ProductExtra
      */
     public static function getProductManuscript($id)
     {
-        $gallery = get_field('manuscript_gallery', $id);
-        $manuscriptPost = get_field('manuscrito', $id);
+        $text = get_field('manuscript_text', $id);
+        $manuscriptPost = get_field('manuscrito_link', $id);
 
-        if(!$gallery || !is_array($gallery)) {
-            return false;
-        }
-
-        $images = array_values(array_filter(array_map(function ($image) {
-            if (empty($image['ID'])) {
-                return null;
-            }
-
-            return [
-                'image' => wp_get_attachment_image($image['ID'], 'large'),
-                'caption' => esc_html($image['caption'] ?? ''),
-            ];
-        }, $gallery)));
-
-        if(!$images) {
+        if(!$text) {
             return false;
         }
 
@@ -120,7 +105,7 @@ trait ProductExtra
         }
 
         return [
-            'images' => $images,
+            'text' => wp_kses_post($text),
             'url' => $manuscriptUrl,
         ];
     }
