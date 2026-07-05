@@ -20,7 +20,8 @@
   .archive.category & a,
   .archive.date & a,
   .archive.tag & a,
-  .single-post & a {
+  .single-post & a,
+  .single-manuscrito & a {
     color: $white;
   }
 }
@@ -82,7 +83,8 @@
   .archive.category & a,
   .archive.date & a,
   .archive.tag & a,
-  .single-post & a {
+  .single-post & a,
+  .single-manuscrito & a {
     color: $white;
   }
 }

@@ -70,26 +70,26 @@ input[type="search"]::-webkit-search-results-decoration {
   }
 }
 
-.custom-control-input:checked ~ .custom-control-label::before {
+.custom-control-input:checked~.custom-control-label::before {
   border-color: $black;
 }
 
 .custom-control-label::before,
-.custom-control-input:focus:not(:checked) ~ .custom-control-label::before {
+.custom-control-input:focus:not(:checked)~.custom-control-label::before {
   border-color: $black;
   background-color: transparent;
 }
 
-.custom-control-input:focus ~ .custom-control-label::before, {
+.custom-control-input:focus~.custom-control-label::before {
   box-shadow: none;
 }
 
-.custom-control-input:not(:disabled):active ~ .custom-control-label::before,
-.custom-control-input:checked ~ .custom-control-label::before {
+.custom-control-input:not(:disabled):active~.custom-control-label::before,
+.custom-control-input:checked~.custom-control-label::before {
   background-color: $black;
 }
 
-.mc4wp-checkbox > label,
+.mc4wp-checkbox>label,
 .comment-form-cookies-consent,
 .woocommerce-form__label-for-checkbox {
   @include checkbox;
@@ -134,7 +134,8 @@ input[type="search"]::-webkit-search-results-decoration {
   .archive.category .banner &,
   .archive.date .banner &,
   .archive.tag .banner &,
-  .single-post .banner & {
+  .single-post .banner &,
+  .single-manuscrito .banner & {
     color: $white;
     border-color: $white;
 
@@ -168,7 +169,8 @@ input[type="search"]::-webkit-search-results-decoration {
   .archive.category .banner &,
   .archive.date .banner &,
   .archive.tag .banner &,
-  .single-post .banner & {
+  .single-post .banner &,
+  .single-manuscrito .banner & {
     color: $white;
 
     &:hover,

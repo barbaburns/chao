@@ -72,7 +72,8 @@
 .archive.category,
 .archive.date,
 .archive.tag,
-.single-post {
+.single-post,
+.single-manuscrito {
   .header-blog-title {
     display: none;
   }
@@ -183,7 +184,8 @@
   .archive.category,
   .archive.date,
   .archive.tag,
-  .single-post {
+  .single-post,
+  .single-manuscrito {
     .header-blog-title {
       display: block;
       color: $white;
