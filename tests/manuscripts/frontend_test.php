@@ -9,6 +9,19 @@ namespace {
 
         return isset($mockFields[$postId][$field]) ? $mockFields[$postId][$field] : null;
     }
+
+    function get_post($post)
+    {
+        if (is_object($post)) {
+            return $post;
+        }
+
+        if (is_numeric($post)) {
+            return (object) ['ID' => (int) $post];
+        }
+
+        return null;
+    }
 }
 
 namespace App\Manuscripts {
@@ -66,16 +79,64 @@ namespace App\Manuscripts {
                 ],
             ],
         ],
+        80 => [
+            'chao_manuscript_import_last_snapshot' => [
+                'pages' => [
+                    [
+                        'page_number' => 1,
+                        'basename' => 'numericRelatedBooks',
+                        'filename' => 'numericRelatedBooks.jpg',
+                        'image_url' => 'http://example.test/uploads/numericRelatedBooks.jpg',
+                        'raw_text' => 'Texto de teste.',
+                    ],
+                ],
+            ],
+        ],
+        81 => [
+            'chao_manuscript_import_last_snapshot' => [
+                'pages' => [
+                    [
+                        'page_number' => 1,
+                        'basename' => 'singleObjectRelatedBook',
+                        'filename' => 'singleObjectRelatedBook.jpg',
+                        'image_url' => 'http://example.test/uploads/singleObjectRelatedBook.jpg',
+                        'raw_text' => 'Texto de teste.',
+                    ],
+                ],
+            ],
+        ],
+        82 => [
+            'chao_manuscript_import_last_snapshot' => [
+                'pages' => [
+                    [
+                        'page_number' => 1,
+                        'basename' => 'singleIdRelatedBook',
+                        'filename' => 'singleIdRelatedBook.jpg',
+                        'image_url' => 'http://example.test/uploads/singleIdRelatedBook.jpg',
+                        'raw_text' => 'Texto de teste.',
+                    ],
+                ],
+            ],
+        ],
     ];
     $mockFields = [
         77 => [
-            'livros_relacionados' => [
+            'related_books' => [
                 (object) ['ID' => 501],
                 (object) ['ID' => 502],
             ],
         ],
         79 => [
-            'livros_relacionados' => 'not-an-array',
+            'related_books' => 'not-an-array',
+        ],
+        80 => [
+            'related_books' => [601, 602],
+        ],
+        81 => [
+            'related_books' => (object) ['ID' => 701],
+        ],
+        82 => [
+            'related_books' => 801,
         ],
     ];
 
@@ -125,7 +186,7 @@ namespace App\Manuscripts {
     assertSameValue(1, $search['match_count'], 'Frontend should search imported manuscript pages');
     assertSameValue('venanciaCaderno_0051B.jpg', $search['pages'][0]['filename'], 'Frontend should expose imported page data to the viewer');
     assertTrueValue($search['viewer_enabled'] === true, 'Frontend should enable the viewer when imported pages include image URLs');
-    assertSameValue(2, count($data['related_books']), 'Frontend should expose the livros_relacionados field to the manuscript template');
+    assertSameValue(2, count($data['related_books']), 'Frontend should expose the related_books field to the manuscript template');
     assertSameValue(501, $data['related_books'][0]->ID, 'Frontend should preserve related book post objects');
 
     $mockPostId = 78;
@@ -145,6 +206,37 @@ namespace App\Manuscripts {
     $invalidData = Frontend::withSingleTemplateData([]);
 
     assertSameValue([], $invalidData['related_books'], 'Frontend should normalize non-array related books to an empty array');
+
+    $mockPostId = 80;
+    $_GET = [
+        'busca' => 'paraiso',
+    ];
+
+    $numericData = Frontend::withSingleTemplateData([]);
+
+    assertSameValue(2, count($numericData['related_books']), 'Frontend should preserve all related books when the field returns IDs');
+    assertTrueValue(is_object($numericData['related_books'][0]), 'Frontend should normalize related book IDs to post objects');
+    assertSameValue(601, $numericData['related_books'][0]->ID, 'Frontend should normalize related book IDs using get_post');
+
+    $mockPostId = 81;
+    $_GET = [
+        'busca' => 'paraiso',
+    ];
+
+    $singleObjectData = Frontend::withSingleTemplateData([]);
+
+    assertSameValue(1, count($singleObjectData['related_books']), 'Frontend should preserve a single related book when the field returns one post object');
+    assertSameValue(701, $singleObjectData['related_books'][0]->ID, 'Frontend should wrap a single related book post object in the shared array shape');
+
+    $mockPostId = 82;
+    $_GET = [
+        'busca' => 'paraiso',
+    ];
+
+    $singleIdData = Frontend::withSingleTemplateData([]);
+
+    assertSameValue(1, count($singleIdData['related_books']), 'Frontend should preserve a single related book when the field returns one ID');
+    assertSameValue(801, $singleIdData['related_books'][0]->ID, 'Frontend should normalize a single related book ID using get_post');
 
     $mockPostId = 77;
     $_GET = [

@@ -1,3 +1,7 @@
+@php
+  $variant = $variant ?? 'default';
+@endphp
+
 @if ( $books )
 
   <section class="related-books">
@@ -15,9 +19,14 @@
             @php
               $post_object = get_post( $book->ID );
               setup_postdata($GLOBALS['post'] =& $post_object);
+              $GLOBALS['product'] = function_exists('wc_get_product') ? wc_get_product($post_object->ID) : null;
             @endphp
 
-            @include('woocommerce.content-product-simple')
+            @if($variant === 'manuscript')
+              @include('woocommerce.content-product-related-manuscript')
+            @else
+              @include('woocommerce.content-product-simple')
+            @endif
           </div>
         @endforeach
       </div>

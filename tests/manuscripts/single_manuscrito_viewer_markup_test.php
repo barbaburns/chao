@@ -4,6 +4,7 @@ $template = file_get_contents(dirname(__DIR__, 2) . '/resources/views/partials/c
 $script = file_get_contents(dirname(__DIR__, 2) . '/resources/assets/scripts/routes/single-manuscrito.js');
 $gridStyles = file_get_contents(dirname(__DIR__, 2) . '/resources/assets/styles/layouts/_grid.scss');
 $styles = file_get_contents(dirname(__DIR__, 2) . '/resources/assets/styles/layouts/_manuscripts.scss');
+$singlePostStyles = file_get_contents(dirname(__DIR__, 2) . '/resources/assets/styles/layouts/_single-post.scss');
 $package = file_get_contents(dirname(__DIR__, 2) . '/package.json');
 $lockfile = file_get_contents(dirname(__DIR__, 2) . '/yarn.lock');
 
@@ -26,12 +27,16 @@ function extractMatch($pattern, $subject, $message)
 }
 
 assertTrueValue(strpos($template, 'class="post-header"') !== false, 'Manuscript template should adopt the single-post header block');
+assertTrueValue(strpos($template, 'class="post-categories"') !== false, 'Manuscript template should expose the editorial categories block from the single-post header');
+assertTrueValue(strpos($template, 'class="post-tags"') !== false, 'Manuscript template should expose the editorial tags block from the single-post header');
 assertTrueValue(strpos($template, "class=\"feautured-image\"") !== false, 'Manuscript template should render a featured-image block when the manuscript has a thumbnail');
 assertTrueValue(strpos($template, '@if(has_post_thumbnail())') !== false, 'Manuscript template should guard the featured image block');
 assertTrueValue(strpos($template, "get_related_books") === false, 'Manuscript template should not depend on the single-post controller variable name');
 assertTrueValue(strpos($template, "'books' => \$related_books") !== false, 'Manuscript template should pass manuscript related books to the shared books-list component');
-assertTrueValue(strpos($template, 'class="manuscript-single__sidebar"') !== false, 'Manuscript template should group search and related books inside a sidebar container');
+assertTrueValue(strpos($template, "'variant' => 'manuscript'") !== false, 'Manuscript template should request the simplified related-books card variant');
 assertTrueValue(strpos($template, 'class="entry-content manuscript-single__content"') !== false, 'Manuscript template should separate manuscript text from the sidebar');
+assertTrueValue(strpos($template, "@include('partials.entry-meta')") === false, 'Manuscript template should not include the shared entry-meta block in the simplified current header');
+assertTrueValue(strpos($template, "@include('partials.share-buttons')") === false, 'Manuscript template should not include shared share buttons in the current manuscript flow');
 assertTrueValue(strpos($template, '<div class="entry-content">') === false, 'Manuscript template should not keep a redundant outer entry-content wrapper');
 assertTrueValue(strpos($template, 'data-manuscript-viewer') !== false, 'Manuscript template should preserve the viewer hook');
 assertTrueValue(strpos($template, 'data-manuscript-pages') !== false, 'Manuscript template should preserve the serialized viewer payload');
@@ -40,11 +45,19 @@ $contentStart = strpos($template, '<div class="entry-content manuscript-single__
 $contentBody = strpos($template, '@php the_content() @endphp');
 $viewerPosition = strpos($template, 'data-manuscript-viewer');
 $resultsPosition = strpos($template, 'class="manuscript-single__results"');
+$relatedBooksPosition = strpos($template, "@include('components.books-list'");
+$entryTitlePosition = strpos($template, '<h2 class="entry-title">');
+$searchPosition = strpos($template, 'class="manuscript-single__search"');
+$searchHeaderPosition = strpos($template, 'class="manuscript-single__search-header"');
 
 assertTrueValue($contentStart !== false, 'Manuscript template should define a single main content container');
+assertTrueValue($entryTitlePosition !== false, 'Manuscript template should render the manuscript title inside the shared post header');
 assertTrueValue($contentBody !== false && $contentBody > $contentStart, 'Manuscript template should render the manuscript text first inside the main content container');
-assertTrueValue($viewerPosition !== false && $viewerPosition > $contentBody, 'Manuscript template should place the viewer after the manuscript text inside the main content container');
+assertTrueValue($searchPosition !== false && $searchPosition > $contentBody, 'Manuscript template should place the search block after the manuscript text inside the main content container');
+assertTrueValue($searchHeaderPosition !== false && $searchHeaderPosition > $searchPosition, 'Manuscript template should render a dedicated search header inside the search block');
+assertTrueValue($viewerPosition !== false && $viewerPosition > $searchPosition, 'Manuscript template should place the viewer after the search block inside the main content container');
 assertTrueValue($resultsPosition !== false && $resultsPosition > $viewerPosition, 'Manuscript template should place search results after the viewer inside the main content container');
+assertTrueValue($resultsPosition !== false && $relatedBooksPosition !== false && $relatedBooksPosition > $resultsPosition, 'Manuscript template should place related books after the manuscript results, matching the single-post reading flow');
 
 $viewerSectionMatches = extractMatch(
     '/(?P<section><section\b[^>]*class="[^"]*\bmanuscript-single__viewer\b[^"]*"[^>]*>(?P<body>.*?)<\/section>)/s',
@@ -161,6 +174,12 @@ assertTrueValue(preg_match('/\.manuscript-single__viewer-compact-button\b/', $st
 assertTrueValue(preg_match('/\.manuscript-single__viewer-edge-button\b/', $styles) === 1, 'Manuscript styles should define the overlay edge navigation buttons');
 assertTrueValue(preg_match('/\.manuscript-single__viewer-edge-icon\b/', $styles) === 1, 'Manuscript styles should define the lightweight viewer edge-arrow glyph');
 assertTrueValue(preg_match('/\.manuscript-single__viewer-jump\b/', $styles) === 1, 'Manuscript styles should define the compact page-jump controls');
+assertTrueValue(preg_match('/\.manuscript-single__search\s*\{[^}]*border-top:\s*solid 5px \$black;[^}]*padding-top:\s*(?:rem\(28px\)|3\.125rem);/s', $styles) === 1, 'Manuscript styles should promote the search block as an editorial highlight with stronger top rule and spacing');
+assertTrueValue(preg_match('/\.manuscript-single__search-header\s*\{[^}]*margin-bottom:\s*rem\(22px\);/s', $styles) === 1, 'Manuscript styles should give the search header its own editorial breathing room');
+assertTrueValue(preg_match('/\.manuscript-single__search-form\s*\{[^}]*gap:\s*rem\(14px\);/s', $styles) === 1, 'Manuscript styles should increase spacing in the search form controls');
+assertTrueValue(preg_match('/\.manuscript-single__search-form\s*\{.*?input\s*\{[^}]*border:\s*solid 1px \$black;[^}]*padding:\s*rem\(12px\) rem\(14px\);/s', $styles) === 1, 'Manuscript styles should give the search input a clean editorial field treatment');
+assertTrueValue(preg_match('/\.manuscript-single__search-form\s*\{.*?\.btn\s*\{[^}]*min-width:\s*rem\(120px\);/s', $styles) === 1, 'Manuscript styles should size the search button like a deliberate call to action');
+assertTrueValue(preg_match('/\.manuscript-single__search-meta(?::has\(\*\))?\s*\{[^}]*border-top:\s*solid 1px rgba\(\$black, 0\.16\);[^}]*padding-top:\s*rem\(16px\);/s', $styles) === 1, 'Manuscript styles should separate search metadata from the form with a subtle rule');
 assertTrueValue(strpos($styles, '.manuscript-single__viewer.is-fullscreen') !== false, 'Manuscript styles should define the fullscreen viewer state');
 assertTrueValue(strpos($styles, '.manuscript-single__viewer-edge-button:hover') === false, 'Manuscript styles should avoid hover-specific styling on the manuscript viewer arrows');
 assertTrueValue(preg_match('/\.manuscript-single__viewer-frame\b/', $styles) === 0, 'Manuscript styles should remove the legacy viewer frame');
@@ -173,21 +192,24 @@ assertTrueValue(preg_match('/\.manuscript-single__viewer-index\b/', $styles) ===
 assertTrueValue(preg_match('/\.manuscript-single__title\b/', $styles) === 0, 'Manuscript styles should remove the stale manuscript title wrapper selector');
 assertTrueValue(preg_match('/\.manuscript-single__page-header\b/', $styles) === 0, 'Manuscript styles should remove the stale manuscript page header selector');
 assertTrueValue(preg_match('/\.manuscript-single__viewer-edge-button\s*\{\s*svg\s*\{/s', $styles) === 0, 'Manuscript styles should not keep the stale mobile SVG arrow size override');
+assertTrueValue(preg_match('/\.single-post \.entry-content,\s*\.single-manuscrito \.entry-content\s*\{/', $singlePostStyles) === 1, 'Single-post styles should also cover manuscript entry content for the shared typography layout');
+assertTrueValue(preg_match('/\.single-post \.feautured-image,\s*\.single-manuscrito \.feautured-image\s*\{/', $singlePostStyles) === 1, 'Single-post styles should also cover manuscript featured images for the shared visual rhythm');
+assertTrueValue(preg_match('/\.single-post \.related-books,\s*\.single-manuscrito \.related-books\s*\{/', $singlePostStyles) === 1, 'Single-post styles should also cover manuscript related books for the shared spacing treatment');
 assertTrueValue(
-    preg_match('/\.single-post \.post,\s*\.single-manuscrito \.post,\s*\.blog-highlights-content,\s*\.featured-book,\s*\.single-product \.main-product,\s*\.woocommerce-cart \.main,\s*\.woocommerce-checkout \.main,\s*\.woocommerce-account \.main,\s*\.page-template-template-static \.main,\s*\.search-results \.main\s*\{[^}]*display:\s*grid;/s', $gridStyles) === 1,
-    'Grid styles should include single manuscripts in the base grid container rule'
+    preg_match('/\.single-post \.post,\s*\.single-manuscrito \.manuscript-single,\s*\.blog-highlights-content,\s*\.featured-book,\s*\.single-product \.main-product,\s*\.woocommerce-cart \.main,\s*\.woocommerce-checkout \.main,\s*\.woocommerce-account \.main,\s*\.page-template-template-static \.main,\s*\.search-results \.main\s*\{[^}]*display:\s*grid;/s', $gridStyles) === 1,
+    'Grid styles should include single manuscripts in the base grid container rule using the current article selector'
 );
 assertTrueValue(
-    preg_match('/\.single-post \.post,\s*\.single-manuscrito \.post\s*\{[^}]*grid-template-areas:\s*"header\s+title"\s*"image\s+content"\s*"side\s+content";/s', $gridStyles) === 1,
-    'Grid styles should define the manuscript desktop grid-template-areas contract'
+    preg_match('/\.single-manuscrito \.manuscript-single\s*\{[^}]*grid-template-areas:\s*"header\s+title"\s*"image\s+content"\s*"side\s+content"\s*"related\s+related";/s', $gridStyles) === 1,
+    'Grid styles should define the manuscript desktop grid-template-areas contract with the current article selector'
 );
 assertTrueValue(
-    preg_match('/@include media-breakpoint-down\(md\)\s*\{.*?\.single-post \.post,\s*\.single-manuscrito \.post,\s*\.woocommerce-checkout \.main,\s*\.woocommerce-account \.main,\s*\.page-template-template-static \.main,\s*\.search-results \.main\s*\{[^}]*grid-template-columns:\s*100%;[^}]*grid-gap:\s*0;/s', $gridStyles) === 1,
-    'Grid styles should include single manuscripts in the shared mobile one-column foundation'
+    preg_match('/@include media-breakpoint-down\(md\)\s*\{.*?\.single-post \.post,\s*\.single-manuscrito \.manuscript-single,\s*\.woocommerce-checkout \.main,\s*\.woocommerce-account \.main,\s*\.page-template-template-static \.main,\s*\.search-results \.main\s*\{[^}]*grid-template-columns:\s*100%;[^}]*grid-gap:\s*0;/s', $gridStyles) === 1,
+    'Grid styles should include single manuscripts in the shared mobile one-column foundation using the current article selector'
 );
 assertTrueValue(
-    preg_match('/@include media-breakpoint-down\(md\)\s*\{.*?\.single-manuscrito \.post\s*\{[^}]*grid-template-areas:\s*"header"\s*"image"\s*"title"\s*"content"\s*"side";/s', $gridStyles) === 1,
-    'Grid styles should define the manuscript mobile grid-template-areas contract'
+    preg_match('/@include media-breakpoint-down\(md\)\s*\{.*?\.single-manuscrito \.manuscript-single\s*\{[^}]*grid-template-areas:\s*"header"\s*"image"\s*"title"\s*"content"\s*"side"\s*"related";/s', $gridStyles) === 1,
+    'Grid styles should define the manuscript mobile grid-template-areas contract with the current article selector'
 );
 assertTrueValue(
     preg_match('/\.grid-header,\s*\.single-post \.page-header,\s*\.single-manuscrito \.page-header,\s*\.woocommerce-cart \.page-header,\s*\.woocommerce-checkout \.page-header,\s*\.woocommerce-account \.page-header\s*\{\s*grid-area:\s*header;/s', $gridStyles) === 1,
@@ -195,8 +217,7 @@ assertTrueValue(
 );
 assertTrueValue(strpos($gridStyles, '.single-manuscrito .post-header') !== false, 'Grid styles should place the manuscript header in the shared title area');
 assertTrueValue(strpos($gridStyles, '.single-manuscrito .feautured-image') !== false, 'Grid styles should place the manuscript featured image in the left rail');
-assertTrueValue(strpos($gridStyles, '.single-manuscrito .manuscript-single__sidebar') !== false, 'Grid styles should place the manuscript sidebar in the side column');
-assertTrueValue(strpos($styles, '.manuscript-single__sidebar') !== false, 'Manuscript styles should define the new sidebar stack');
+assertTrueValue(strpos($gridStyles, '.single-manuscrito .related-books') !== false, 'Grid styles should place manuscript related books in a dedicated final grid row');
 assertTrueValue(strpos($styles, '.manuscript-single__content') !== false, 'Manuscript styles should define the content block that precedes the viewer');
 
 echo 'single_manuscrito_viewer_markup_test: ok' . PHP_EOL;

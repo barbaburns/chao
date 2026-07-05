@@ -23,13 +23,26 @@
   }, array_filter($search['pages'], function ($page) {
     return !empty($page['image_url']);
   })));
+  $categoryList = get_the_category_list('|');
+  $tagList = get_the_tag_list('', '|');
 @endphp
 
 <article @php post_class('manuscript-single') @endphp>
   @include('partials.page-header', ['title' => 'Manuscritos'])
 
   <header class="post-header">
+    @if($categoryList)
+      <div class="post-categories">
+        {!! $categoryList !!}
+      </div>
+    @endif
+    @if($tagList)
+      <div class="post-tags">
+        {!! $tagList !!}
+      </div>
+    @endif
     <h2 class="entry-title">{!! get_the_title() !!}</h2>
+
   </header>
 
   @if(has_post_thumbnail())
@@ -38,42 +51,33 @@
     </figure>
   @endif
 
-  <aside class="manuscript-single__sidebar">
-    <section class="manuscript-single__search" aria-labelledby="manuscript-search-title">
-      <div class="manuscript-single__search-header">
-        <h3 id="manuscript-search-title">Busca no manuscrito</h3>
-        <p>Digite uma palavra para localizar em quais páginas ela aparece no texto indexado do manuscrito.</p>
-      </div>
-
-      <form class="manuscript-single__search-form" method="get" action="{{ get_permalink() }}">
-        <label class="screen-reader-text" for="manuscript-search-input">Buscar palavra no manuscrito</label>
-        <input
-          id="manuscript-search-input"
-          type="search"
-          name="busca"
-          value="{{ $search['query'] }}"
-          placeholder="Ex.: carta"
-        >
-        <button type="submit" class="btn">Buscar</button>
-      </form>
-
-      <div class="manuscript-single__search-meta">
-        <span>{{ $search['page_count'] }} paginas extraidas</span>
-        <span>{{ $search['pages_with_text_count'] }} paginas com texto indexado</span>
-        @if($search['has_query'])
-          <span>{{ $search['match_count'] }} paginas com ocorrencia para "{{ $search['query'] }}"</span>
-          <a class="manuscript-single__search-clear" href="{{ get_permalink() }}">Limpar busca</a>
-        @endif
-      </div>
-    </section>
-
-    @include('components.books-list', [
-      'books' => $related_books ?? []
-    ])
-  </aside>
-
   <div class="entry-content manuscript-single__content">
     @php the_content() @endphp
+
+    <section class="manuscript-single__search" aria-labelledby="manuscript-search-title">
+        <div class="manuscript-single__search-header">
+            <h3 id="manuscript-search-title">Busca no manuscrito</h3>
+        </div>
+
+        <form class="manuscript-single__search-form" method="get" action="{{ get_permalink() }}">
+            <label class="screen-reader-text" for="manuscript-search-input">Buscar palavra no manuscrito</label>
+            <input
+                id="manuscript-search-input"
+                type="search"
+                name="busca"
+                value="{{ $search['query'] }}"
+                placeholder="Ex.: carta"
+            >
+            <button type="submit" class="btn">Buscar</button>
+        </form>
+
+        <div class="manuscript-single__search-meta">
+            @if($search['has_query'])
+                <span>{{ $search['match_count'] }} paginas com ocorrencia para "{{ $search['query'] }}"</span>
+                <a class="manuscript-single__search-clear" href="{{ get_permalink() }}">Limpar busca</a>
+            @endif
+        </div>
+    </section>
 
     @if($search['viewer_enabled'])
       <section
@@ -165,5 +169,11 @@
         @endif
       </section>
     @endif
+
   </div>
+
+  @include('components.books-list', [
+    'books' => $related_books ?? [],
+    'variant' => 'manuscript'
+  ])
 </article>

@@ -3,6 +3,10 @@
     max-width: 100%;
   }
 
+  .addtoany_content {
+    margin: 3.125rem 0;
+  }
+
   .manuscript-single__sidebar {
     display: flex;
     flex-direction: column;
@@ -36,8 +40,82 @@
     margin-bottom: rem(36px);
   }
 
+  .manuscript-single__search {
+    border-top: solid 5px $black;
+    padding-top: 3.125rem;
+  }
+
+  .manuscript-single__search-header {
+    margin-bottom: rem(22px);
+    border-top: 1px solid;
+    padding-top: .25rem;
+  }
+
+  .manuscript-single__search-header h3 {
+    margin-bottom: rem(10px);
+  }
+
+  .manuscript-single__search-header p {
+    font-family: $freight-book-italic;
+    font-size: rem(17px);
+    line-height: 1.6;
+    margin-bottom: 0;
+    max-width: rem(300px);
+  }
+
   .related-books {
     margin-top: 0;
+  }
+
+  .swiper-pagination,
+  .swiper-container {
+    width: 100%;
+  }
+
+  .swiper-container {
+    margin-left: 0;
+  }
+
+  .swiper-slide>.product-related-manuscript {
+    margin: 0;
+    width: 100%;
+  }
+
+  .product-related-manuscript {
+    max-width: rem(202px);
+
+    a {
+      color: inherit;
+      display: block;
+
+      &:hover,
+      &:focus {
+        color: $red;
+        text-decoration: none;
+      }
+    }
+
+    img {
+      display: block;
+      height: auto;
+      width: 100%;
+    }
+
+    .product-info {
+      border-top: solid 5px $black;
+      padding-top: rem(20px);
+    }
+
+    .woocommerce-loop-product__title {
+      @include loop-title;
+
+      display: block;
+      margin-bottom: rem(8px);
+    }
+
+    .price {
+      display: block;
+    }
   }
 
   .manuscript-single__viewer-toolbar,
@@ -101,7 +179,7 @@
   }
 
   .manuscript-single__viewer-osd {
-    background: #f3f0ea;
+    background: transparent;
     border: solid 1px rgba($black, 0.15);
     height: min(75vh, rem(760px));
     margin-bottom: rem(18px);
@@ -240,6 +318,7 @@
     text-transform: uppercase;
 
     input {
+      background: transparent;
       border: solid 1px rgba($black, 0.3);
       font-family: $freight-sans-medium;
       font-size: rem(16px);
@@ -250,19 +329,29 @@
     }
   }
 
-    .manuscript-single__viewer-jump-total {
+  .manuscript-single__viewer-jump-total {
     white-space: nowrap;
   }
 
   .manuscript-single__search-form {
     align-items: center;
     display: flex;
-    gap: rem(12px);
-    margin-bottom: rem(14px);
+    gap: rem(14px);
+    margin-bottom: rem(18px);
 
     input {
+      background: transparent;
+      border: solid 1px $black;
       flex: 1 1 auto;
+      font-family: $freight-sans-medium;
+      font-size: rem(16px);
       margin-bottom: 0;
+      min-height: rem(48px);
+      padding: rem(12px) rem(14px);
+    }
+
+    .btn {
+      min-width: rem(120px);
     }
   }
 
@@ -277,6 +366,12 @@
     gap: rem(10px);
     letter-spacing: letter-spacing(80);
     text-transform: uppercase;
+  }
+
+  .manuscript-single__search-meta:has(*) {
+    border-top: solid 1px rgba($black, 0.16);
+    padding-top: rem(16px);
+    row-gap: rem(8px);
   }
 
   .manuscript-single__search-clear {

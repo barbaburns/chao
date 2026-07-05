@@ -62,7 +62,8 @@
   display: inline-block;
 }
 
-.single-post .entry-content {
+.single-post .entry-content,
+.single-manuscrito .entry-content {
   margin-bottom: rem(50px);
 
   ul {
@@ -124,7 +125,8 @@
   }
 }
 
-.single-post .feautured-image {
+.single-post .feautured-image,
+.single-manuscrito .feautured-image {
   margin-bottom: 0;
 
   @include media-breakpoint-down(md) {
@@ -132,7 +134,8 @@
   }
 }
 
-.single-post .related-books {
+.single-post .related-books,
+.single-manuscrito .related-books {
   margin-top: 11.4vh;
 
   @include media-breakpoint-down(md) {

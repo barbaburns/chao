@@ -35,9 +35,31 @@ class Frontend
             return [];
         }
 
-        $books = get_field('livros_relacionados', $postId);
+        $books = get_field('related_books', $postId);
 
-        return is_array($books) ? $books : [];
+        if ($books === null || $books === '' || $books === false) {
+            return [];
+        }
+
+        if (!is_array($books)) {
+            $books = [$books];
+        }
+
+        return array_values(array_filter(array_map(function ($book) {
+            if (is_object($book) && isset($book->ID)) {
+                return $book;
+            }
+
+            if (function_exists('get_post')) {
+                $post = get_post($book);
+
+                if ($post && isset($post->ID)) {
+                    return $post;
+                }
+            }
+
+            return null;
+        }, $books)));
     }
 
     protected static function wpUnslash($value)
