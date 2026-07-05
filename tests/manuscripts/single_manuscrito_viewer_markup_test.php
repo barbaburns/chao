@@ -170,9 +170,28 @@ assertTrueValue(preg_match('/\.manuscript-single__viewer-overlay\b/', $styles) =
 assertTrueValue(preg_match('/\.manuscript-single__viewer-highlight\b/', $styles) === 1, 'Manuscript styles should define highlight overlay styles');
 assertTrueValue(preg_match('/\.manuscript-single__viewer-zoom\b/', $styles) === 0, 'Manuscript styles should remove the legacy zoom control group');
 assertTrueValue(preg_match('/\.manuscript-single__viewer-index\b/', $styles) === 0, 'Manuscript styles should remove the full page index grid');
+assertTrueValue(preg_match('/\.manuscript-single__title\b/', $styles) === 0, 'Manuscript styles should remove the stale manuscript title wrapper selector');
+assertTrueValue(preg_match('/\.manuscript-single__page-header\b/', $styles) === 0, 'Manuscript styles should remove the stale manuscript page header selector');
+assertTrueValue(preg_match('/\.manuscript-single__viewer-edge-button\s*\{\s*svg\s*\{/s', $styles) === 0, 'Manuscript styles should not keep the stale mobile SVG arrow size override');
 assertTrueValue(
     preg_match('/\.single-post \.post,\s*\.single-manuscrito \.post,\s*\.blog-highlights-content,\s*\.featured-book,\s*\.single-product \.main-product,\s*\.woocommerce-cart \.main,\s*\.woocommerce-checkout \.main,\s*\.woocommerce-account \.main,\s*\.page-template-template-static \.main,\s*\.search-results \.main\s*\{[^}]*display:\s*grid;/s', $gridStyles) === 1,
     'Grid styles should include single manuscripts in the base grid container rule'
+);
+assertTrueValue(
+    preg_match('/\.single-post \.post,\s*\.single-manuscrito \.post\s*\{[^}]*grid-template-areas:\s*"header\s+title"\s*"image\s+content"\s*"side\s+content";/s', $gridStyles) === 1,
+    'Grid styles should define the manuscript desktop grid-template-areas contract'
+);
+assertTrueValue(
+    preg_match('/@include media-breakpoint-down\(md\)\s*\{.*?\.single-post \.post,\s*\.single-manuscrito \.post,\s*\.woocommerce-checkout \.main,\s*\.woocommerce-account \.main,\s*\.page-template-template-static \.main,\s*\.search-results \.main\s*\{[^}]*grid-template-columns:\s*100%;[^}]*grid-gap:\s*0;/s', $gridStyles) === 1,
+    'Grid styles should include single manuscripts in the shared mobile one-column foundation'
+);
+assertTrueValue(
+    preg_match('/@include media-breakpoint-down\(md\)\s*\{.*?\.single-manuscrito \.post\s*\{[^}]*grid-template-areas:\s*"header"\s*"image"\s*"title"\s*"content"\s*"side";/s', $gridStyles) === 1,
+    'Grid styles should define the manuscript mobile grid-template-areas contract'
+);
+assertTrueValue(
+    preg_match('/\.grid-header,\s*\.single-post \.page-header,\s*\.single-manuscrito \.page-header,\s*\.woocommerce-cart \.page-header,\s*\.woocommerce-checkout \.page-header,\s*\.woocommerce-account \.page-header\s*\{\s*grid-area:\s*header;/s', $gridStyles) === 1,
+    'Grid styles should map the manuscript page header to the shared header area'
 );
 assertTrueValue(strpos($gridStyles, '.single-manuscrito .post-header') !== false, 'Grid styles should place the manuscript header in the shared title area');
 assertTrueValue(strpos($gridStyles, '.single-manuscrito .feautured-image') !== false, 'Grid styles should place the manuscript featured image in the left rail');
