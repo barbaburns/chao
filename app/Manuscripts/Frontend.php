@@ -31,6 +31,10 @@ class Frontend
 
     protected static function getRelatedBooks($postId)
     {
+        if (!function_exists('get_field')) {
+            return [];
+        }
+
         $books = get_field('livros_relacionados', $postId);
 
         return is_array($books) ? $books : [];
