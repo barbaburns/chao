@@ -7,6 +7,7 @@ class Admin
     public static function register()
     {
         add_action('add_meta_boxes', [static::class, 'addMetabox']);
+        add_action('admin_post_chao_create_manuscript_draft', [static::class, 'createDraftForImport']);
         add_action('admin_post_chao_import_manuscript_source_folder', [static::class, 'importSourceFolder']);
         add_action('admin_notices', [static::class, 'renderAdminNotice']);
         add_action('admin_enqueue_scripts', [static::class, 'enqueueEditorRefreshScript']);
@@ -202,6 +203,34 @@ class Admin
         update_post_meta($postId, 'chao_manuscript_import_last_snapshot', static::buildImportSnapshot($result));
         update_post_meta($postId, 'chao_manuscript_import_last_errors', array_values((array) ($result['errors'] ?? [])));
         static::redirectBack($postId, 'success', 'import');
+    }
+
+    public static function createDraftForImport()
+    {
+        $nonce = isset($_POST['chao_manuscript_import_nonce']) ? (string) $_POST['chao_manuscript_import_nonce'] : '';
+
+        if (!$nonce || !wp_verify_nonce($nonce, 'chao_manuscript_import_create_draft')) {
+            wp_send_json_error(['message' => __('Solicitacao invalida.', 'chao')], 403);
+        }
+
+        if (!current_user_can('edit_posts')) {
+            wp_send_json_error(['message' => __('Voce nao tem permissao para criar este manuscrito.', 'chao')], 403);
+        }
+
+        $postId = wp_insert_post([
+            'post_type' => 'manuscrito',
+            'post_status' => 'draft',
+            'post_title' => '',
+        ], true);
+
+        if (!$postId || is_wp_error($postId)) {
+            wp_send_json_error(['message' => __('Nao foi possivel criar o rascunho do manuscrito.', 'chao')], 500);
+        }
+
+        wp_send_json_success([
+            'post_id' => (int) $postId,
+            'edit_url' => static::buildEditUrl($postId),
+        ]);
     }
 
     public static function renderAdminNotice()
