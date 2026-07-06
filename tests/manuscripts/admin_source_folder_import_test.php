@@ -151,6 +151,12 @@ assertTrueValue(strpos($pagesMarkup, 'Resumo compacto das paginas importadas da 
 assertTrueValue(strpos($pagesMarkup, 'Paginas importadas: 1') !== false, 'Pages metabox should show the imported pages count');
 assertTrueValue(strpos($pagesMarkup, 'Imagens sem XML correspondente: 1') !== false, 'Pages metabox should show unmatched image count');
 assertTrueValue(strpos($pagesMarkup, 'XML sem imagem correspondente: 1') !== false, 'Pages metabox should show unmatched XML count');
+assertTrueValue(strpos($pagesMarkup, '<table') === false, 'Pages metabox should no longer render the imported pages table');
+assertTrueValue(strpos($pagesMarkup, '<th>Pagina</th>') === false, 'Pages metabox should no longer render the page column');
+assertTrueValue(strpos($pagesMarkup, '<th>Arquivo</th>') === false, 'Pages metabox should no longer render the filename column');
+assertTrueValue(strpos($pagesMarkup, '<th>Status</th>') === false, 'Pages metabox should no longer render the status column');
+assertTrueValue(strpos($pagesMarkup, 'venanciaCaderno_0051B.jpg') === false, 'Pages metabox should no longer render imported filenames');
+assertTrueValue(strpos($pagesMarkup, 'imported') === false, 'Pages metabox should no longer render per-page import statuses');
 assertTrueValue(strpos($pagesMarkup, 'pacote ZIP') === false, 'Pages metabox should no longer mention ZIP summaries');
 
 unset($GLOBALS['mockFields']['manuscript_source_subfolder']);

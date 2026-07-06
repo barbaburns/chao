@@ -108,24 +108,6 @@ class Admin
         echo esc_html__('Paginas importadas:', 'chao') . ' ' . esc_html((string) count($rows)) . '<br>';
         echo esc_html__('Imagens sem XML correspondente:', 'chao') . ' ' . esc_html((string) $summary['images_without_xml']) . '<br>';
         echo esc_html__('XML sem imagem correspondente:', 'chao') . ' ' . esc_html((string) $summary['xml_without_image']) . '</p>';
-        echo '<div style="overflow-x: auto;">';
-        echo '<table class="widefat striped">';
-        echo '<thead><tr>';
-        echo '<th>' . esc_html__('Pagina', 'chao') . '</th>';
-        echo '<th>' . esc_html__('Arquivo', 'chao') . '</th>';
-        echo '<th>' . esc_html__('Status', 'chao') . '</th>';
-        echo '</tr></thead><tbody>';
-
-        foreach ($rows as $row) {
-            echo '<tr>';
-            echo '<td>' . esc_html((string) $row['page_number']) . '</td>';
-            echo '<td><strong>' . esc_html($row['filename']) . '</strong></td>';
-            echo '<td>' . esc_html($row['import_status']) . '</td>';
-            echo '</tr>';
-        }
-
-        echo '</tbody></table>';
-        echo '</div>';
     }
 
     protected static function buildImportIssueSummary(array $snapshot, array $lastErrors = [])
