@@ -9,6 +9,9 @@ class Admin
         add_action('add_meta_boxes', [static::class, 'addMetabox']);
         add_action('admin_post_chao_import_manuscript_source_folder', [static::class, 'importSourceFolder']);
         add_action('admin_notices', [static::class, 'renderAdminNotice']);
+        add_action('admin_enqueue_scripts', [static::class, 'enqueueEditorRefreshScript']);
+        add_action('admin_footer-post.php', [static::class, 'renderEditorRefreshScript']);
+        add_action('admin_footer-post-new.php', [static::class, 'renderEditorRefreshScript']);
     }
 
     public static function addMetabox()
@@ -220,6 +223,50 @@ class Admin
         echo '<div class="notice notice-' . esc_attr($notice['type']) . ' is-dismissible"><p>' . esc_html($notice['message']) . '</p></div>';
     }
 
+    public static function enqueueEditorRefreshScript($hookSuffix)
+    {
+        if (!in_array((string) $hookSuffix, ['post.php', 'post-new.php'], true)) {
+            return;
+        }
+
+        $namespacedGetCurrentScreen = __NAMESPACE__ . '\\get_current_screen';
+
+        if (function_exists($namespacedGetCurrentScreen)) {
+            $screen = call_user_func($namespacedGetCurrentScreen);
+        } elseif (function_exists('get_current_screen')) {
+            $screen = get_current_screen();
+        } else {
+            return;
+        }
+
+        if (!is_object($screen) || (($screen->post_type ?? '') !== 'manuscrito')) {
+            return;
+        }
+
+        wp_enqueue_script('wp-data');
+        wp_enqueue_script('wp-dom-ready');
+        wp_add_inline_script('wp-dom-ready', static::editorRefreshScript());
+    }
+
+    public static function renderEditorRefreshScript()
+    {
+        $namespacedGetCurrentScreen = __NAMESPACE__ . '\\get_current_screen';
+
+        if (function_exists($namespacedGetCurrentScreen)) {
+            $screen = call_user_func($namespacedGetCurrentScreen);
+        } elseif (function_exists('get_current_screen')) {
+            $screen = get_current_screen();
+        } else {
+            return;
+        }
+
+        if (!is_object($screen) || (($screen->post_type ?? '') !== 'manuscrito')) {
+            return;
+        }
+
+        echo '<script>' . static::editorRefreshScript() . '</script>';
+    }
+
     public static function getNoticeConfig($status)
     {
         $notices = [
@@ -403,6 +450,61 @@ class Admin
         }
 
         return gmdate('Y-m-d H:i:s');
+    }
+
+    protected static function editorRefreshScript()
+    {
+        return <<<'JS'
+(function (wp) {
+    if (!wp || !wp.data || !wp.domReady) {
+        return;
+    }
+
+    wp.domReady(function () {
+        var editorStore = wp.data.select('core/editor');
+
+        if (!editorStore || !wp.data.subscribe) {
+            return;
+        }
+
+        var wasSaving = false;
+        var reloadTriggered = false;
+
+        wp.data.subscribe(function () {
+            if (reloadTriggered) {
+                return;
+            }
+
+            var isSaving = typeof editorStore.isSavingPost === 'function' ? editorStore.isSavingPost() : false;
+            var isAutosaving = typeof editorStore.isAutosavingPost === 'function' ? editorStore.isAutosavingPost() : false;
+
+            if (isSaving && !isAutosaving) {
+                wasSaving = true;
+                return;
+            }
+
+            if (isSaving || !wasSaving) {
+                return;
+            }
+
+            wasSaving = false;
+
+            var field = document.querySelector('[name="acf[field_manuscript_source_subfolder]"]');
+
+            if (!field) {
+                field = document.querySelector('[name="manuscript_source_subfolder"]');
+            }
+
+            var importButton = document.querySelector('#manuscript-import .button');
+
+            if (field && field.value.trim() !== '' && !importButton) {
+                reloadTriggered = true;
+                window.location.reload();
+            }
+        });
+    });
+})(window.wp);
+JS;
     }
 
     protected static function failRequest($message)

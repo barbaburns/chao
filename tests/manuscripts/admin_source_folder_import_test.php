@@ -143,6 +143,19 @@ assertTrueValue(strpos($metaboxMarkup, 'Importar da subpasta') !== false, 'Metab
 assertTrueValue(strpos($metaboxMarkup, 'action=chao_import_manuscript_source_folder') !== false, 'Metabox button should point to the source-folder import action');
 assertTrueValue(strpos($metaboxMarkup, 'Pacote ZIP do manuscrito') === false, 'Metabox should no longer mention ZIP-based manuscript imports');
 
+unset($GLOBALS['mockFields']['manuscript_source_subfolder']);
+$GLOBALS['mockMeta'][77]['manuscript_source_subfolder'] = 'venancia-meta';
+
+ob_start();
+Admin::renderMetabox($post);
+$metaFallbackMetaboxMarkup = ob_get_clean();
+
+assertTrueValue(strpos($metaFallbackMetaboxMarkup, 'venancia-meta') !== false, 'Metabox should use the saved post meta subfolder value when ACF returns an empty value immediately after saving');
+assertTrueValue(strpos($metaFallbackMetaboxMarkup, 'Importar da subpasta') !== false, 'Metabox should still show the import button when the subfolder is available in raw post meta');
+
+$GLOBALS['mockFields']['manuscript_source_subfolder'] = 'venancia-caderno';
+unset($GLOBALS['mockMeta'][77]['manuscript_source_subfolder']);
+
 ob_start();
 Admin::renderPagesMetabox($post);
 $pagesMarkup = ob_get_clean();
