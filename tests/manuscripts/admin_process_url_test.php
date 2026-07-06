@@ -19,6 +19,12 @@ $editUrl = Admin::buildEditUrl(77, [
 $requestData = Admin::extractImportRequestData([
     'post_id' => '77',
     'chao_manuscript_import_nonce' => 'nonce-value',
+    'subfolder' => 'venancia-request',
+    'response_format' => 'json',
+]);
+$defaultRequestData = Admin::extractImportRequestData([
+    'post_id' => '77',
+    'chao_manuscript_import_nonce' => 'nonce-value',
 ]);
 $notice = Admin::getNoticeConfig('success', 'import');
 $missingSourceNotice = Admin::getNoticeConfig('missing_source_folder', 'import');
@@ -35,6 +41,10 @@ assertTrueValue(strpos($editUrl, 'action=edit') !== false, 'Edit URL should keep
 assertTrueValue(strpos($editUrl, 'chao_manuscript_import_notice=success') !== false, 'Edit URL should include import notice status');
 assertTrueValue($requestData['post_id'] === 77, 'Import request parser should read post_id');
 assertTrueValue($requestData['nonce'] === 'nonce-value', 'Import request parser should read the import nonce');
+assertTrueValue($requestData['subfolder'] === 'venancia-request', 'Import request parser should read the typed subfolder value');
+assertTrueValue($requestData['response_format'] === 'json', 'Import request parser should read the JSON response format');
+assertTrueValue($defaultRequestData['subfolder'] === '', 'Import request parser should default subfolder to an empty string');
+assertTrueValue($defaultRequestData['response_format'] === 'redirect', 'Import request parser should default response_format to redirect');
 assertTrueValue($notice['type'] === 'success', 'Success notice should use success type');
 assertTrueValue($notice['message'] === 'Pasta fonte do manuscrito importada com sucesso.', 'Success notice should use source-folder copy');
 assertTrueValue($missingSourceNotice['type'] === 'error', 'Missing source-folder notice should use error type');

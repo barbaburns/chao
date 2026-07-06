@@ -161,14 +161,14 @@ class Admin
             !$nonce ||
             !wp_verify_nonce($nonce, 'chao_import_manuscript_source_folder_' . $postId)
         ) {
-            static::failRequest(__('Solicitacao invalida.', 'chao'));
+            static::rejectImportRequest($requestData, __('Solicitacao invalida.', 'chao'));
         }
 
         if (!current_user_can('edit_post', $postId)) {
-            static::failRequest(__('Voce nao tem permissao para importar este manuscrito.', 'chao'));
+            static::rejectImportRequest($requestData, __('Voce nao tem permissao para importar este manuscrito.', 'chao'));
         }
 
-        $sourceFolder = static::resolveSourceFolder($postId);
+        $sourceFolder = static::resolveRequestedSourceFolder($postId, $requestData['subfolder']);
 
         if (
             empty($sourceFolder['subfolder']) ||
@@ -179,6 +179,16 @@ class Admin
             $errorMessage = __('Pasta fonte do manuscrito ausente ou invalida.', 'chao');
             update_post_meta($postId, 'chao_manuscript_import_last_error', $errorMessage);
             update_post_meta($postId, 'chao_manuscript_import_last_errors', [$errorMessage]);
+
+            if ($requestData['response_format'] === 'json') {
+                wp_send_json_error([
+                    'message' => $errorMessage,
+                    'summary' => static::buildImportResponseSummary($postId),
+                    'metabox' => static::renderImportMetaboxMarkup($postId),
+                    'pages_metabox' => static::renderPagesMetaboxMarkup($postId),
+                ], 422);
+            }
+
             static::redirectBack($postId, 'missing_source_folder', 'import');
             return;
         }
@@ -189,6 +199,16 @@ class Admin
             $errorMessage = $exception->getMessage();
             update_post_meta($postId, 'chao_manuscript_import_last_error', $errorMessage);
             update_post_meta($postId, 'chao_manuscript_import_last_errors', [$errorMessage]);
+
+            if ($requestData['response_format'] === 'json') {
+                wp_send_json_error([
+                    'message' => $errorMessage,
+                    'summary' => static::buildImportResponseSummary($postId),
+                    'metabox' => static::renderImportMetaboxMarkup($postId),
+                    'pages_metabox' => static::renderPagesMetaboxMarkup($postId),
+                ], 500);
+            }
+
             static::redirectBack($postId, 'import_error', 'import');
             return;
         }
@@ -202,6 +222,15 @@ class Admin
         ]);
         update_post_meta($postId, 'chao_manuscript_import_last_snapshot', static::buildImportSnapshot($result));
         update_post_meta($postId, 'chao_manuscript_import_last_errors', array_values((array) ($result['errors'] ?? [])));
+
+        if ($requestData['response_format'] === 'json') {
+            wp_send_json_success([
+                'summary' => static::buildImportResponseSummary($postId),
+                'metabox' => static::renderImportMetaboxMarkup($postId),
+                'pages_metabox' => static::renderPagesMetaboxMarkup($postId),
+            ]);
+        }
+
         static::redirectBack($postId, 'success', 'import');
     }
 
@@ -348,6 +377,43 @@ class Admin
         }, (array) ($snapshot['pages'] ?? []));
     }
 
+    protected static function buildImportResponseSummary($postId)
+    {
+        $snapshot = get_post_meta($postId, 'chao_manuscript_import_last_snapshot', true);
+        $lastErrors = get_post_meta($postId, 'chao_manuscript_import_last_errors', true);
+        $summary = static::buildImportIssueSummary(
+            is_array($snapshot) ? $snapshot : [],
+            is_array($lastErrors) ? $lastErrors : []
+        );
+
+        return [
+            'page_count' => isset($snapshot['page_count']) ? (int) $snapshot['page_count'] : 0,
+            'images_without_xml' => (int) ($summary['images_without_xml'] ?? 0),
+            'xml_without_image' => (int) ($summary['xml_without_image'] ?? 0),
+            'last_error' => (string) get_post_meta($postId, 'chao_manuscript_import_last_error', true),
+        ];
+    }
+
+    public static function renderImportMetaboxMarkup($postId)
+    {
+        ob_start();
+        static::renderMetabox((object) [
+            'ID' => (int) $postId,
+        ]);
+
+        return (string) ob_get_clean();
+    }
+
+    public static function renderPagesMetaboxMarkup($postId)
+    {
+        ob_start();
+        static::renderPagesMetabox((object) [
+            'ID' => (int) $postId,
+        ]);
+
+        return (string) ob_get_clean();
+    }
+
     protected static function redirectBack($postId, $notice = null, $source = 'import')
     {
         $queryArgs = [];
@@ -444,7 +510,41 @@ class Admin
         return [
             'post_id' => isset($request['post_id']) ? (int) $request['post_id'] : 0,
             'nonce' => isset($request['chao_manuscript_import_nonce']) ? (string) $request['chao_manuscript_import_nonce'] : '',
+            'subfolder' => isset($request['subfolder']) ? trim((string) $request['subfolder']) : '',
+            'response_format' => isset($request['response_format']) ? trim((string) $request['response_format']) : 'redirect',
         ];
+    }
+
+    protected static function resolveRequestedSourceFolder($postId, $requestedSubfolder = '')
+    {
+        $requestedSubfolder = static::normalizeSourceSubfolderValue($requestedSubfolder);
+
+        if ($requestedSubfolder !== '') {
+            update_post_meta($postId, 'manuscript_source_subfolder', $requestedSubfolder);
+
+            try {
+                return SourceFolder::resolve($requestedSubfolder);
+            } catch (\InvalidArgumentException $exception) {
+                return [
+                    'subfolder' => $requestedSubfolder,
+                    'path' => '',
+                    'url' => '',
+                ];
+            }
+        }
+
+        return static::resolveSourceFolder($postId);
+    }
+
+    protected static function rejectImportRequest(array $requestData, $message, $statusCode = 403)
+    {
+        if (($requestData['response_format'] ?? 'redirect') === 'json') {
+            wp_send_json_error([
+                'message' => (string) $message,
+            ], (int) $statusCode);
+        }
+
+        static::failRequest($message);
     }
 
     public static function buildEditUrl($postId, array $queryArgs = [], $adminBaseUrl = null)
