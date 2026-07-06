@@ -143,6 +143,13 @@ assertTrueValue(strpos($metaboxMarkup, 'Importar da subpasta') !== false, 'Metab
 assertTrueValue(strpos($metaboxMarkup, 'action=chao_import_manuscript_source_folder') !== false, 'Metabox button should point to the source-folder import action');
 assertTrueValue(strpos($metaboxMarkup, 'Pacote ZIP do manuscrito') === false, 'Metabox should no longer mention ZIP-based manuscript imports');
 
+$importMarkupFromHelper = Admin::renderImportMetaboxMarkup(77);
+assertTrueValue(strpos($importMarkupFromHelper, 'Subpasta fonte do manuscrito') !== false, 'Import metabox helper should include the source subfolder label');
+assertTrueValue(strpos($importMarkupFromHelper, 'venancia-caderno') !== false, 'Import metabox helper should include the configured manuscript source subfolder');
+assertTrueValue(strpos($importMarkupFromHelper, 'Importar da subpasta') !== false, 'Import metabox helper should include the source-folder import action');
+assertTrueValue(strpos($importMarkupFromHelper, 'action=chao_import_manuscript_source_folder') !== false, 'Import metabox helper should point to the source-folder import action');
+assertTrueValue(strpos($importMarkupFromHelper, 'Pacote ZIP do manuscrito') === false, 'Import metabox helper should no longer mention ZIP-based manuscript imports');
+
 unset($GLOBALS['mockFields']['manuscript_source_subfolder']);
 $GLOBALS['mockMeta'][77]['manuscript_source_subfolder'] = 'venancia-meta';
 
@@ -152,6 +159,10 @@ $metaFallbackMetaboxMarkup = ob_get_clean();
 
 assertTrueValue(strpos($metaFallbackMetaboxMarkup, 'venancia-meta') !== false, 'Metabox should use the saved post meta subfolder value when ACF returns an empty value immediately after saving');
 assertTrueValue(strpos($metaFallbackMetaboxMarkup, 'Importar da subpasta') !== false, 'Metabox should still show the import button when the subfolder is available in raw post meta');
+
+$importMarkupFromFallbackHelper = Admin::renderImportMetaboxMarkup(77);
+assertTrueValue(strpos($importMarkupFromFallbackHelper, 'venancia-meta') !== false, 'Import metabox helper should use the saved post meta subfolder value when ACF returns an empty value immediately after saving');
+assertTrueValue(strpos($importMarkupFromFallbackHelper, 'Importar da subpasta') !== false, 'Import metabox helper should still show the import button when the subfolder is available in raw post meta');
 
 $GLOBALS['mockFields']['manuscript_source_subfolder'] = 'venancia-caderno';
 unset($GLOBALS['mockMeta'][77]['manuscript_source_subfolder']);
@@ -171,6 +182,13 @@ assertTrueValue(strpos($pagesMarkup, '<th>Status</th>') === false, 'Pages metabo
 assertTrueValue(strpos($pagesMarkup, 'venanciaCaderno_0051B.jpg') === false, 'Pages metabox should no longer render imported filenames');
 assertTrueValue(strpos($pagesMarkup, 'imported') === false, 'Pages metabox should no longer render per-page import statuses');
 assertTrueValue(strpos($pagesMarkup, 'pacote ZIP') === false, 'Pages metabox should no longer mention ZIP summaries');
+
+$pagesMarkupFromHelper = Admin::renderPagesMetaboxMarkup(77);
+assertTrueValue(strpos($pagesMarkupFromHelper, 'Resumo compacto das paginas importadas da pasta fonte') !== false, 'Pages metabox helper should include the compact summary copy');
+assertTrueValue(strpos($pagesMarkupFromHelper, 'Paginas importadas: 1') !== false, 'Pages metabox helper should include the imported pages count');
+assertTrueValue(strpos($pagesMarkupFromHelper, 'Imagens sem XML correspondente: 1') !== false, 'Pages metabox helper should include the unmatched image count');
+assertTrueValue(strpos($pagesMarkupFromHelper, 'XML sem imagem correspondente: 1') !== false, 'Pages metabox helper should include the unmatched XML count');
+assertTrueValue(strpos($pagesMarkupFromHelper, '<table') === false, 'Pages metabox helper should not render the imported pages table');
 
 unset($GLOBALS['mockFields']['manuscript_source_subfolder']);
 $GLOBALS['mockMeta'][77]['chao_manuscript_import_source'] = [
