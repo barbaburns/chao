@@ -10,9 +10,9 @@ function assertTrueValue($condition, $message)
     }
 }
 
-assertTrueValue(strpos($acfConfig, "'name' => 'manuscript_zip_file'") !== false, 'Local ACF config should expose the manuscript ZIP field name');
-assertTrueValue(strpos($acfConfig, "'label' => 'Pacote ZIP do manuscrito'") !== false, 'Local ACF config should label the field as manuscript ZIP');
-assertTrueValue(strpos($acfConfig, "'mime_types' => 'zip'") !== false, 'Local ACF config should restrict uploads to ZIP files');
-assertTrueValue(strpos($acfConfig, "'label' => 'PDF mestre'") === false, 'Local ACF config should no longer expose the legacy master PDF label');
+assertTrueValue(strpos($acfConfig, "'name' => 'manuscript_source_subfolder'") !== false, 'Local ACF config should expose the manuscript source subfolder field name');
+assertTrueValue(strpos($acfConfig, "'label' => 'Subpasta fonte do manuscrito'") !== false, 'Local ACF config should label the field as manuscript source subfolder');
+assertTrueValue(strpos($acfConfig, "'type' => 'text'") !== false, 'Local ACF config should use a text field for the manuscript source subfolder');
+assertTrueValue(strpos($acfConfig, "'name' => 'manuscript_zip_file'") === false, 'Local ACF config should no longer expose the manuscript ZIP field name');
 
 echo 'acf_local_group_test: ok' . PHP_EOL;

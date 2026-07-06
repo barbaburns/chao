@@ -7,7 +7,7 @@ class Admin
     public static function register()
     {
         add_action('add_meta_boxes', [static::class, 'addMetabox']);
-        add_action('admin_post_chao_import_manuscript_zip', [static::class, 'importZip']);
+        add_action('admin_post_chao_import_manuscript_source_folder', [static::class, 'importSourceFolder']);
         add_action('admin_notices', [static::class, 'renderAdminNotice']);
     }
 
@@ -33,28 +33,28 @@ class Admin
 
     public static function renderMetabox($post)
     {
-        $zipFile = static::resolveZipAttachment($post->ID);
+        $sourceFolder = static::resolveSourceFolder($post->ID);
+        $configuredSubfolder = static::readSourceSubfolderField($post->ID);
         $snapshot = get_post_meta($post->ID, 'chao_manuscript_import_last_snapshot', true);
         $lastError = get_post_meta($post->ID, 'chao_manuscript_import_last_error', true);
         $lastErrors = get_post_meta($post->ID, 'chao_manuscript_import_last_errors', true);
 
-        echo '<p>' . esc_html__('Use este painel para importar o pacote ZIP do manuscrito salvo no campo dedicado do ACF.', 'chao') . '</p>';
+        echo '<p>' . esc_html__('Use este painel para importar a pasta fonte do manuscrito usando a subpasta informada no campo dedicado do ACF.', 'chao') . '</p>';
 
-        if (!empty($zipFile['id']) || !empty($zipFile['path'])) {
-            $importUrl = static::buildImportUrl($post->ID, wp_create_nonce('chao_import_manuscript_zip_' . $post->ID));
+        if (!empty($sourceFolder['subfolder']) && !empty($sourceFolder['path'])) {
+            $importUrl = static::buildImportUrl($post->ID, wp_create_nonce('chao_import_manuscript_source_folder_' . $post->ID));
 
-            echo '<p><strong>' . esc_html__('Pacote ZIP do manuscrito:', 'chao') . '</strong> ';
-
-            if (!empty($zipFile['url'])) {
-                echo '<a href="' . esc_url($zipFile['url']) . '" target="_blank" rel="noopener noreferrer">' . esc_html($zipFile['filename']) . '</a>';
-            } else {
-                echo esc_html($zipFile['filename']);
-            }
-
+            echo '<p><strong>' . esc_html__('Subpasta fonte do manuscrito:', 'chao') . '</strong> ';
+            echo esc_html($sourceFolder['subfolder']);
             echo '</p>';
-            echo '<p><a class="button button-secondary" href="' . esc_url($importUrl) . '">' . esc_html__('Importar pacote ZIP', 'chao') . '</a></p>';
+
+            echo '<p><a class="button button-secondary" href="' . esc_url($importUrl) . '">' . esc_html__('Importar da subpasta', 'chao') . '</a></p>';
         } else {
-            echo '<p>' . esc_html__('Envie um pacote ZIP no campo do manuscrito para habilitar a importacao.', 'chao') . '</p>';
+            echo '<p>' . esc_html__('Informe uma subpasta fonte valida do manuscrito no campo dedicado do ACF para habilitar a importacao.', 'chao') . '</p>';
+
+            if ($configuredSubfolder !== '') {
+                echo '<p><strong>' . esc_html__('Subpasta informada:', 'chao') . '</strong> ' . esc_html($configuredSubfolder) . '</p>';
+            }
         }
 
         if (!empty($lastError)) {
@@ -80,7 +80,7 @@ class Admin
 
         if (!empty($snapshot) && is_array($snapshot)) {
             echo '<p><strong>' . esc_html__('Ultima importacao salva:', 'chao') . '</strong></p>';
-            echo '<p><strong>' . esc_html__('Arquivo ZIP:', 'chao') . '</strong> ' . esc_html($snapshot['zip_name'] ?? '') . '<br>';
+            echo '<p><strong>' . esc_html__('Pasta fonte:', 'chao') . '</strong> ' . esc_html((string) ($snapshot['source_name'] ?? '')) . '<br>';
             echo '<strong>' . esc_html__('Paginas:', 'chao') . '</strong> ' . esc_html((string) ($snapshot['page_count'] ?? 0)) . '<br>';
             echo '<strong>' . esc_html__('Revisao:', 'chao') . '</strong> <a href="#manuscript-import-pages">' . esc_html__('ver tabela de paginas', 'chao') . '</a></p>';
         }
@@ -99,11 +99,11 @@ class Admin
         );
 
         if (empty($rows)) {
-            echo '<p>' . esc_html__('Importe um pacote ZIP do manuscrito para gerar a lista de paginas importadas.', 'chao') . '</p>';
+            echo '<p>' . esc_html__('Importe a pasta fonte do manuscrito para gerar a lista de paginas importadas.', 'chao') . '</p>';
             return;
         }
 
-        echo '<p>' . esc_html__('Resumo compacto das paginas importadas do pacote ZIP para este manuscrito.', 'chao') . '</p>';
+        echo '<p>' . esc_html__('Resumo compacto das paginas importadas da pasta fonte para este manuscrito.', 'chao') . '</p>';
         echo '<p>';
         echo esc_html__('Paginas importadas:', 'chao') . ' ' . esc_html((string) count($rows)) . '<br>';
         echo esc_html__('Imagens sem XML correspondente:', 'chao') . ' ' . esc_html((string) $summary['images_without_xml']) . '<br>';
@@ -135,10 +135,13 @@ class Admin
             'xml_without_image' => 0,
         ];
 
-        $errorMessages = array_merge(
-            array_values((array) ($snapshot['errors'] ?? [])),
-            array_values($lastErrors)
-        );
+        $errorMessages = array_values((array) ($snapshot['errors'] ?? []));
+
+        if (empty($errorMessages)) {
+            $errorMessages = array_values($lastErrors);
+        }
+
+        $errorMessages = array_values(array_unique($errorMessages));
 
         foreach ($errorMessages as $errorMessage) {
             $errorMessage = trim((string) $errorMessage);
@@ -156,7 +159,7 @@ class Admin
         return $summary;
     }
 
-    public static function importZip()
+    public static function importSourceFolder()
     {
         $requestData = static::extractImportRequestData(
             array_merge(
@@ -170,48 +173,32 @@ class Admin
         if (
             !$postId ||
             !$nonce ||
-            !wp_verify_nonce($nonce, 'chao_import_manuscript_zip_' . $postId)
+            !wp_verify_nonce($nonce, 'chao_import_manuscript_source_folder_' . $postId)
         ) {
-            if (function_exists('wp_die')) {
-                wp_die(__('Solicitacao invalida.', 'chao'));
-            }
-
-            exit(1);
+            static::failRequest(__('Solicitacao invalida.', 'chao'));
         }
 
         if (!current_user_can('edit_post', $postId)) {
-            if (function_exists('wp_die')) {
-                wp_die(__('Voce nao tem permissao para importar este manuscrito.', 'chao'));
-            }
-
-            exit(1);
+            static::failRequest(__('Voce nao tem permissao para importar este manuscrito.', 'chao'));
         }
 
-        $zipFile = static::resolveZipAttachment($postId);
+        $sourceFolder = static::resolveSourceFolder($postId);
 
-        if (empty($zipFile['path']) || !is_readable($zipFile['path'])) {
-            $errorMessage = __('Pacote ZIP do manuscrito ausente ou invalido.', 'chao');
+        if (
+            empty($sourceFolder['subfolder']) ||
+            empty($sourceFolder['path']) ||
+            !is_dir($sourceFolder['path']) ||
+            !is_readable($sourceFolder['path'])
+        ) {
+            $errorMessage = __('Pasta fonte do manuscrito ausente ou invalida.', 'chao');
             update_post_meta($postId, 'chao_manuscript_import_last_error', $errorMessage);
             update_post_meta($postId, 'chao_manuscript_import_last_errors', [$errorMessage]);
-            static::redirectBack($postId, 'missing_zip', 'import');
+            static::redirectBack($postId, 'missing_source_folder', 'import');
             return;
         }
 
         try {
-            $zipFilename = !empty($zipFile['filename']) ? (string) $zipFile['filename'] : basename((string) $zipFile['path']);
-            $zipSlug = static::sanitizeKey((string) pathinfo($zipFilename, PATHINFO_FILENAME));
-            $imageOutputDir = dirname((string) $zipFile['path']) . DIRECTORY_SEPARATOR . 'manuscript-imports' . DIRECTORY_SEPARATOR . $postId . DIRECTORY_SEPARATOR . $zipSlug;
-            $imageOutputUrl = !empty($zipFile['url'])
-                ? rtrim(dirname((string) $zipFile['url']), '/') . '/manuscript-imports/' . rawurlencode((string) $postId) . '/' . rawurlencode($zipSlug)
-                : '';
-            $result = ZipImport::fromZipPath($zipFile['path'], [
-                'image_output_dir' => $imageOutputDir,
-                'image_output_url' => $imageOutputUrl,
-            ]);
-
-            if (!empty($zipFile['filename'])) {
-                $result['zip_name'] = (string) $zipFile['filename'];
-            }
+            $result = SourceFolderImport::fromDirectory($sourceFolder['path'], $sourceFolder['url']);
         } catch (\RuntimeException $exception) {
             $errorMessage = $exception->getMessage();
             update_post_meta($postId, 'chao_manuscript_import_last_error', $errorMessage);
@@ -223,10 +210,9 @@ class Admin
         update_post_meta($postId, 'chao_manuscript_import_last_error', '');
         delete_post_meta($postId, 'chao_manuscript_page_review');
         update_post_meta($postId, 'chao_manuscript_import_source', [
-            'zip_id' => (int) ($zipFile['id'] ?? 0),
-            'zip_path' => (string) ($zipFile['path'] ?? ''),
-            'zip_url' => (string) ($zipFile['url'] ?? ''),
-            'zip_filename' => (string) ($zipFile['filename'] ?? ''),
+            'source_subfolder' => (string) ($sourceFolder['subfolder'] ?? ''),
+            'source_path' => (string) ($sourceFolder['path'] ?? ''),
+            'source_url' => (string) ($sourceFolder['url'] ?? ''),
         ]);
         update_post_meta($postId, 'chao_manuscript_import_last_snapshot', static::buildImportSnapshot($result));
         update_post_meta($postId, 'chao_manuscript_import_last_errors', array_values((array) ($result['errors'] ?? [])));
@@ -257,19 +243,19 @@ class Admin
         $notices = [
             'success' => [
                 'type' => 'success',
-                'message' => static::translate('Pacote ZIP do manuscrito importado com sucesso.'),
+                'message' => static::translate('Pasta fonte do manuscrito importada com sucesso.'),
             ],
-            'missing_zip' => [
+            'missing_source_folder' => [
                 'type' => 'error',
-                'message' => static::translate('Nao foi possivel importar: envie um pacote ZIP do manuscrito.'),
+                'message' => static::translate('Nao foi possivel importar: informe uma subpasta fonte valida do manuscrito.'),
             ],
             'import_unavailable' => [
                 'type' => 'warning',
-                'message' => static::translate('A importacao do pacote ZIP ainda nao esta disponivel neste ambiente.'),
+                'message' => static::translate('A importacao da pasta fonte do manuscrito ainda nao esta disponivel neste ambiente.'),
             ],
             'import_error' => [
                 'type' => 'error',
-                'message' => static::translate('O pacote ZIP do manuscrito nao pode ser importado. Veja os detalhes no metabox do manuscrito.'),
+                'message' => static::translate('A pasta fonte do manuscrito nao pode ser importada. Veja os detalhes no metabox do manuscrito.'),
             ],
         ];
 
@@ -279,7 +265,7 @@ class Admin
     public static function buildImportSnapshot(array $result)
     {
         return [
-            'zip_name' => isset($result['zip_name']) ? (string) $result['zip_name'] : '',
+            'source_name' => isset($result['source_name']) ? (string) $result['source_name'] : '',
             'page_count' => isset($result['page_count']) ? (int) $result['page_count'] : count((array) ($result['pages'] ?? [])),
             'pages' => array_values((array) ($result['pages'] ?? [])),
             'errors' => array_values((array) ($result['errors'] ?? [])),
@@ -316,86 +302,66 @@ class Admin
         exit;
     }
 
-    protected static function resolveZipAttachment($postId)
+    protected static function resolveSourceFolder($postId)
     {
-        $attachmentId = 0;
-        $namespacedGetField = __NAMESPACE__ . '\\get_field';
-        $namespacedAttachmentUrl = __NAMESPACE__ . '\\wp_get_attachment_url';
-        $namespacedAttachedFile = __NAMESPACE__ . '\\get_attached_file';
-        $fieldNames = ['manuscript_zip_file'];
-        $legacyFieldNames = ['manuscript_master_pdf'];
+        $configuredSubfolder = static::readSourceSubfolderField($postId);
 
-        foreach (array_merge($fieldNames, $legacyFieldNames) as $fieldName) {
-            if (function_exists($namespacedGetField)) {
-                $attachmentId = (int) call_user_func($namespacedGetField, $fieldName, $postId, false);
-            } elseif (function_exists('get_field')) {
-                $attachmentId = (int) get_field($fieldName, $postId, false);
+        if ($configuredSubfolder !== '') {
+            try {
+                return SourceFolder::resolve($configuredSubfolder);
+            } catch (\InvalidArgumentException $exception) {
+                return [
+                    'subfolder' => $configuredSubfolder,
+                    'path' => '',
+                    'url' => '',
+                ];
             }
-
-            if ($attachmentId) {
-                break;
-            }
-        }
-
-        if (!$attachmentId) {
-            foreach (array_merge($fieldNames, $legacyFieldNames) as $fieldName) {
-                $attachmentId = (int) get_post_meta($postId, $fieldName, true);
-
-                if ($attachmentId) {
-                    break;
-                }
-            }
-        }
-
-        if (!$attachmentId) {
-            $storedSource = get_post_meta($postId, 'chao_manuscript_import_source', true);
-
-            if (is_array($storedSource)) {
-                $storedZipId = isset($storedSource['zip_id']) ? (int) $storedSource['zip_id'] : 0;
-                $storedZipPath = isset($storedSource['zip_path']) ? (string) $storedSource['zip_path'] : '';
-                $storedZipUrl = isset($storedSource['zip_url']) ? (string) $storedSource['zip_url'] : '';
-                $storedZipFilename = isset($storedSource['zip_filename']) ? (string) $storedSource['zip_filename'] : '';
-
-                if ($storedZipId || $storedZipPath !== '') {
-                    return [
-                        'id' => $storedZipId,
-                        'url' => $storedZipUrl,
-                        'path' => $storedZipPath,
-                        'filename' => $storedZipFilename !== '' ? $storedZipFilename : basename($storedZipPath),
-                    ];
-                }
-            }
-
-            return [
-                'id' => 0,
-                'url' => '',
-                'path' => '',
-                'filename' => '',
-            ];
-        }
-
-        if (function_exists($namespacedAttachmentUrl)) {
-            $url = (string) call_user_func($namespacedAttachmentUrl, $attachmentId);
-        } elseif (function_exists('wp_get_attachment_url')) {
-            $url = (string) wp_get_attachment_url($attachmentId);
-        } else {
-            $url = '';
-        }
-
-        if (function_exists($namespacedAttachedFile)) {
-            $path = (string) call_user_func($namespacedAttachedFile, $attachmentId);
-        } elseif (function_exists('get_attached_file')) {
-            $path = (string) get_attached_file($attachmentId);
-        } else {
-            $path = '';
         }
 
         return [
-            'id' => $attachmentId,
-            'url' => $url,
-            'path' => $path,
-            'filename' => $url !== '' ? basename($url) : ($path !== '' ? basename($path) : ''),
+            'subfolder' => '',
+            'path' => '',
+            'url' => '',
         ];
+    }
+
+    protected static function readSourceSubfolderField($postId)
+    {
+        $namespacedGetField = __NAMESPACE__ . '\\get_field';
+        $fieldNames = ['manuscript_source_subfolder'];
+
+        foreach ($fieldNames as $fieldName) {
+            if (function_exists($namespacedGetField)) {
+                $subfolder = static::normalizeSourceSubfolderValue(call_user_func($namespacedGetField, $fieldName, $postId, false));
+            } elseif (function_exists('get_field')) {
+                $subfolder = static::normalizeSourceSubfolderValue(get_field($fieldName, $postId, false));
+            } else {
+                $subfolder = '';
+            }
+
+            if ($subfolder !== '') {
+                return $subfolder;
+            }
+        }
+
+        foreach ($fieldNames as $fieldName) {
+            $subfolder = static::normalizeSourceSubfolderValue(get_post_meta($postId, $fieldName, true));
+
+            if ($subfolder !== '') {
+                return $subfolder;
+            }
+        }
+
+        return '';
+    }
+
+    protected static function normalizeSourceSubfolderValue($value)
+    {
+        if ($value === null || $value === false || $value === 0) {
+            return '';
+        }
+
+        return trim((string) $value);
     }
 
     public static function buildImportUrl($postId, $nonce, $adminBaseUrl = null)
@@ -403,7 +369,7 @@ class Admin
         $adminBaseUrl = $adminBaseUrl ?: admin_url();
         $basePath = rtrim($adminBaseUrl, '/') . '/admin-post.php';
         $queryArgs = [
-            'action' => 'chao_import_manuscript_zip',
+            'action' => 'chao_import_manuscript_source_folder',
             'post_id' => (int) $postId,
             'chao_manuscript_import_nonce' => $nonce,
         ];
@@ -457,13 +423,19 @@ class Admin
         return gmdate('Y-m-d H:i:s');
     }
 
-    protected static function sanitizeKey($value)
+    protected static function failRequest($message)
     {
-        if (function_exists('sanitize_key')) {
-            return sanitize_key($value);
+        $namespacedWpDie = __NAMESPACE__ . '\\wp_die';
+
+        if (function_exists($namespacedWpDie)) {
+            call_user_func($namespacedWpDie, $message);
         }
 
-        return strtolower(preg_replace('/[^a-zA-Z0-9_\-]/', '', (string) $value));
+        if (function_exists('wp_die')) {
+            wp_die($message);
+        }
+
+        exit(1);
     }
 
     protected static function wpUnslash($value)

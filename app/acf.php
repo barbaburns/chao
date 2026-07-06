@@ -127,14 +127,12 @@ if (function_exists('acf_add_local_field_group')) {
         'title' => 'Importacao de manuscrito',
         'fields' => [
             [
-                'key' => 'field_manuscript_zip_file',
-                'label' => 'Pacote ZIP do manuscrito',
-                'name' => 'manuscript_zip_file',
-                'type' => 'file',
-                'return_format' => 'id',
-                'mime_types' => 'zip',
+                'key' => 'field_manuscript_source_subfolder',
+                'label' => 'Subpasta fonte do manuscrito',
+                'name' => 'manuscript_source_subfolder',
+                'type' => 'text',
                 'required' => 0,
-                'instructions' => 'Envie um pacote ZIP contendo as imagens e os arquivos ALTO XML pareados pelo mesmo nome-base.',
+                'instructions' => 'Informe somente o nome da subpasta fonte do manuscrito, sem barras ou o caminho completo.',
             ],
         ],
         'location' => [

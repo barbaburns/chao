@@ -3,13 +3,11 @@
   "title": "Importacao de manuscrito",
   "fields": [
     {
-      "key": "field_manuscript_zip_file",
-      "label": "Pacote ZIP do manuscrito",
-      "name": "manuscript_zip_file",
-      "type": "file",
-      "return_format": "id",
-      "library": "all",
-      "mime_types": "zip"
+      "key": "field_manuscript_source_subfolder",
+      "label": "Subpasta fonte do manuscrito",
+      "name": "manuscript_source_subfolder",
+      "type": "text",
+      "instructions": "Informe somente o nome da subpasta fonte do manuscrito, sem barras ou o caminho completo."
     }
   ],
   "location": [
