@@ -124,7 +124,7 @@ add_filter('acf/load_field/name=discount_user_roles', function($field) {
 if (function_exists('acf_add_local_field_group')) {
     acf_add_local_field_group([
         'key' => 'group_manuscript_local_pilot',
-        'title' => 'Importacao de manuscrito',
+        'title' => 'Importação de manuscrito',
         'fields' => [
             [
                 'key' => 'field_manuscript_source_subfolder',
