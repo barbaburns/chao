@@ -10,6 +10,7 @@ class Admin
         add_action('admin_post_chao_create_manuscript_draft', [static::class, 'createDraftForImport']);
         add_action('admin_post_chao_import_manuscript_source_folder', [static::class, 'importSourceFolder']);
         add_action('admin_notices', [static::class, 'renderAdminNotice']);
+        add_action('admin_enqueue_scripts', [static::class, 'enqueueImportBeforeSaveScript']);
         add_action('admin_enqueue_scripts', [static::class, 'enqueueEditorRefreshScript']);
         add_action('admin_footer-post.php', [static::class, 'renderEditorRefreshScript']);
         add_action('admin_footer-post-new.php', [static::class, 'renderEditorRefreshScript']);
@@ -237,6 +238,7 @@ class Admin
     public static function createDraftForImport()
     {
         $nonce = isset($_POST['chao_manuscript_import_nonce']) ? (string) $_POST['chao_manuscript_import_nonce'] : '';
+        $requestedPostId = isset($_POST['post_id']) ? (int) $_POST['post_id'] : 0;
 
         if (!$nonce || !wp_verify_nonce($nonce, 'chao_manuscript_import_create_draft')) {
             wp_send_json_error(['message' => __('Solicitacao invalida.', 'chao')], 403);
@@ -244,6 +246,14 @@ class Admin
 
         if (!current_user_can('edit_posts')) {
             wp_send_json_error(['message' => __('Voce nao tem permissao para criar este manuscrito.', 'chao')], 403);
+        }
+
+        if ($requestedPostId > 0) {
+            wp_send_json_success([
+                'post_id' => $requestedPostId,
+                'edit_url' => static::buildEditUrl($requestedPostId),
+                'import_nonce' => static::createImportNonce($requestedPostId),
+            ]);
         }
 
         $postId = wp_insert_post([
@@ -259,6 +269,7 @@ class Admin
         wp_send_json_success([
             'post_id' => (int) $postId,
             'edit_url' => static::buildEditUrl($postId),
+            'import_nonce' => static::createImportNonce($postId),
         ]);
     }
 
@@ -283,21 +294,7 @@ class Admin
 
     public static function enqueueEditorRefreshScript($hookSuffix)
     {
-        if (!in_array((string) $hookSuffix, ['post.php', 'post-new.php'], true)) {
-            return;
-        }
-
-        $namespacedGetCurrentScreen = __NAMESPACE__ . '\\get_current_screen';
-
-        if (function_exists($namespacedGetCurrentScreen)) {
-            $screen = call_user_func($namespacedGetCurrentScreen);
-        } elseif (function_exists('get_current_screen')) {
-            $screen = get_current_screen();
-        } else {
-            return;
-        }
-
-        if (!is_object($screen) || (($screen->post_type ?? '') !== 'manuscrito')) {
+        if (!static::shouldLoadManuscriptEditorScreen($hookSuffix)) {
             return;
         }
 
@@ -306,19 +303,31 @@ class Admin
         wp_add_inline_script('wp-dom-ready', static::editorRefreshScript());
     }
 
-    public static function renderEditorRefreshScript()
+    public static function enqueueImportBeforeSaveScript($hookSuffix)
     {
-        $namespacedGetCurrentScreen = __NAMESPACE__ . '\\get_current_screen';
-
-        if (function_exists($namespacedGetCurrentScreen)) {
-            $screen = call_user_func($namespacedGetCurrentScreen);
-        } elseif (function_exists('get_current_screen')) {
-            $screen = get_current_screen();
-        } else {
+        if (!static::shouldLoadManuscriptEditorScreen($hookSuffix)) {
             return;
         }
 
-        if (!is_object($screen) || (($screen->post_type ?? '') !== 'manuscrito')) {
+        $scriptUrl = static::getImportBeforeSaveScriptUrl();
+
+        if ($scriptUrl === '') {
+            return;
+        }
+
+        $postId = isset($_GET['post']) ? (int) $_GET['post'] : 0;
+
+        wp_enqueue_script('chao/manuscript-import-before-save', $scriptUrl, [], null, true);
+        wp_add_inline_script(
+            'chao/manuscript-import-before-save',
+            'window.chaoManuscriptImportConfig = ' . static::jsonEncode(static::buildImportBeforeSaveConfig($postId)) . ';',
+            'before'
+        );
+    }
+
+    public static function renderEditorRefreshScript()
+    {
+        if (!static::shouldLoadManuscriptEditorScreen()) {
             return;
         }
 
@@ -579,6 +588,111 @@ class Admin
         }
 
         return gmdate('Y-m-d H:i:s');
+    }
+
+    protected static function shouldLoadManuscriptEditorScreen($hookSuffix = null)
+    {
+        if ($hookSuffix !== null && !in_array((string) $hookSuffix, ['post.php', 'post-new.php'], true)) {
+            return false;
+        }
+
+        $screen = static::currentScreen();
+
+        return is_object($screen) && (($screen->post_type ?? '') === 'manuscrito');
+    }
+
+    protected static function currentScreen()
+    {
+        $namespacedGetCurrentScreen = __NAMESPACE__ . '\\get_current_screen';
+
+        if (function_exists($namespacedGetCurrentScreen)) {
+            return call_user_func($namespacedGetCurrentScreen);
+        }
+
+        if (function_exists('get_current_screen')) {
+            return get_current_screen();
+        }
+
+        return null;
+    }
+
+    protected static function getImportBeforeSaveScriptUrl()
+    {
+        $relativePath = 'resources/assets/scripts/admin/manuscript-import-before-save.js';
+        $namespacedGetThemeFileUri = __NAMESPACE__ . '\\get_theme_file_uri';
+
+        if (function_exists($namespacedGetThemeFileUri)) {
+            return (string) call_user_func($namespacedGetThemeFileUri, $relativePath);
+        }
+
+        if (function_exists('get_theme_file_uri')) {
+            return (string) get_theme_file_uri($relativePath);
+        }
+
+        return '';
+    }
+
+    protected static function buildImportBeforeSaveConfig($postId)
+    {
+        return [
+            'postId' => (int) $postId,
+            'createDraftUrl' => admin_url('admin-post.php'),
+            'createDraftAction' => 'chao_create_manuscript_draft',
+            'createDraftNonce' => static::createDraftNonce(),
+            'importUrl' => admin_url('admin-post.php'),
+            'importAction' => 'chao_import_manuscript_source_folder',
+            'importNonce' => static::createImportNonce($postId),
+            'messages' => [
+                'missingSubfolder' => static::translate('Informe uma subpasta fonte valida do manuscrito.'),
+                'requestFailed' => static::translate('Nao foi possivel concluir a importacao do manuscrito agora.'),
+            ],
+        ];
+    }
+
+    protected static function createDraftNonce()
+    {
+        return static::createNonce('chao_manuscript_import_create_draft');
+    }
+
+    protected static function createImportNonce($postId)
+    {
+        $postId = (int) $postId;
+
+        if ($postId < 1) {
+            return '';
+        }
+
+        return static::createNonce('chao_import_manuscript_source_folder_' . $postId);
+    }
+
+    protected static function createNonce($action)
+    {
+        $namespacedWpCreateNonce = __NAMESPACE__ . '\\wp_create_nonce';
+
+        if (function_exists($namespacedWpCreateNonce)) {
+            return (string) call_user_func($namespacedWpCreateNonce, $action);
+        }
+
+        if (function_exists('wp_create_nonce')) {
+            return (string) wp_create_nonce($action);
+        }
+
+        return '';
+    }
+
+    protected static function jsonEncode($value)
+    {
+        $namespacedWpJsonEncode = __NAMESPACE__ . '\\wp_json_encode';
+
+        if (function_exists($namespacedWpJsonEncode)) {
+            return (string) call_user_func($namespacedWpJsonEncode, $value);
+        }
+
+        if (function_exists('wp_json_encode')) {
+            return (string) wp_json_encode($value);
+        }
+
+        return (string) json_encode($value);
     }
 
     protected static function editorRefreshScript()

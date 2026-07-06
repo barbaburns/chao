@@ -66,6 +66,11 @@ function admin_url($path = '')
     return 'http://example.test/wp-admin' . ($path === '' ? '' : '/' . $path);
 }
 
+function wp_create_nonce($action)
+{
+    return 'nonce-value';
+}
+
 function wp_send_json_success($value)
 {
     global $mockJsonSuccess;
@@ -214,5 +219,23 @@ assertSameValue(true, $mockInsertWpErrorFlag, 'Draft creation should request a W
 assertSameValue(321, $mockJsonSuccess['post_id'], 'Draft creation should return the new post ID');
 assertTrueValue(strpos($mockJsonSuccess['edit_url'], 'post.php') !== false, 'Draft creation should return the edit URL');
 assertTrueValue(strpos($mockJsonSuccess['edit_url'], 'post=321') !== false, 'Draft creation should return an edit URL for the new post');
+assertSameValue('nonce-value', $mockJsonSuccess['import_nonce'], 'Draft creation should return an import nonce for the new draft');
+
+resetDraftCreationState();
+$_POST = [
+    'post_id' => '654',
+    'chao_manuscript_import_nonce' => 'nonce-value',
+];
+
+try {
+    Admin::createDraftForImport();
+} catch (\RuntimeException $exception) {
+    assertSameValue('json-success', $exception->getMessage(), 'Draft reuse should finish with a JSON success response');
+}
+
+assertSameValue([], $mockInsertedPosts, 'Draft reuse should not create a second manuscript draft when a post ID is already available');
+assertSameValue(654, $mockJsonSuccess['post_id'], 'Draft reuse should return the existing manuscript post ID');
+assertTrueValue(strpos($mockJsonSuccess['edit_url'], 'post=654') !== false, 'Draft reuse should return an edit URL for the existing manuscript post');
+assertSameValue('nonce-value', $mockJsonSuccess['import_nonce'], 'Draft reuse should return an import nonce for the existing manuscript post');
 
 echo 'admin_create_draft_test: ok' . PHP_EOL;
