@@ -13,10 +13,10 @@ function assertTrueValue($condition, $message)
     }
 }
 
-$manuscriptSectionPattern = '/@if\\(\\$manuscript\\).*?<div class="product-extra product-extra-manuscript">.*?<h2>Manuscrito<\\/h2>.*?<div class="product-manuscript">\\s*\\{!! \\$manuscript\\[\'text\'\\] !!\\}\\s*@if\\(\\$manuscript\\[\'url\'\\]\\)\\s*<p class="product-manuscript-link">\\s*<a href="\\{\\{ \\$manuscript\\[\'url\'\\] \\}\\}">Acesse o manuscrito<\\/a>\\s*<\\/p>\\s*@endif\\s*<\\/div>/s';
+$manuscriptSectionPattern = '/@if\\(\\$manuscript\\).*?<div class="product-extra product-extra-manuscript">.*?<h2>Manuscrito<\\/h2>.*?<div class="product-manuscript">\\s*\\{!! \\$manuscript\\[\'text\'\\] !!\\}\\s*@if\\(\\$manuscript\\[\'url\'\\]\\)\\s*<p class="product-manuscript-link">\\s*<a href="\\{\\{ \\$manuscript\\[\'url\'\\] \\}\\}">Veja o manuscrito<\\/a>\\s*<\\/p>\\s*@endif\\s*<\\/div>/s';
 
 assertTrueValue(preg_match($manuscriptSectionPattern, $template) === 1, 'Product manuscript template should render the manuscript rich text inside a static manuscript block');
-assertTrueValue(strpos($template, "Acesse o manuscrito") !== false, 'Product manuscript template should render a CTA label for the manuscript link');
+assertTrueValue(strpos($template, "Veja o manuscrito") !== false, 'Product manuscript template should render a CTA label for the manuscript link');
 assertTrueValue(strpos($template, 'product-manuscript-slider') === false, 'Product manuscript template should not render a manuscript slider container');
 assertTrueValue(strpos($template, 'swiper-container product-manuscript') === false, 'Product manuscript template should not reuse Swiper container markup for manuscript text');
 assertTrueValue(strpos($template, 'swiper-wrapper') === false, 'Product manuscript template should not render Swiper wrappers for manuscript text');

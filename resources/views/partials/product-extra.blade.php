@@ -78,7 +78,7 @@
           {!! $manuscript['text'] !!}
           @if($manuscript['url'])
             <p class="product-manuscript-link">
-              <a href="{{ $manuscript['url'] }}">Acesse o manuscrito</a>
+              <a href="{{ $manuscript['url'] }}">Veja o manuscrito</a>
             </p>
           @endif
         </div>
