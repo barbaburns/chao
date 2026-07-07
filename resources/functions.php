@@ -90,9 +90,9 @@ Container::getInstance()
  * Work around Pagar.me registering a private method as a WordPress callback.
  *
  * PHP 8 rejects `[$object, 'privateMethod']` when WordPress executes the hook,
- * so we replace that callback with a reflected wrapper before `init` runs.
+ * so we replace that callback with a reflected wrapper at the beginning of `init`.
  */
-add_action('after_setup_theme', function () {
+add_action('init', function () {
     if (!class_exists('Woocommerce\\Pagarme\\Core')) {
         return;
     }
