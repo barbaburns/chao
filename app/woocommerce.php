@@ -111,6 +111,9 @@ add_filter('woocommerce_checkout_login_message', function ($text) {
     return false;
 });
 
+add_filter('woocommerce_correios_email_tracking_code_url', function ($html, $trackingCode) {
+    return $trackingCode;
+}, 10, 3);
 
 add_action('woocommerce_shop_loop_item_title', __NAMESPACE__ . '\\addProductBadges', 6);
 add_action('woocommerce_single_product_summary', __NAMESPACE__ . '\\addProductBadges', 4);
