@@ -11,8 +11,8 @@ function assertTrueValue($condition, $message)
 }
 
 assertTrueValue(
-    preg_match('/\.manuscript-single__viewer\.is-fullscreen\s*\{.*?\.btn,\s*\.manuscript-single__viewer-jump input\s*\{.*?background:\s*rgba\(#fff,\s*0\.88\);/s', $styles) === 1,
-    'Fullscreen manuscript controls should use a light button background'
+    preg_match('/\.manuscript-single__viewer\.is-fullscreen\s*\{.*?\.btn,\s*\.manuscript-single__viewer-jump input\s*\{.*?background:\s*transparent;.*?color:\s*#fff;/s', $styles) === 1,
+    'Fullscreen manuscript controls should use a transparent background with light content'
 );
 
 echo 'single_manuscrito_fullscreen_controls_style_test: ok' . PHP_EOL;
