@@ -153,6 +153,9 @@ assertSameValue(1, $result['initial_page_number'], 'Search should open the viewe
 assertSameValue(5, $result['page_count'], 'Search should keep total indexed pages');
 assertSameValue(5, $result['pages_with_text_count'], 'Search should count pages with searchable text');
 assertSameValue(2, $result['match_count'], 'Search should only match pages with exact-word occurrences');
+assertSameValue(2, count($result['viewer_pages']), 'Search should limit viewer pages to the matched subset when a query is active');
+assertSameValue(1, $result['viewer_pages'][0]['page_number'], 'Search should keep the first matched page in the filtered viewer subset');
+assertSameValue(3, $result['viewer_pages'][1]['page_number'], 'Search should keep later matched pages in the filtered viewer subset');
 assertSameValue(2, $quotedResult['match_count'], 'Search should ignore wrapping quotes in the submitted query');
 assertSameValue(2, count($result['matches']), 'Search should return one result entry per matching page');
 assertSameValue(1, $result['matches'][0]['page_number'], 'Search should keep the first matching page number');
@@ -184,5 +187,6 @@ assertSameValue(1, count($accentInsensitiveResult['pages'][0]['highlight_boxes']
 assertSameValue(0, $emptyQuery['match_count'], 'Search should not return matches for an empty query');
 assertSameValue(1, $emptyQuery['initial_page_number'], 'Search should fallback to the first page when there is no query');
 assertSameValue(5, count($emptyQuery['pages']), 'Search should still expose indexed pages without a query');
+assertSameValue(5, count($emptyQuery['viewer_pages']), 'Search should keep every viewer page when there is no active query');
 
 echo 'search_test: ok' . PHP_EOL;

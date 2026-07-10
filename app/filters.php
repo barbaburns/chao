@@ -92,29 +92,7 @@ add_filter('comments_template', function ($comments_template) {
 /**
  * Ordena a lista de autores
  */
-add_action( 'pre_get_posts', function ( $query ){
-    if (is_admin() || !$query->is_main_query()) {
-        return;
-    }
-
-    if (is_post_type_archive('autores')) {
-        $query->set('orderby', 'menu_order');
-        $query->set('order', 'ASC');
-        return;
-    }
-
-    if (is_home()) {
-        $args = [
-            [
-                'key'       => 'hide_post',
-                'value'     => 1,
-                'compare'   => '!='
-            ]
-        ];
-
-        $query->set('meta_query', $args);
-    }
-});
+add_action('pre_get_posts', [ArchiveQuery::class, 'filterMainQuery']);
 
 /**
  * Carregando formulário de busca customizado

@@ -9,14 +9,22 @@ class Search
         $normalizedQuery = static::normalizeQuery($query);
         $pages = static::buildPages($job, $normalizedQuery);
         $matches = static::buildMatches($pages, $normalizedQuery);
-        $viewerPages = array_values(array_filter($pages, function ($page) {
+        $allViewerPages = array_values(array_filter($pages, function ($page) {
             return $page['image_url'] !== '';
         }));
+        $matchedPageNumbers = array_flip(array_map(function ($match) {
+            return (int) ($match['page_number'] ?? 0);
+        }, $matches));
+        $viewerPages = $normalizedQuery !== ''
+            ? array_values(array_filter($allViewerPages, function ($page) use ($matchedPageNumbers) {
+                return isset($matchedPageNumbers[(int) ($page['page_number'] ?? 0)]);
+            }))
+            : $allViewerPages;
 
         return [
             'query' => $normalizedQuery,
             'has_query' => $normalizedQuery !== '',
-            'viewer_enabled' => !empty($viewerPages),
+            'viewer_enabled' => !empty($allViewerPages),
             'initial_page_number' => static::resolveInitialPageNumber($pages, $matches),
             'page_count' => count($pages),
             'pages_with_text_count' => count(array_filter($pages, function ($page) {
@@ -25,6 +33,7 @@ class Search
             'match_count' => count($matches),
             'matches' => $matches,
             'pages' => $pages,
+            'viewer_pages' => $viewerPages,
         ];
     }
 

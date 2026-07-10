@@ -17,6 +17,7 @@ class PostType
             'show_in_rest' => true,
             'menu_icon' => 'dashicons-media-document',
             'supports' => ['title', 'editor', 'thumbnail'],
+            'taxonomies' => ['category', 'post_tag'],
             'rewrite' => ['slug' => 'manuscritos'],
             'has_archive' => true,
         ]);

@@ -126,3 +126,28 @@
     font-family: $freight-book-italic;
   }
 }
+
+.archive.category .type-manuscrito.post,
+.archive.tag .type-manuscrito.post,
+.blog .type-manuscrito.post,
+.archive.date .type-manuscrito.post {
+  .feautured-image {
+    overflow: hidden;
+    position: relative;
+
+    &::before {
+      content: '';
+      display: block;
+      padding-top: 100%;
+    }
+
+    img {
+      height: 100%;
+      left: 0;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      width: 100%;
+    }
+  }
+}
