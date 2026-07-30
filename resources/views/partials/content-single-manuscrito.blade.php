@@ -122,7 +122,14 @@
                       <path d="M2 8h20M6 3 1 8l5 5M18 3l5 5-5 5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
                     </svg>
                   </button>
-                  <button type="button" class="btn manuscript-single__viewer-compact-button fullscreen" data-manuscript-fullscreen data-manuscript-tooltip="Tela cheia" aria-label="Tela cheia">⤢</button>
+                  <button type="button" class="btn manuscript-single__viewer-compact-button fullscreen" data-manuscript-fullscreen data-manuscript-tooltip="Tela cheia" aria-label="Tela cheia">
+                    <svg class="manuscript-single__viewer-fullscreen-icon manuscript-single__viewer-fullscreen-icon--enter" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                      <path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4" fill="none" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <svg class="manuscript-single__viewer-fullscreen-icon manuscript-single__viewer-fullscreen-icon--exit" viewBox="0 0 16 16" aria-hidden="true" focusable="false" hidden>
+                      <path d="M1 5h4V1M11 1v4h4M15 11h-4v4M5 15v-4H1" fill="none" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
 

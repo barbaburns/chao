@@ -240,7 +240,19 @@ export default {
         return;
       }
 
-      fullscreenButton.textContent = isFullscreen ? '⤡' : '⤢';
+      const enterIcon = fullscreenButton.querySelector('.manuscript-single__viewer-fullscreen-icon--enter');
+      const exitIcon = fullscreenButton.querySelector('.manuscript-single__viewer-fullscreen-icon--exit');
+
+      if (enterIcon && exitIcon) {
+        if (isFullscreen) {
+          enterIcon.setAttribute('hidden', '');
+          exitIcon.removeAttribute('hidden');
+        } else {
+          enterIcon.removeAttribute('hidden');
+          exitIcon.setAttribute('hidden', '');
+        }
+      }
+
       fullscreenButton.setAttribute('aria-label', isFullscreen ? 'Sair da tela cheia' : 'Tela cheia');
       fullscreenButton.setAttribute('data-manuscript-tooltip', isFullscreen ? 'Sair da tela cheia' : 'Tela cheia');
     }
