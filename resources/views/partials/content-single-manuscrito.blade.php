@@ -30,9 +30,33 @@
 @endphp
 
 <article @php post_class('manuscript-single') @endphp>
-  @include('partials.page-header', ['title' => 'Manuscritos'])
+    @include('partials.page-header', ['title' => 'Manuscritos'])
+
+    @if(has_post_thumbnail())
+        <figure class="feautured-image">
+        @php the_post_thumbnail('thumb-square') @endphp
+        </figure>
+    @endif
+
+    <header class="post-header">
+        @if($categoryList)
+        <div class="post-categories">
+            {!! $categoryList !!}
+        </div>
+        @endif
+
+        @if($tagList)
+        <div class="post-tags">
+            {!! $tagList !!}
+        </div>
+        @endif
+
+        <h2 class="entry-title">{!! get_the_title() !!}</h2>
+    </header>
 
   <div class="entry-content manuscript-single__content">
+    @php the_content() @endphp
+
     @if($search['viewer_enabled'])
       <section
         class="manuscript-single__viewer{{ $hasViewerPages ? '' : ' manuscript-single__viewer--empty' }}"
@@ -98,7 +122,7 @@
                       <path d="M2 8h20M6 3 1 8l5 5M18 3l5 5-5 5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
                     </svg>
                   </button>
-                  <button type="button" class="btn manuscript-single__viewer-compact-button" data-manuscript-fullscreen data-manuscript-tooltip="Tela cheia" aria-label="Tela cheia">⤢</button>
+                  <button type="button" class="btn manuscript-single__viewer-compact-button fullscreen" data-manuscript-fullscreen data-manuscript-tooltip="Tela cheia" aria-label="Tela cheia">⤢</button>
                 </div>
               </div>
 
@@ -197,23 +221,6 @@
         @endif
       </section>
     @endif
-
-    <header class="post-header">
-        @if($categoryList)
-        <div class="post-categories">
-            {!! $categoryList !!}
-        </div>
-        @endif
-        @if($tagList)
-        <div class="post-tags">
-            {!! $tagList !!}
-        </div>
-        @endif
-        <h2 class="entry-title">{!! get_the_title() !!}</h2>
-
-    </header>
-
-    @php the_content() @endphp
   </div>
 
   @include('components.books-list', [

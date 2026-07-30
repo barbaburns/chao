@@ -35,17 +35,6 @@
     margin-bottom: rem(36px);
   }
 
-  .manuscript-single__viewer {
-    border-top: solid 5px $black;
-    padding-top: 2.5rem;
-
-    @media (max-width: 991px) {
-      border: none;
-      padding: 0;
-      margin-top: 1.5625rem;
-    }
-  }
-
   .manuscript-single__search {
     border-top: solid 5px $black;
     padding-top: 3.125rem;
@@ -341,20 +330,15 @@ body.manuscript-viewer-fullscreen-open {
 }
 
 .manuscript-single__viewer-compact-button {
-  min-width: rem(48px);
+  min-width: 30px;
   position: relative;
-  padding-left: rem(10px);
-  padding-right: rem(10px);
-  text-transform: none;
 
-  svg {
-    display: block;
-    height: rem(15px);
-    width: rem(15px);
+  &.fullscreen {
+    font-size: 16px;
   }
 
-  .manuscript-single__viewer-fit-width-icon {
-    width: rem(22px);
+  svg {
+    width: 16px;
   }
 
   &::after {
