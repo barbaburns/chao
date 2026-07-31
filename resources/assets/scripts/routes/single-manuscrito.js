@@ -97,10 +97,9 @@ export default {
     const searchInput = viewerElement.querySelector('[data-manuscript-search-input]');
     const searchCloseButton = viewerElement.querySelector('[data-manuscript-search-close]');
     const searchMeta = viewerElement.querySelector('.manuscript-single__viewer-search-meta');
-    const fitPageButton = viewerElement.querySelector('[data-manuscript-fit-page]');
+    const fitToggleButton = viewerElement.querySelector('[data-manuscript-fit-toggle]');
     const zoomOutButton = viewerElement.querySelector('[data-manuscript-zoom-out]');
     const zoomInButton = viewerElement.querySelector('[data-manuscript-zoom-in]');
-    const fitWidthButton = viewerElement.querySelector('[data-manuscript-fit-width]');
     const fullscreenButton = viewerElement.querySelector('[data-manuscript-fullscreen]');
     const pageLinks = Array.from(document.querySelectorAll('[data-manuscript-go-page]'));
     const previousButton = viewerElement.querySelector('[data-manuscript-prev]');
@@ -228,11 +227,37 @@ export default {
     function fitToPage() {
       state.fitMode = 'page';
       applyFitMode(state.fitMode);
+      updateFitToggleButton();
     }
 
     function fitToWidth() {
       state.fitMode = 'width';
       applyFitMode(state.fitMode);
+      updateFitToggleButton();
+    }
+
+    function updateFitToggleButton() {
+      if (!fitToggleButton) {
+        return;
+      }
+
+      const pageIcon = fitToggleButton.querySelector('.manuscript-single__viewer-fit-icon--page');
+      const widthIcon = fitToggleButton.querySelector('.manuscript-single__viewer-fit-icon--width');
+      const nextModeIsPage = state.fitMode !== 'page';
+      const label = nextModeIsPage ? 'Ajustar pagina inteira' : 'Ajustar largura';
+
+      if (pageIcon && widthIcon) {
+        if (nextModeIsPage) {
+          pageIcon.removeAttribute('hidden');
+          widthIcon.setAttribute('hidden', '');
+        } else {
+          pageIcon.setAttribute('hidden', '');
+          widthIcon.removeAttribute('hidden');
+        }
+      }
+
+      fitToggleButton.setAttribute('aria-label', label);
+      fitToggleButton.setAttribute('data-manuscript-tooltip', label);
     }
 
     function updateFullscreenButton(isFullscreen) {
@@ -311,6 +336,7 @@ export default {
 
       viewerElement.classList.toggle('is-fullscreen', isFullscreen);
       updateFullscreenButton(isFullscreen);
+      updateFitToggleButton();
 
       if (!osd.viewport) {
         return;
@@ -710,13 +736,6 @@ export default {
       osdElement.focus();
     });
 
-    if (fitPageButton) {
-      fitPageButton.addEventListener('click', () => {
-        fitToPage();
-        osdElement.focus();
-      });
-    }
-
     if (zoomOutButton) {
       zoomOutButton.addEventListener('click', () => {
         zoomOut();
@@ -731,9 +750,13 @@ export default {
       });
     }
 
-    if (fitWidthButton) {
-      fitWidthButton.addEventListener('click', () => {
-        fitToWidth();
+    if (fitToggleButton) {
+      fitToggleButton.addEventListener('click', () => {
+        if (state.fitMode === 'page') {
+          fitToWidth();
+        } else {
+          fitToPage();
+        }
         osdElement.focus();
       });
     }

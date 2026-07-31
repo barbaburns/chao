@@ -28,7 +28,7 @@ assertTrueValue(strpos($script, 'osd.viewport.zoomBy(1 / 1.2)') !== false, 'Sing
 assertTrueValue(strpos($script, 'osd.viewport.zoomBy(1.2)') !== false, 'Single manuscript route should zoom in with the expected ratio');
 assertTrueValue(strpos($script, 'minZoomLevel: 0.05') !== false, 'Single manuscript viewer should allow zooming out beyond the whole-page fit');
 assertTrueValue(
-    preg_match('/@include media-breakpoint-down\(md\).*?\[data-manuscript-zoom-out\],\s*\[data-manuscript-zoom-in\],.*?\{\s*display:\s*none;/s', $styles) === 1,
+    preg_match('/@include media-breakpoint-down\(md\).*?\[data-manuscript-zoom-out\],\s*\[data-manuscript-zoom-in\]\s*\{\s*display:\s*none;/s', $styles) === 1,
     'Single manuscript viewer should hide zoom buttons on mobile'
 );
 

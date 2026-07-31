@@ -44,10 +44,9 @@ $viewerHooks = [
     'data-manuscript-search-toggle',
     'data-manuscript-search-overlay',
     'data-manuscript-search-reset',
-    'data-manuscript-fit-page',
+    'data-manuscript-fit-toggle',
     'data-manuscript-zoom-out',
     'data-manuscript-zoom-in',
-    'data-manuscript-fit-width',
     'data-manuscript-fullscreen',
 ];
 
@@ -69,10 +68,9 @@ assertContains('function goToPage', $script, 'Viewer route should define page na
 assertContains('osd.open(', $script, 'Viewer route should open manuscript images through OpenSeadragon');
 assertContains("previousButton.addEventListener('click'", $script, 'Viewer route should handle previous-page clicks');
 assertContains("nextButton.addEventListener('click'", $script, 'Viewer route should handle next-page clicks');
-assertContains("fitPageButton.addEventListener('click'", $script, 'Viewer route should handle fit-page clicks');
+assertContains("fitToggleButton.addEventListener('click'", $script, 'Viewer route should handle alternating fit-mode clicks');
 assertContains("zoomOutButton.addEventListener('click'", $script, 'Viewer route should handle zoom-out clicks');
 assertContains("zoomInButton.addEventListener('click'", $script, 'Viewer route should handle zoom-in clicks');
-assertContains("fitWidthButton.addEventListener('click'", $script, 'Viewer route should handle fit-width clicks');
 assertContains("fullscreenButton.addEventListener('click'", $script, 'Viewer route should handle fullscreen clicks');
 assertContains('goHome(true)', $script, 'Viewer route should fit the whole page');
 assertContains('fitHorizontally(true)', $script, 'Viewer route should fit the page width');

@@ -114,12 +114,14 @@
                     aria-label="Voltar ao manuscrito"
                     @if(!$search['has_query']) hidden @endif
                   >↩</button>
-                  <button type="button" class="btn manuscript-single__viewer-compact-button" data-manuscript-fit-page data-manuscript-tooltip="Ajustar pagina inteira" aria-label="Ajustar pagina inteira">□</button>
                   <button type="button" class="btn manuscript-single__viewer-compact-button" data-manuscript-zoom-out data-manuscript-tooltip="Diminuir zoom" aria-label="Diminuir zoom">-</button>
                   <button type="button" class="btn manuscript-single__viewer-compact-button" data-manuscript-zoom-in data-manuscript-tooltip="Aumentar zoom" aria-label="Aumentar zoom">+</button>
-                  <button type="button" class="btn manuscript-single__viewer-compact-button" data-manuscript-fit-width data-manuscript-tooltip="Ajustar largura" aria-label="Ajustar largura">
-                    <svg class="manuscript-single__viewer-fit-width-icon" viewBox="0 0 24 16" aria-hidden="true" focusable="false">
-                      <path d="M2 8h20M6 3 1 8l5 5M18 3l5 5-5 5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
+                  <button type="button" class="btn manuscript-single__viewer-compact-button" data-manuscript-fit-toggle data-manuscript-tooltip="Ajustar pagina inteira" aria-label="Ajustar pagina inteira">
+                    <svg class="manuscript-single__viewer-fit-icon manuscript-single__viewer-fit-icon--page" viewBox="0 0 28 32" aria-hidden="true" focusable="false">
+                      <path d="M3 2h22M8.5 11 14 5.5l5.5 5.5M8.5 21 14 26.5l5.5-5.5M3 30h22" fill="none" stroke="currentColor" stroke-linecap="square" stroke-linejoin="miter" stroke-width="2"/>
+                    </svg>
+                    <svg class="manuscript-single__viewer-fit-icon manuscript-single__viewer-fit-icon--width" viewBox="0 0 32 28" aria-hidden="true" focusable="false" hidden>
+                      <path d="M2 3v22M11 8.5 5.5 14l5.5 5.5M21 8.5l5.5 5.5-5.5 5.5M30 3v22" fill="none" stroke="currentColor" stroke-linecap="square" stroke-linejoin="miter" stroke-width="2"/>
                     </svg>
                   </button>
                   <button type="button" class="btn manuscript-single__viewer-compact-button fullscreen" data-manuscript-fullscreen data-manuscript-tooltip="Tela cheia" aria-label="Tela cheia">

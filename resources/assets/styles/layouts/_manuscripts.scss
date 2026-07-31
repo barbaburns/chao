@@ -345,6 +345,19 @@ body.manuscript-viewer-fullscreen-open {
     width: 16px;
   }
 
+  .manuscript-single__viewer-fit-icon {
+    height: 21px;
+    vertical-align: middle;
+  }
+
+  .manuscript-single__viewer-fit-icon--page {
+    width: 21px;
+  }
+
+  .manuscript-single__viewer-fit-icon--width {
+    width: 27px;
+  }
+
   &::after {
     background: rgba(#000, 0.86);
     border-radius: rem(4px);
@@ -619,8 +632,7 @@ mark {
   }
 
   [data-manuscript-zoom-out],
-  [data-manuscript-zoom-in],
-  [data-manuscript-fit-page] {
+  [data-manuscript-zoom-in] {
     display: none;
   }
 

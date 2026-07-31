@@ -12,8 +12,9 @@ function assertTrueValue($condition, $message)
 }
 
 assertTrueValue(strpos($template, '>↔</button>') === false, 'Fit-width control should not use an emoji-prone Unicode arrow');
-assertTrueValue(strpos($template, 'class="manuscript-single__viewer-fit-width-icon"') !== false, 'Fit-width control should render a stable SVG icon');
+assertTrueValue(strpos($template, 'manuscript-single__viewer-fit-icon--width') !== false, 'Fit toggle should render the supplied width icon');
+assertTrueValue(strpos($template, 'manuscript-single__viewer-fit-icon--page') !== false, 'Fit toggle should render the supplied whole-page icon');
 assertTrueValue(strpos($template, 'stroke="currentColor"') !== false, 'Fit-width SVG icon should inherit the control color');
-assertTrueValue(strpos($styles, '.manuscript-single__viewer-fit-width-icon') !== false, 'Fit-width SVG icon should have an explicit display width');
+assertTrueValue(strpos($styles, '.manuscript-single__viewer-fit-icon') !== false, 'Fit SVG icons should have explicit dimensions');
 
 echo 'single_manuscrito_fit_width_icon_test: ok' . PHP_EOL;
