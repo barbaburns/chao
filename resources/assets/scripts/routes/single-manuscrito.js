@@ -112,6 +112,7 @@ export default {
       : null;
     let swipeStart = null;
     let suppressViewerClick = false;
+    const preloadedPageImages = {};
     const state = {
       activeIndex: 0,
       fitMode: 'width',
@@ -168,6 +169,37 @@ export default {
 
     function findPageIndex(pageNumber) {
       return pages.findIndex((page) => page.pageNumber === pageNumber);
+    }
+
+    function preloadPage(index) {
+      const page = pages[index];
+
+      if (!page || !page.imageUrl || preloadedPageImages[index]) {
+        return;
+      }
+
+      const image = new window.Image();
+
+      image.decoding = 'async';
+      image.src = page.imageUrl;
+      preloadedPageImages[index] = image;
+    }
+
+    function preloadAdjacentPages(activeIndex) {
+      Object.keys(preloadedPageImages).forEach((index) => {
+        if (Math.abs(Number(index) - activeIndex) > 2) {
+          delete preloadedPageImages[index];
+        }
+      });
+
+      preloadPage(activeIndex + 1);
+      preloadPage(activeIndex - 1);
+    }
+
+    function clearPreloadedPages() {
+      Object.keys(preloadedPageImages).forEach((index) => {
+        delete preloadedPageImages[index];
+      });
     }
 
     function zoomOut() {
@@ -487,6 +519,7 @@ export default {
 
     function replaceViewerPages(nextPages, responseViewer) {
       state.overlayIds = clearOverlays(osd, state.overlayIds);
+      clearPreloadedPages();
       pages.splice(0, pages.length, ...nextPages);
 
       const hasPages = pages.length > 0;
@@ -585,6 +618,7 @@ export default {
         }
 
         state.overlayIds = renderHighlightOverlays(osd, page, state.overlayIds);
+        preloadAdjacentPages(boundedIndex);
       });
       osd.open(getTileSource(page));
       pageLabel.textContent = `Pagina ${page.pageNumber} de ${pages.length}`;

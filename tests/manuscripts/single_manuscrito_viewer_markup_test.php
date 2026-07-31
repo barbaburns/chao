@@ -74,6 +74,8 @@ assertContains("zoomInButton.addEventListener('click'", $script, 'Viewer route s
 assertContains("fullscreenButton.addEventListener('click'", $script, 'Viewer route should handle fullscreen clicks');
 assertContains('goHome(true)', $script, 'Viewer route should fit the whole page');
 assertContains('fitHorizontally(true)', $script, 'Viewer route should fit the page width');
+assertContains('function preloadAdjacentPages', $script, 'Viewer route should preload neighboring manuscript pages');
+assertContains('preloadPage(activeIndex + 1)', $script, 'Viewer route should prioritize preloading the next page');
 assertContains('renderHighlightOverlays', $script, 'Viewer route should render search highlights');
 assertContains('addOverlay(', $script, 'Viewer route should add OpenSeadragon overlays');
 assertContains("osdElement.setAttribute('tabindex', '0')", $script, 'Viewer should be keyboard focusable');
