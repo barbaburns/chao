@@ -11,9 +11,9 @@ function assertTrueValue($condition, $message)
     }
 }
 
-assertTrueValue(strpos($template, 'aria-hidden="true">←</span>') !== false, 'Manuscript template should render the unicode previous arrow glyph');
-assertTrueValue(strpos($template, 'aria-hidden="true">→</span>') !== false, 'Manuscript template should render the unicode next arrow glyph');
-assertTrueValue(strpos($template, '<svg class="manuscript-single__viewer-edge-icon"') === false, 'Manuscript template should remove the custom viewer arrow svg');
-assertTrueValue(preg_match('/\.manuscript-single__viewer-edge-icon\s*\{[^}]*font-family:\s*Arial,\s*sans-serif;[^}]*font-size:\s*rem\(34px\);[^}]*font-weight:\s*400;[^}]*line-height:\s*1;/s', $styles) === 1, 'Manuscript styles should restore the lightweight text arrow styling');
+assertTrueValue(substr_count($template, '<svg class="manuscript-single__viewer-edge-icon"') === 2, 'Manuscript template should render SVG arrows for both navigation directions');
+assertTrueValue(strpos($template, '<path d="M15 6H2M7 1l-5 5 5 5"/>') !== false, 'Manuscript template should render the straight previous arrow');
+assertTrueValue(strpos($template, '<path d="M1 6h13M9 1l5 5-5 5"/>') !== false, 'Manuscript template should render the straight next arrow');
+assertTrueValue(preg_match('/\.manuscript-single__viewer-edge-icon\s*\{[^}]*height:\s*rem\(12px\);[^}]*stroke:\s*currentColor;[^}]*stroke-width:\s*1\.25;[^}]*width:\s*rem\(16px\);/s', $styles) === 1, 'Manuscript navigation arrows should use the compact straight-line SVG styling');
 
 echo 'single_manuscrito_viewer_arrow_test: ok' . PHP_EOL;

@@ -103,7 +103,10 @@
                     aria-expanded="false"
                     aria-controls="manuscript-search-overlay"
                   >
-                    @include('icon::search')
+                    <svg class="manuscript-single__viewer-control-icon manuscript-single__viewer-search-icon" viewBox="0 0 16 16" stroke="currentColor" aria-hidden="true" focusable="false">
+                      <circle cx="6.75" cy="6.75" r="4.75"/>
+                      <path d="m10.25 10.25 3.75 3.75"/>
+                    </svg>
                   </button>
                   <button
                     type="button"
@@ -113,23 +116,35 @@
                     data-manuscript-tooltip="voltar ao manuscrito"
                     aria-label="Voltar ao manuscrito"
                     @if(!$search['has_query']) hidden @endif
-                  >↩</button>
-                  <button type="button" class="btn manuscript-single__viewer-compact-button" data-manuscript-zoom-out data-manuscript-tooltip="Diminuir zoom" aria-label="Diminuir zoom">-</button>
-                  <button type="button" class="btn manuscript-single__viewer-compact-button" data-manuscript-zoom-in data-manuscript-tooltip="Aumentar zoom" aria-label="Aumentar zoom">+</button>
+                  >
+                    <svg class="manuscript-single__viewer-control-icon manuscript-single__viewer-search-reset-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                      <path d="M14 8H2M7 3 2 8l5 5"/>
+                    </svg>
+                  </button>
+                  <button type="button" class="btn manuscript-single__viewer-compact-button" data-manuscript-zoom-out data-manuscript-tooltip="Diminuir zoom" aria-label="Diminuir zoom">
+                    <svg class="manuscript-single__viewer-control-icon manuscript-single__viewer-zoom-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                      <path d="M2 8h12"/>
+                    </svg>
+                  </button>
+                  <button type="button" class="btn manuscript-single__viewer-compact-button" data-manuscript-zoom-in data-manuscript-tooltip="Aumentar zoom" aria-label="Aumentar zoom">
+                    <svg class="manuscript-single__viewer-control-icon manuscript-single__viewer-zoom-icon" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+                      <path d="M2 8h12M8 2v12"/>
+                    </svg>
+                  </button>
                   <button type="button" class="btn manuscript-single__viewer-compact-button" data-manuscript-fit-toggle data-manuscript-tooltip="Ajustar pagina inteira" aria-label="Ajustar pagina inteira">
                     <svg class="manuscript-single__viewer-fit-icon manuscript-single__viewer-fit-icon--page" viewBox="0 0 28 32" aria-hidden="true" focusable="false">
-                      <path d="M3 2h22M8.5 11 14 5.5l5.5 5.5M8.5 21 14 26.5l5.5-5.5M3 30h22" fill="none" stroke="currentColor" stroke-linecap="square" stroke-linejoin="miter" stroke-width="2"/>
+                      <path d="M3 2h22M8.5 11 14 5.5l5.5 5.5M8.5 21 14 26.5l5.5-5.5M3 30h22"/>
                     </svg>
                     <svg class="manuscript-single__viewer-fit-icon manuscript-single__viewer-fit-icon--width" viewBox="0 0 32 28" aria-hidden="true" focusable="false" hidden>
-                      <path d="M2 3v22M11 8.5 5.5 14l5.5 5.5M21 8.5l5.5 5.5-5.5 5.5M30 3v22" fill="none" stroke="currentColor" stroke-linecap="square" stroke-linejoin="miter" stroke-width="2"/>
+                      <path d="M2 3v22M11 8.5 5.5 14l5.5 5.5M21 8.5l5.5 5.5-5.5 5.5M30 3v22"/>
                     </svg>
                   </button>
                   <button type="button" class="btn manuscript-single__viewer-compact-button fullscreen" data-manuscript-fullscreen data-manuscript-tooltip="Tela cheia" aria-label="Tela cheia">
                     <svg class="manuscript-single__viewer-fullscreen-icon manuscript-single__viewer-fullscreen-icon--enter" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-                      <path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4" fill="none" stroke="currentColor" stroke-width="2"/>
+                      <path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4"/>
                     </svg>
                     <svg class="manuscript-single__viewer-fullscreen-icon manuscript-single__viewer-fullscreen-icon--exit" viewBox="0 0 16 16" aria-hidden="true" focusable="false" hidden>
-                      <path d="M1 5h4V1M11 1v4h4M15 11h-4v4M5 15v-4H1" fill="none" stroke="currentColor" stroke-width="2"/>
+                      <path d="M2 2l12 12M14 2 2 14"/>
                     </svg>
                   </button>
                 </div>
@@ -170,8 +185,6 @@
                   @if($search['has_query'])
                     <span>Busca ativa: "{{ $search['query'] }}"</span>
                     <a class="manuscript-single__search-clear" href="{{ get_permalink() }}">Limpar busca</a>
-                  @else
-                    <span>Digite uma palavra para destacar ocorrencias na imagem.</span>
                   @endif
                 </div>
               </form>
@@ -184,7 +197,9 @@
               aria-label="Pagina anterior"
               title="Pagina anterior"
             >
-              <span class="manuscript-single__viewer-edge-icon" aria-hidden="true">←</span>
+              <svg class="manuscript-single__viewer-edge-icon" viewBox="0 0 16 12" aria-hidden="true" focusable="false">
+                <path d="M15 6H2M7 1l-5 5 5 5"/>
+              </svg>
             </button>
             <button
               type="button"
@@ -193,7 +208,9 @@
               aria-label="Proxima pagina"
               title="Proxima pagina"
             >
-              <span class="manuscript-single__viewer-edge-icon" aria-hidden="true">→</span>
+              <svg class="manuscript-single__viewer-edge-icon" viewBox="0 0 16 12" aria-hidden="true" focusable="false">
+                <path d="M1 6h13M9 1l5 5-5 5"/>
+              </svg>
             </button>
           </div>
         @elseif($search['has_query'])

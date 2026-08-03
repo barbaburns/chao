@@ -75,7 +75,12 @@ assertContains("fullscreenButton.addEventListener('click'", $script, 'Viewer rou
 assertContains('goHome(true)', $script, 'Viewer route should fit the whole page');
 assertContains('fitHorizontally(true)', $script, 'Viewer route should fit the page width');
 assertContains('function preloadAdjacentPages', $script, 'Viewer route should preload neighboring manuscript pages');
-assertContains('preloadPage(activeIndex + 1)', $script, 'Viewer route should prioritize preloading the next page');
+assertContains("preloadPage(activeIndex + 1, 'high')", $script, 'Viewer route should prioritize preloading the next page');
+assertContains('preloadPage(activeIndex + 2)', $script, 'Viewer route should preload one additional page ahead');
+assertTrueValue(
+    preg_match('/function\s+goToPage.*?preloadAdjacentPages\(boundedIndex\);.*?osd\.open\(getTileSource\(page\)\);/s', $script) === 1,
+    'Viewer route should start preloading upcoming pages before opening the requested page'
+);
 assertContains('renderHighlightOverlays', $script, 'Viewer route should render search highlights');
 assertContains('addOverlay(', $script, 'Viewer route should add OpenSeadragon overlays');
 assertContains("osdElement.setAttribute('tabindex', '0')", $script, 'Viewer should be keyboard focusable');

@@ -19,7 +19,8 @@ assertTrueValue(strpos($template, 'data-manuscript-search-input') !== false, 'Ma
 assertTrueValue(strpos($template, 'data-manuscript-search-close') !== false, 'Manuscript template should render a close action for the overlay search panel');
 assertTrueValue(strpos($template, 'data-manuscript-search-reset') !== false, 'Manuscript template should render a clear-search button beside the search toggle');
 assertTrueValue(strpos($template, 'data-manuscript-tooltip="voltar ao manuscrito"') !== false, 'Manuscript clear-search button should expose the requested tooltip');
-assertTrueValue(strpos($template, '>↩</button>') !== false, 'Manuscript clear-search button should use a return arrow icon');
+assertTrueValue(strpos($template, 'class="manuscript-single__viewer-control-icon manuscript-single__viewer-search-reset-icon"') !== false, 'Manuscript clear-search button should use an SVG return arrow icon');
+assertTrueValue(strpos($template, '<path d="M14 8H2M7 3 2 8l5 5"/>') !== false, 'Manuscript clear-search button should use the straight left arrow artwork');
 assertTrueValue(
     preg_match('/data-manuscript-search-reset.*?@if\(!\$search\[\'has_query\'\]\) hidden @endif/s', $template) === 1,
     'Manuscript clear-search button should only be visible when a search is active'

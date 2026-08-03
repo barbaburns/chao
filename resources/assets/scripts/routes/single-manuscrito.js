@@ -171,7 +171,7 @@ export default {
       return pages.findIndex((page) => page.pageNumber === pageNumber);
     }
 
-    function preloadPage(index) {
+    function preloadPage(index, priority = 'low') {
       const page = pages[index];
 
       if (!page || !page.imageUrl || preloadedPageImages[index]) {
@@ -181,6 +181,7 @@ export default {
       const image = new window.Image();
 
       image.decoding = 'async';
+      image.fetchPriority = priority;
       image.src = page.imageUrl;
       preloadedPageImages[index] = image;
     }
@@ -192,7 +193,8 @@ export default {
         }
       });
 
-      preloadPage(activeIndex + 1);
+      preloadPage(activeIndex + 1, 'high');
+      preloadPage(activeIndex + 2);
       preloadPage(activeIndex - 1);
     }
 
@@ -334,6 +336,7 @@ export default {
         resizeViewer(() => {
           if (state.isFullscreen && state.fitMode === 'page') {
             applyFitMode('page');
+            zoomOut();
           }
         });
       }, 250);
@@ -356,8 +359,9 @@ export default {
 
     function syncFullscreenState() {
       const isFullscreen = isViewerFullscreen();
+      const isEnteringFullscreen = isFullscreen && !state.isFullscreen;
 
-      if (isFullscreen && !state.isFullscreen) {
+      if (isEnteringFullscreen) {
         state.fitModeBeforeFullscreen = state.fitMode;
         state.fitMode = 'page';
       } else if (!isFullscreen && state.isFullscreen) {
@@ -376,6 +380,10 @@ export default {
 
       resizeViewer(() => {
         applyFitMode(state.fitMode);
+
+        if (isEnteringFullscreen) {
+          zoomOut();
+        }
       });
       scheduleMobileFullscreenFit();
     }
@@ -610,6 +618,7 @@ export default {
 
       state.activeIndex = boundedIndex;
       state.overlayIds = clearOverlays(osd, state.overlayIds);
+      preloadAdjacentPages(boundedIndex);
       osd.addOnceHandler('open', () => {
         if (state.fitMode === 'page') {
           fitToPage();
@@ -618,7 +627,6 @@ export default {
         }
 
         state.overlayIds = renderHighlightOverlays(osd, page, state.overlayIds);
-        preloadAdjacentPages(boundedIndex);
       });
       osd.open(getTileSource(page));
       pageLabel.textContent = `Pagina ${page.pageNumber} de ${pages.length}`;
