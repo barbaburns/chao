@@ -180,13 +180,6 @@
                   >
                   <button type="submit" class="btn">Buscar</button>
                 </div>
-
-                <div class="manuscript-single__viewer-search-meta">
-                  @if($search['has_query'])
-                    <span>Busca ativa: "{{ $search['query'] }}"</span>
-                    <a class="manuscript-single__search-clear" href="{{ get_permalink() }}">Limpar busca</a>
-                  @endif
-                </div>
               </form>
             </div>
 

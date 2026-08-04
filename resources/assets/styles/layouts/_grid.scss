@@ -113,6 +113,10 @@
   grid-area: content;
 }
 
+.single-manuscrito .entry-content {
+  display: grid;
+}
+
 .single-post .popular-posts {
   grid-area: related;
 }

@@ -4,7 +4,8 @@
   }
 
   .addtoany_content {
-    margin: 3.125rem 0;
+    margin: 3.125rem 0 0;
+    grid-area: 3;
   }
 
   .manuscript-single__sidebar {
@@ -31,7 +32,7 @@
   .manuscript-single__viewer,
   .manuscript-single__search,
   .manuscript-single__results {
-    margin-top: 0;
+    margin-top: rem(36px);
     margin-bottom: rem(36px);
   }
 
@@ -150,6 +151,12 @@
   margin: 0;
   padding: rem(24px);
 
+  .manuscript-single__viewer-overlay-controls {
+    background-color: rgba(0, 0, 0, .3);
+    bottom: auto;
+    top: rem(18px);
+  }
+
   .manuscript-single__viewer-header p,
   .manuscript-single__viewer-nav,
   .manuscript-single__viewer-jump,
@@ -215,16 +222,17 @@ body.manuscript-viewer-fullscreen-open {
 }
 
 .manuscript-single__viewer-overlay-controls {
-  background-color: rgba(0, 0, 0, .3);
+  background-color: #000;
   align-items: flex-end;
   display: flex;
   flex-direction: column;
   gap: rem(12px);
-  left: rem(18px);
+  left: 0;
   pointer-events: none;
   position: absolute;
-  right: rem(18px);
-  top: rem(18px);
+  right: 0;
+  bottom: -48px;
+  top: auto;
   z-index: 3;
 }
 
@@ -431,7 +439,7 @@ body.manuscript-viewer-fullscreen-open {
     margin-bottom: 0;
     max-width: rem(88px);
     padding: rem(8px) rem(10px);
-    text-transform: none;
+    text-transform: uppercase;
   }
 }
 
@@ -671,8 +679,13 @@ mark {
   }
 
   .manuscript-single__viewer-overlay-controls {
+    bottom: rem(10px);
     left: rem(10px);
     right: rem(10px);
+  }
+
+  .manuscript-single__viewer.is-fullscreen .manuscript-single__viewer-overlay-controls {
+    bottom: auto;
     top: rem(10px);
   }
 
