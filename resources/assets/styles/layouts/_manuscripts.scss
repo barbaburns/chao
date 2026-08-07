@@ -148,13 +148,16 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  /* stylelint-disable unit-no-unknown */
+  height: 100dvh;
+  /* stylelint-enable unit-no-unknown */
   margin: 0;
   padding: rem(24px);
 
   .manuscript-single__viewer-overlay-controls {
     background-color: rgba(0, 0, 0, .3);
     bottom: auto;
-    top: rem(18px);
+    top: 0;
   }
 
   .manuscript-single__viewer-header p,
@@ -200,6 +203,7 @@
   .manuscript-single__viewer-shell {
     flex: 1 1 auto;
     min-height: 0;
+    width: 100%;
   }
 }
 
@@ -218,7 +222,9 @@ body.manuscript-viewer-fullscreen-open {
 }
 
 .manuscript-single__viewer-shell {
+  min-height: min(75vh, rem(570px));
   position: relative;
+  width: 50%;
 }
 
 .manuscript-single__viewer-overlay-controls {
@@ -231,7 +237,7 @@ body.manuscript-viewer-fullscreen-open {
   pointer-events: none;
   position: absolute;
   right: 0;
-  bottom: -48px;
+  bottom: -54px;
   top: auto;
   z-index: 3;
 }
@@ -239,7 +245,7 @@ body.manuscript-viewer-fullscreen-open {
 .manuscript-single__viewer-osd {
   background: transparent;
   //border: solid 1px rgba($black, 0.15);
-  height: min(75vh, rem(760px));
+  height: min(75vh, rem(570px));
   width: 100%;
 }
 
@@ -402,11 +408,13 @@ body.manuscript-viewer-fullscreen-open {
     z-index: 4;
   }
 
-  &:hover::after,
-  &:focus::after,
-  &:focus-visible::after {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
+  @media (hover: hover) and (pointer: fine) {
+
+    &:hover::after,
+    &:focus-visible::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
   }
 }
 
@@ -432,18 +440,22 @@ body.manuscript-viewer-fullscreen-open {
 
   input {
     background: transparent;
+    /* stylelint-disable-next-line property-no-unknown */
+    color-scheme: dark;
     color: #fff;
     border: none;
     font-family: $freight-sans-medium;
     font-size: rem(16px);
     margin-bottom: 0;
     max-width: rem(88px);
-    padding: rem(8px) rem(10px);
+    padding: 5px 10px 8px;
     text-transform: uppercase;
   }
 }
 
 .manuscript-single__viewer-jump-total {
+  display: inline-flex;
+  gap: rem(8px);
   white-space: nowrap;
 }
 
@@ -648,6 +660,10 @@ mark {
     flex-direction: column;
   }
 
+  .manuscript-single__viewer-shell {
+    width: 100%;
+  }
+
   .manuscript-single__viewer .btn {
     font-size: 28px;
   }
@@ -679,9 +695,9 @@ mark {
   }
 
   .manuscript-single__viewer-overlay-controls {
-    bottom: rem(10px);
-    left: rem(10px);
-    right: rem(10px);
+    bottom: -34px;
+    left: 0;
+    right: 0;
   }
 
   .manuscript-single__viewer.is-fullscreen .manuscript-single__viewer-overlay-controls {

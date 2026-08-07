@@ -18,6 +18,13 @@ assertTrueValue(strpos($template, 'data-manuscript-zoom-out') !== false, 'Manusc
 assertTrueValue(strpos($template, 'data-manuscript-zoom-in') !== false, 'Manuscript template should render a zoom-in control');
 assertTrueValue(strpos($template, 'data-manuscript-tooltip="Diminuir zoom"') !== false, 'Manuscript template should label the zoom-out control');
 assertTrueValue(strpos($template, 'data-manuscript-tooltip="Aumentar zoom"') !== false, 'Manuscript template should label the zoom-in control');
+assertTrueValue(strpos($template, 'title="Pagina anterior"') === false, 'Previous-page control should not leave a native tooltip open after a mobile tap');
+assertTrueValue(strpos($template, 'title="Proxima pagina"') === false, 'Next-page control should not leave a native tooltip open after a mobile tap');
+assertTrueValue(
+    preg_match('/@media \(hover: hover\) and \(pointer: fine\).*?&:hover::after,\s*&:focus-visible::after/s', $styles) === 1,
+    'Manuscript tooltips should only be displayed on devices with precise hover input'
+);
+assertTrueValue(strpos($styles, '&:focus::after') === false, 'A tap focus should not keep a manuscript tooltip visible');
 
 assertTrueValue(strpos($script, 'data-manuscript-zoom-actual') === false, 'Single manuscript route should stop targeting the 1:1 zoom control');
 assertTrueValue(strpos($script, 'data-manuscript-zoom-out') !== false, 'Single manuscript route should target the zoom-out control');

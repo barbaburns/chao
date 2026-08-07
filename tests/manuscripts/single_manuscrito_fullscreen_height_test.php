@@ -15,6 +15,7 @@ assertTrueValue(strpos($styles, 'box-sizing: border-box;') !== false, 'Fullscree
 assertTrueValue(strpos($styles, 'display: flex;') !== false, 'Fullscreen manuscript viewer should become a flex container');
 assertTrueValue(strpos($styles, 'flex-direction: column;') !== false, 'Fullscreen manuscript viewer should stack content vertically');
 assertTrueValue(strpos($styles, 'height: 100vh;') !== false, 'Fullscreen manuscript viewer should fill the viewport height');
+assertTrueValue(strpos($styles, 'height: 100dvh;') !== false, 'Fullscreen manuscript viewer should follow the dynamic mobile viewport height');
 assertTrueValue(strpos($styles, '.manuscript-single__viewer-shell {') !== false, 'Fullscreen manuscript viewer should style the viewer shell');
 assertTrueValue(strpos($styles, 'flex: 1 1 auto;') !== false, 'Fullscreen manuscript viewer should let the shell stretch');
 assertTrueValue(strpos($styles, 'min-height: 0;') !== false, 'Fullscreen manuscript viewer shell should allow the OSD surface to shrink correctly');

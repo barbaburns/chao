@@ -11,6 +11,15 @@ function assertTrueValue($condition, $message)
 }
 
 assertTrueValue(
+    strpos($script, "const initialFitMode = 'page';") !== false,
+    'Single manuscript viewer should initially fit the whole page to the available height'
+);
+assertTrueValue(
+    preg_match('/osd\.viewport\.goHome\(true\);.*?!state\.isFullscreen.*?osd\.world\.getHomeBounds\(\).*?osd\.viewport\.panTo\(new OpenSeadragon\.Point/s', $script) === 1,
+    'Single manuscript viewer should align a height-fitted page to the left outside fullscreen'
+);
+
+assertTrueValue(
     preg_match('/function\s+applyFitMode\s*\(mode\)\s*\{.*?if\s*\(mode\s*===\s*\'page\'\)\s*\{.*?osd\.viewport\.goHome\(true\);.*?return;.*?osd\.viewport\.fitHorizontally\(true\);/s', $script) === 1,
     'Single manuscript route should use distinct native viewport operations for fitting the whole page and fitting the width'
 );

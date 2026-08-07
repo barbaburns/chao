@@ -110,13 +110,14 @@ export default {
     const mobileViewport = typeof window.matchMedia === 'function'
       ? window.matchMedia('(max-width: 991.98px)')
       : null;
+    const initialFitMode = 'page';
     let swipeStart = null;
     let suppressViewerClick = false;
     const preloadedPageImages = {};
     const state = {
       activeIndex: 0,
-      fitMode: 'width',
-      fitModeBeforeFullscreen: 'width',
+      fitMode: initialFitMode,
+      fitModeBeforeFullscreen: initialFitMode,
       isFullscreen: false,
       isPseudoFullscreen: false,
       mobileFullscreenFitTimer: null,
@@ -233,6 +234,17 @@ export default {
         }
 
         osd.viewport.goHome(true);
+
+        if (!state.isFullscreen && osd.world && typeof osd.world.getHomeBounds === 'function') {
+          const imageBounds = osd.world.getHomeBounds();
+          const viewportBounds = osd.viewport.getBounds();
+
+          osd.viewport.panTo(new OpenSeadragon.Point(
+            imageBounds.x + (viewportBounds.width / 2),
+            viewportBounds.getCenter().y
+          ), true);
+        }
+
         return;
       }
 
@@ -340,6 +352,12 @@ export default {
           }
         });
       }, 250);
+    }
+
+    function handleFullscreenViewportResize() {
+      if (state.isFullscreen) {
+        scheduleMobileFullscreenFit();
+      }
     }
 
     function getNativeFullscreenElement() {
@@ -829,6 +847,12 @@ export default {
 
     document.addEventListener('fullscreenchange', syncFullscreenState);
     document.addEventListener('webkitfullscreenchange', syncFullscreenState);
+    window.addEventListener('resize', handleFullscreenViewportResize);
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', handleFullscreenViewportResize);
+    }
+
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && state.isPseudoFullscreen) {
         setPseudoFullscreen(false);

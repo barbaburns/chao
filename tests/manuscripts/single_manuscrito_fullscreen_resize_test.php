@@ -26,6 +26,10 @@ assertTrueValue(
 );
 assertTrueValue(strpos($script, 'scheduleMobileFullscreenFit();') !== false, 'Single manuscript route should schedule the mobile fullscreen page fit');
 assertTrueValue(
+    strpos($script, "window.visualViewport.addEventListener('resize', handleFullscreenViewportResize)") !== false,
+    'Single manuscript route should refit after the mobile visual viewport changes'
+);
+assertTrueValue(
     preg_match('/const\s+isEnteringFullscreen\s*=\s*isFullscreen\s*&&\s*!state\.isFullscreen;.*?resizeViewer\(\(\)\s*=>\s*\{.*?applyFitMode\(state\.fitMode\);.*?if\s*\(isEnteringFullscreen\)\s*\{.*?zoomOut\(\);/s', $script) === 1,
     'Single manuscript route should zoom out by one step after fitting the page on fullscreen entry'
 );

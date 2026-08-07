@@ -85,11 +85,15 @@
                       min="1"
                       max="{{ count($viewerPages) }}"
                       step="1"
+                      value="{{ $search['initial_page_number'] }}"
                       inputmode="numeric"
                       data-manuscript-page-input
                     >
-                    <span class="manuscript-single__viewer-jump-total">de {{ count($viewerPages) }}</span>
-                    <button type="submit" class="btn">Ir</button>
+                    <span class="manuscript-single__viewer-jump-total" aria-hidden="true">
+                      <span>/</span>
+                      <span>{{ count($viewerPages) }}</span>
+                    </span>
+                    <button type="submit" class="btn">IR</button>
                   </form>
                 @endif
 
@@ -188,7 +192,6 @@
               class="manuscript-single__viewer-edge-button manuscript-single__viewer-edge-button--prev"
               data-manuscript-prev
               aria-label="Pagina anterior"
-              title="Pagina anterior"
             >
               <svg class="manuscript-single__viewer-edge-icon" viewBox="0 0 16 12" aria-hidden="true" focusable="false">
                 <path d="M15 6H2M7 1l-5 5 5 5"/>
@@ -199,7 +202,6 @@
               class="manuscript-single__viewer-edge-button manuscript-single__viewer-edge-button--next"
               data-manuscript-next
               aria-label="Proxima pagina"
-              title="Proxima pagina"
             >
               <svg class="manuscript-single__viewer-edge-icon" viewBox="0 0 16 12" aria-hidden="true" focusable="false">
                 <path d="M1 6h13M9 1l5 5-5 5"/>

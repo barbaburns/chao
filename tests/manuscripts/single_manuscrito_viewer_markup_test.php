@@ -59,6 +59,11 @@ assertContains('pageWidth', $template, 'Manuscript template should serialize pag
 assertContains('pageHeight', $template, 'Manuscript template should serialize page height');
 assertContains('aria-label="Pagina anterior"', $template, 'Previous-page control should be labelled');
 assertContains('aria-label="Proxima pagina"', $template, 'Next-page control should be labelled');
+assertContains('value="{{ $search[\'initial_page_number\'] }}"', $template, 'Page jump input should render the current page immediately');
+assertContains('<span class="manuscript-single__viewer-jump-total" aria-hidden="true">', $template, 'Page jump control should render its total');
+assertContains('<span>/</span>', $template, 'Page jump control should render a separate slash');
+assertContains('<span>{{ count($viewerPages) }}</span>', $template, 'Page jump control should render the total separately from the slash');
+assertContains('<button type="submit" class="btn">IR</button>', $template, 'Page jump control should render the requested uppercase action');
 assertTrueValue(strpos($template, 'data-manuscript-zoom-actual') === false, 'Manuscript template should not restore the removed 1:1 control');
 assertTrueValue(strpos($template, 'data-manuscript-page-button') === false, 'Manuscript template should not render the full page index');
 
@@ -111,5 +116,21 @@ foreach ($styleSelectors as $selector) {
 
 assertTrueValue(preg_match('/\.manuscript-single__viewer-frame\b/', $styles) === 0, 'Manuscript styles should not restore the legacy viewer frame');
 assertTrueValue(preg_match('/\.manuscript-single__viewer-canvas\b/', $styles) === 0, 'Manuscript styles should not restore the legacy viewer canvas');
+assertTrueValue(
+    preg_match('/\.manuscript-single__viewer-shell\s*\{[^}]*min-height:\s*min\(75vh, rem\(570px\)\);[^}]*position:\s*relative;[^}]*width:\s*50%;/s', $styles) === 1,
+    'Manuscript viewer should occupy half of the available width outside fullscreen'
+);
+assertTrueValue(
+    preg_match('/\.manuscript-single__viewer-osd\s*\{[^}]*height:\s*min\(75vh, rem\(570px\)\);/s', $styles) === 1,
+    'Manuscript viewer surface should not be taller than the 570px manuscript image'
+);
+assertTrueValue(
+    preg_match('/@include media-breakpoint-down\(md\).*?\.manuscript-single__viewer-shell\s*\{[^}]*width:\s*100%;/s', $styles) === 1,
+    'Manuscript viewer should keep the full available width on mobile'
+);
+assertTrueValue(
+    preg_match('/\.manuscript-single__viewer-jump\s*\{.*?input\s*\{.*?color-scheme:\s*dark;/s', $styles) === 1,
+    'Page number input should render its native stepper with light controls on the dark background'
+);
 
 echo 'single_manuscrito_viewer_markup_test: ok' . PHP_EOL;
